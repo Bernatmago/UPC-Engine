@@ -135,7 +135,7 @@ update_status ModuleRender::PostUpdate()
 bool ModuleRender::CleanUp()
 {
 	LOG("Destroying renderer");
-
+	glDeleteBuffers(1, &vbo);
 	SDL_GL_DeleteContext(context);
 
 	return true;
