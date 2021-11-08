@@ -5,7 +5,10 @@
 #include "ModuleShader.h"
 #include "SDL.h"
 
-#include <gl/glew.h>
+#include "glew.h"
+#include "imgui.h"
+#include "imgui_impl_sdl.h"
+#include "imgui_impl_opengl3.h"
 
 ModuleRender::ModuleRender()
 {
@@ -96,6 +99,13 @@ bool ModuleRender::Init()
 	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, true); // Filter notifications
 
 	vbo = CreateTriangleVBO();
+
+	// Imgui
+	ImGui::CreateContext();
+	ImGui::StyleColorsDark();
+	ImGui_ImplSDL2_InitForOpenGL(App->window->window, context);
+	ImGui_ImplOpenGL3_Init("#version 330");
+
 	return true;
 }
 
