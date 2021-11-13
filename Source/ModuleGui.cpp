@@ -69,7 +69,7 @@ void ModuleGui::RenderAboutSidebar() {
 	static const float vram_budget_mb = about.vram_budget / 1024.0f;
 	glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &about.vram_free);
 	float vram_free_mb = about.vram_free / 1024.0f;
-	float vram_usage_mb = vram_budget_mb - (vram_budget_mb - vram_free_mb);
+	float vram_usage_mb = vram_budget_mb - vram_free_mb;
 	
 	// TODO: Add missing rows
 
