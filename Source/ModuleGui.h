@@ -18,6 +18,13 @@ public:
 	update_status PostUpdate();
 	bool CleanUp();
 
+	void RenderMenu();
+	void RenderSidebar();
+	
+
 private:
+	bool show_console = false;
 
 };
+
+
