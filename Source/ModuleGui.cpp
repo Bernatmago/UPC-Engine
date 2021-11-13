@@ -25,7 +25,6 @@ ModuleGui::~ModuleGui()
 bool ModuleGui::Init()
 {
 	LOG("Creating Imgui ")
-
 	ImGui::CreateContext();
 
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -35,6 +34,15 @@ bool ModuleGui::Init()
 	ImGui::StyleColorsDark();
 	ImGui_ImplSDL2_InitForOpenGL(App->window->window, App->renderer->context);
 	ImGui_ImplOpenGL3_Init("#version 330");
+
+	 SDL_GetVersion(&about.sdl_version);
+	 about.n_cpu = SDL_GetCPUCount();
+	 about.ram_gb = SDL_GetSystemRAM() / 1024.0f;
+
+	 about.gpu = (unsigned char*)glGetString(GL_RENDERER);
+	 about.gpu_brand = (unsigned char*)glGetString(GL_VENDOR);
+	 glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &about.vram_budget);
+	 glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &about.vram_free);
 
 	return true;
 }
@@ -55,6 +63,32 @@ void ModuleGui::RenderMenu() {
 		ImGui::EndMainMenuBar();
 	}
 }
+
+void ModuleGui::RenderAboutSidebar() {
+	static SDL_version version;
+	static const float vram_budget_mb = about.vram_budget / 1024.0f;
+	glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &about.vram_free);
+	float vram_free_mb = about.vram_free / 1024.0f;
+	float vram_usage_mb = vram_budget_mb - (vram_budget_mb - vram_free_mb);
+	
+	// TODO: Add missing rows
+
+	ImGui::Text("SDL Version: %d.%d.%d", about.sdl_version.major, 
+		about.sdl_version.minor, about.sdl_version.patch);
+	ImGui::Separator();
+	ImGui::Text("CPUs: %d", about.n_cpu);
+	ImGui::Text("System RAM: %.1f Gb", about.ram_gb);
+	;
+	// Caps (que es)
+	ImGui::Separator();
+	ImGui::Text("GPU: %s", about.gpu);
+	ImGui::Text("Brand: %s", about.gpu_brand);
+	ImGui::Text("VRAM Budget: %.1f Mb", vram_budget_mb);
+	ImGui::Text("Vram Usage:  %.1f Mb", vram_usage_mb);
+	ImGui::Text("Vram Avaliable:  %.1f Mb", vram_free_mb);
+	// Vram Reserved
+}
+
 
 void ModuleGui::RenderSidebar() {
 	//Sidebar
@@ -78,6 +112,7 @@ void ModuleGui::RenderSidebar() {
 	}
 	if (ImGui::CollapsingHeader("About")) {
 		ImGui::Text("This is the about section");
+		RenderAboutSidebar();
 	}
 
 	ImGui::End();
@@ -93,7 +128,6 @@ update_status ModuleGui::PreUpdate()
 	if (show_demo) ImGui::ShowDemoWindow(&show_demo);
 	RenderMenu();
 	RenderSidebar();
-
 	return UPDATE_CONTINUE;
 }
 
@@ -107,8 +141,7 @@ update_status ModuleGui::Update()
 }
 
 update_status ModuleGui::PostUpdate()
-{
-	
+{	
 	return UPDATE_CONTINUE;
 }
 
