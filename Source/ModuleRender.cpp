@@ -3,9 +3,11 @@
 #include "ModuleRender.h"
 #include "ModuleWindow.h"
 #include "ModuleShader.h"
-#include "SDL.h"
 
+#include "SDL.h"
 #include "glew.h"
+
+#include "MathGeoLib.h"
 
 ModuleRender::ModuleRender()
 {
