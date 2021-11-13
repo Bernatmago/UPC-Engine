@@ -27,10 +27,9 @@ public:
 	//window options
 	//hardware detection
 	//about
-	
-
 private:
 	bool show_console = false;
+	bool show_demo = false;
 };
 
 

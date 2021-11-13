@@ -29,13 +29,8 @@ bool ModuleGui::Init()
 	ImGui::CreateContext();
 
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
-
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-	// io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
-	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-	//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
-	//io.ConfigViewportsNoAutoMerge = true;
-	//io.ConfigViewportsNoTaskBarIcon = true;
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
 	ImGui::StyleColorsDark();
 	ImGui_ImplSDL2_InitForOpenGL(App->window->window, App->renderer->context);
@@ -73,6 +68,7 @@ void ModuleGui::RenderSidebar() {
 		if (ImGui::BeginMenu("Tools")) {
 			// TODO: Investigate shortcut null
 			ImGui::MenuItem("Console", NULL ,&show_console);
+			ImGui::MenuItem("Demo", NULL, &show_demo);
 			ImGui::EndMenu();
 		}
 		ImGui::EndMenuBar();
@@ -87,34 +83,16 @@ void ModuleGui::RenderSidebar() {
 	ImGui::End();
 }
 
-void RenderConsole(bool* p_open) {
-	ImGui::Begin("Console", p_open);
-	ImGui::Text("Logs Here");
-	ImGui::End();
-}
-
 update_status ModuleGui::PreUpdate()
 {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL2_NewFrame();
 	ImGui::NewFrame();
 
-	bool demo = false;
-	if (demo) {
-		ImGui::ShowDemoWindow(&demo);
-	}
-	else
-	{
-		if (show_console) {
-			Logger->Draw(&show_console);
-		}
-		RenderMenu();
-		RenderSidebar();
-	}
-
-	// It does literally nothing
-	
-	
+	if (show_console) Logger->Draw(&show_console);
+	if (show_demo) ImGui::ShowDemoWindow(&show_demo);
+	RenderMenu();
+	RenderSidebar();
 
 	return UPDATE_CONTINUE;
 }
