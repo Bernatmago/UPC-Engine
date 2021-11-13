@@ -18,20 +18,26 @@ public:
 	// Apply printf-style warnings to our formatting functions.
 	void AddLog(const char file[], int line, const char* format, ...) IM_FMTARGS(2)
 	{
-		static char tmp_string[4096];
-		static char tmp_string2[4096];
+		const static int max_log_size = 4096;
+
+		static char tmp_string[max_log_size];
+		tmp_string[0] = '\n';
+		static char tmp_string2[max_log_size];
+
 		int old_size = buff.size();
+
 		va_list args;
 		va_start(args, format);
-		vsprintf_s(tmp_string, 4096, format, args);		
+		vsprintf_s(&tmp_string[1], max_log_size-1, format, args);
 		va_end(args);
-		sprintf_s(tmp_string2, 4096, "\n%s(%d) : %s", file, line, tmp_string);
 
-		buff.append(tmp_string2);
-
+		buff.append(tmp_string);
 		for (int new_size = buff.size(); old_size < new_size; old_size++)
 			if (buff[old_size] == '\n')
 				line_offsets.push_back(old_size + 1);
+
+		// Visual Studio prints log source
+		sprintf_s(tmp_string2, 4096, "\n%s(%d) : %s", file, line, &tmp_string[1]);		
 		OutputDebugString(tmp_string2);
 	}
 
