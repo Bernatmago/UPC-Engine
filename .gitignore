@@ -360,3 +360,5 @@ FodyWeavers.xsd
 
 # Glew
 !Source/glew-2.1.0/*
+
+imgui.ini

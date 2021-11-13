@@ -13,6 +13,8 @@ class ModuleShader;
 class ModuleRenderExercise;
 class ModuleTextures;
 
+class Console;
+
 class Application
 {
 public:
@@ -31,10 +33,10 @@ public:
 	ModuleInput* input = nullptr;
 	ModuleShader* shader = nullptr;
 
+	Console* console = nullptr;
+
 private:
-
 	std::list<Module*> modules;
-
 };
 
 extern Application* App;

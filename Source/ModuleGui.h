@@ -1,6 +1,7 @@
 #pragma once
 #include "Module.h"
 #include "Globals.h"
+#include "Console.h"
 
 struct SDL_Texture;
 struct SDL_Renderer;
@@ -20,11 +21,16 @@ public:
 
 	void RenderMenu();
 	void RenderSidebar();
+
+	//TODO
+	//fps graph
+	//window options
+	//hardware detection
+	//about
 	
 
 private:
 	bool show_console = false;
-
 };
 
 

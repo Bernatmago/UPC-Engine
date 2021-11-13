@@ -7,6 +7,8 @@
 #pragma comment( lib, "SDL/lib/x64/SDL2.lib" )
 #pragma comment( lib, "SDL/lib/x64/SDL2main.lib" )
 
+#include "Console.h"
+
 enum main_states
 {
 	MAIN_CREATION,  
@@ -17,9 +19,12 @@ enum main_states
 };
 
 Application* App = NULL;
+Console* Logger = NULL;
 
 int main(int argc, char ** argv)
 {
+	Logger = new Console();
+
 	int main_return = EXIT_FAILURE;
 	main_states state = MAIN_CREATION;
 
@@ -82,8 +87,8 @@ int main(int argc, char ** argv)
 		}
 
 	}
-
 	delete App;
 	LOG("Bye :)\n");
+	//delete console;
 	return main_return;
 }

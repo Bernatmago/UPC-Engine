@@ -1,5 +1,6 @@
 #pragma once
 #include "Application.h"
+#include "Console.h"
 #include "ModuleWindow.h"
 #include "ModuleRender.h"
 #include "ModuleGui.h"
@@ -9,7 +10,7 @@
 using namespace std;
 
 Application::Application()
-{
+{	
 	// Order matters: they will Init/start/update in this order
 	modules.push_back(window = new ModuleWindow());
 	modules.push_back(renderer = new ModuleRender());

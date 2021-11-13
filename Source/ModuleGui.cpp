@@ -5,6 +5,7 @@
 #include "ModuleShader.h"
 #include "ModuleRender.h"
 #include "SDL.h"
+#include "Console.h"
 
 #include "glew.h"
 #include "imgui.h"
@@ -105,7 +106,7 @@ update_status ModuleGui::PreUpdate()
 	else
 	{
 		if (show_console) {
-			RenderConsole(&show_console);
+			Logger->Draw(&show_console);
 		}
 		RenderMenu();
 		RenderSidebar();
