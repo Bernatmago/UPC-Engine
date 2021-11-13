@@ -1,6 +1,6 @@
 #include "ModuleShader.h"
 
-#include <gl/glew.h>
+#include <glew.h>
 
 bool ModuleShader::Init()
 {

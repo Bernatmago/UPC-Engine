@@ -4,12 +4,14 @@
 #include "Globals.h"
 #include "Module.h"
 
-class ModuleRender;
 class ModuleWindow;
-class ModuleTextures;
+class ModuleRender;
+class ModuleGui;
 class ModuleInput;
-class ModuleRenderExercise;
 class ModuleShader;
+
+class ModuleRenderExercise;
+class ModuleTextures;
 
 class Application
 {
@@ -23,8 +25,9 @@ public:
 	bool CleanUp();
 
 public:
-	ModuleRender* renderer = nullptr;
 	ModuleWindow* window = nullptr;
+	ModuleRender* renderer = nullptr;
+	ModuleGui* gui = nullptr;
 	ModuleInput* input = nullptr;
 	ModuleShader* shader = nullptr;
 

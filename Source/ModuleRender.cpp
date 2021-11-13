@@ -6,9 +6,6 @@
 #include "SDL.h"
 
 #include "glew.h"
-#include "imgui.h"
-#include "imgui_impl_sdl.h"
-#include "imgui_impl_opengl3.h"
 
 ModuleRender::ModuleRender()
 {
@@ -100,12 +97,6 @@ bool ModuleRender::Init()
 
 	vbo = CreateTriangleVBO();
 
-	// Imgui
-	ImGui::CreateContext();
-	ImGui::StyleColorsDark();
-	ImGui_ImplSDL2_InitForOpenGL(App->window->window, context);
-	ImGui_ImplOpenGL3_Init("#version 330");
-
 	return true;
 }
 
@@ -132,6 +123,7 @@ update_status ModuleRender::Update()
 	glUseProgram(App->shader->shader_id);
 	// 1 triangle to draw = 3 vertices 
 	glDrawArrays(GL_TRIANGLES, 0, 3);
+
 	return UPDATE_CONTINUE;
 }
 

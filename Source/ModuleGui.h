@@ -6,22 +6,18 @@ struct SDL_Texture;
 struct SDL_Renderer;
 struct SDL_Rect;
 
-class ModuleRender : public Module
+class ModuleGui : public Module
 {
 public:
-	ModuleRender();
-	~ModuleRender();
+	ModuleGui();
+	~ModuleGui();
 
 	bool Init();
 	update_status PreUpdate();
 	update_status Update();
 	update_status PostUpdate();
 	bool CleanUp();
-	void WindowResized(unsigned width, unsigned height);
 
-	void* context;
+private:
 
-private:	
-	unsigned int vbo;
-	unsigned int shader_id;
 };
