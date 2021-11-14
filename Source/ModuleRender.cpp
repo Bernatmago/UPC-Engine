@@ -53,6 +53,7 @@ void __stdcall OurOpenGLErrorFunction(GLenum source, GLenum type, GLuint id, GLe
 // This function must be called one time at creation of vertex buffer
 unsigned CreateSquareEBO()
 {
+	// TODO: Fix leaks
 	float positions[] = {
 		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
 		 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
@@ -144,6 +145,13 @@ update_status ModuleRender::PreUpdate()
 // Called every draw update
 update_status ModuleRender::Update()
 {
+
+	// bind textures on corresponding texture units
+	/*glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture1);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, texture2);*/
+
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, square_ebo);
 	//glUseProgram(shader_id);
 	glUseProgram(App->shader->shader_id);
