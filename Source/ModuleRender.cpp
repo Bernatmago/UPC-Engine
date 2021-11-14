@@ -8,6 +8,8 @@
 #include "glew.h"
 
 #include "MathGeoLib.h"
+#include "il.h"
+
 
 ModuleRender::ModuleRender()
 {
@@ -50,37 +52,55 @@ void __stdcall OurOpenGLErrorFunction(GLenum source, GLenum type, GLuint id, GLe
 	LOG("<Source:%s> <Type:%s> <Severity:%s> <ID:%d> <Message:%s>\n", tmp_source, tmp_type, tmp_severity, id, message);
 }
 
-// This function must be called one time at creation of vertex buffer
-unsigned CreateSquareEBO()
+unsigned int LoadSingleImage(const char* path)
 {
-	// TODO: Fix leaks
+	ILuint name; // The image name to return.
+	ilGenImages(1, &name); // Grab a new image name.
+	ilBindImage(name);
+	ilLoadImage(path);
+	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
+	return name;
+}
+
+void DeleteImage(unsigned int name)
+{
+	ilDeleteImages(1, &name); // Delete the image name.
+}
+
+
+unsigned int CreateSquareVBO() {
 	float positions[] = {
 		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
 		 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
 		 0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
 		-0.5f,  0.5f, 0.0f, 0.0f, 1.0f
 	};
+	unsigned int vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo); // set vbo active 
+	glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
+	// Position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)0);
+	glEnableVertexAttribArray(0);
+	// Texture coord attribute
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	return vbo;
+}
+
+unsigned int CreateSquareEBO()
+{
+	// TODO: Fix leaks
+	
 
 	unsigned int indices[] = {
 		0, 1, 2,
 		2, 3, 0
 	};
-
-	unsigned int vbo;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo); // set vbo active 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
-
-	// Position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float)*5, (void*)0);
-	glEnableVertexAttribArray(0);
-	// Texture coord attribute
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float)*5, (void*)(3*sizeof(float)));
-	glEnableVertexAttribArray(1);
-
+	
 	unsigned int ebo;
 	glGenBuffers(1, &ebo);
-
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
@@ -129,7 +149,21 @@ bool ModuleRender::Init()
 	SDL_GetWindowSize(App->window->window, &w, &h);
 	glViewport(0, 0, w, h);
 
+	square_vbo = CreateSquareVBO();
 	square_ebo = CreateSquareEBO();
+
+	ilInit();
+	unsigned int img_id = LoadSingleImage("lenna.png");
+	// Generate
+	glGenTextures(1, &texture_id);
+	glBindTexture(GL_TEXTURE_2D, texture_id);
+	// Linear interpolation for filters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
+	glTexImage2D(GL_TEXTURE_2D, 0, ilGetInteger(IL_IMAGE_BPP), ilGetInteger(IL_IMAGE_WIDTH),
+		ilGetInteger(IL_IMAGE_HEIGHT), 0, ilGetInteger(IL_IMAGE_FORMAT), GL_UNSIGNED_BYTE,
+		ilGetData());
+	ilDeleteImages(1, &texture_id);
 
 	return true;
 }
@@ -152,10 +186,11 @@ update_status ModuleRender::Update()
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, texture2);*/
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, square_ebo);
-	//glUseProgram(shader_id);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture_id);
+
 	glUseProgram(App->shader->shader_id);
-	// 1 triangle to draw = 3 vertices 
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, square_ebo);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	return UPDATE_CONTINUE;
@@ -171,7 +206,9 @@ update_status ModuleRender::PostUpdate()
 bool ModuleRender::CleanUp()
 {
 	LOG("Destroying renderer");
+	glDeleteTextures(1, &texture_id);
 	glDeleteBuffers(1, &square_ebo);
+	glDeleteBuffers(1, &square_vbo);
 	SDL_GL_DeleteContext(context);
 
 	return true;

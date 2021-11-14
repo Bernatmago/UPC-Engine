@@ -21,7 +21,9 @@ public:
 
 	void* context;
 
-private:	
+private:
+	unsigned int square_vbo;
 	unsigned int square_ebo;
+	unsigned int texture_id;
 	unsigned int shader_id;
 };
