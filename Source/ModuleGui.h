@@ -36,6 +36,7 @@ public:
 
 	// Sidebar
 	void Sidebar();
+	void Performance();
 	void WindowOptions();
 	void About();
 

@@ -83,10 +83,14 @@ void ModuleGui::Sidebar() {
 	}
 
 	if (ImGui::CollapsingHeader("Window Options")) WindowOptions();
-	if (ImGui::CollapsingHeader("Performance")) ImGui::Text("Fps Graph Here");
+	if (ImGui::CollapsingHeader("Performance")) Performance();
 	if (ImGui::CollapsingHeader("About")) About();
 
 	ImGui::End();
+}
+
+void ModuleGui::Performance() {
+
 }
 
 void ModuleGui::WindowOptions() {

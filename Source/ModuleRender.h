@@ -22,6 +22,6 @@ public:
 	void* context;
 
 private:	
-	unsigned int vbo;
+	unsigned int square_ebo;
 	unsigned int shader_id;
 };
