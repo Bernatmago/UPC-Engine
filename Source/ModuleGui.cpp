@@ -47,7 +47,7 @@ bool ModuleGui::Init()
 	return true;
 }
 
-void ModuleGui::RenderMenu() {
+void ModuleGui::Menu() {
 	// Main Menu
 	if (ImGui::BeginMainMenuBar()) {
 		if (ImGui::BeginMenu("File")) {
@@ -64,33 +64,7 @@ void ModuleGui::RenderMenu() {
 	}
 }
 
-void ModuleGui::RenderAboutSidebar() {
-	static SDL_version version;
-	static const float vram_budget_mb = about.vram_budget / 1024.0f;
-	glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &about.vram_free);
-	float vram_free_mb = about.vram_free / 1024.0f;
-	float vram_usage_mb = vram_budget_mb - vram_free_mb;
-	
-	// TODO: Add missing rows
-
-	ImGui::Text("SDL Version: %d.%d.%d", about.sdl_version.major, 
-		about.sdl_version.minor, about.sdl_version.patch);
-	ImGui::Separator();
-	ImGui::Text("CPUs: %d", about.n_cpu);
-	ImGui::Text("System RAM: %.1f Gb", about.ram_gb);
-	;
-	// Caps (que es)
-	ImGui::Separator();
-	ImGui::Text("GPU: %s", about.gpu);
-	ImGui::Text("Brand: %s", about.gpu_brand);
-	ImGui::Text("VRAM Budget: %.1f Mb", vram_budget_mb);
-	ImGui::Text("Vram Usage:  %.1f Mb", vram_usage_mb);
-	ImGui::Text("Vram Avaliable:  %.1f Mb", vram_free_mb);
-	// Vram Reserved
-}
-
-
-void ModuleGui::RenderSidebar() {
+void ModuleGui::Sidebar() {
 	//Sidebar
 	ImGuiWindowFlags window_flags = 0;
 	window_flags |= ImGuiWindowFlags_MenuBar;
@@ -107,15 +81,62 @@ void ModuleGui::RenderSidebar() {
 		}
 		ImGui::EndMenuBar();
 	}
-	if (ImGui::CollapsingHeader("Performance")) {
-		ImGui::Text("Fps Graph Here");
-	}
-	if (ImGui::CollapsingHeader("About")) {
-		ImGui::Text("This is the about section");
-		RenderAboutSidebar();
-	}
+
+	if (ImGui::CollapsingHeader("Window Options")) WindowOptions();
+	if (ImGui::CollapsingHeader("Performance")) ImGui::Text("Fps Graph Here");
+	if (ImGui::CollapsingHeader("About")) About();
 
 	ImGui::End();
+}
+
+void ModuleGui::WindowOptions() {
+	// TODO: Load properly
+	static bool fullscreen = FULLSCREEN;
+	static bool resizable = RESIZABLE;
+	static int width = SCREEN_WIDTH;
+	static int height = SCREEN_HEIGHT;
+	static const int refresh_rate = App->window->refresh_rate;
+
+	if (ImGui::SliderInt("Width", &width, 0, SCREEN_MAX_WIDTH)) {
+		App->window->SetSize(width, height);
+	}
+	if (ImGui::SliderInt("Height", &height, 0, SCREEN_MAX_HEIGHT)) {
+		App->window->SetSize(width, height);
+	}
+
+	if (ImGui::Checkbox("Fullscreen", &fullscreen))
+		App->window->SetFullScreen(fullscreen);
+
+	ImGui::SameLine();
+	if (ImGui::Checkbox("Resizable", &resizable))
+		App->window->SetResizable(resizable);
+
+	ImGui::Text("Refresh Rate: %d", refresh_rate);
+
+}
+
+void ModuleGui::About() {
+	static SDL_version version;
+	static const float vram_budget_mb = about.vram_budget / 1024.0f;
+	glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &about.vram_free);
+	float vram_free_mb = about.vram_free / 1024.0f;
+	float vram_usage_mb = vram_budget_mb - vram_free_mb;
+
+	// TODO: Add missing rows
+	ImGui::Text("SDL Version: %d.%d.%d", about.sdl_version.major,
+		about.sdl_version.minor, about.sdl_version.patch);
+	ImGui::Separator();
+	ImGui::Text("CPUs: %d", about.n_cpu);
+	ImGui::Text("System RAM: %.1f Gb", about.ram_gb);
+	;
+	// Caps (que es)
+	ImGui::Separator();
+	ImGui::Text("GPU: %s", about.gpu);
+	ImGui::Text("Brand: %s", about.gpu_brand);
+	ImGui::Text("VRAM Budget: %.1f Mb", vram_budget_mb);
+	ImGui::Text("Vram Usage:  %.1f Mb", vram_usage_mb);
+	ImGui::Text("Vram Avaliable:  %.1f Mb", vram_free_mb);
+	// Vram Reserved
 }
 
 update_status ModuleGui::PreUpdate()
@@ -126,8 +147,8 @@ update_status ModuleGui::PreUpdate()
 
 	if (show_console) Logger->Draw(&show_console);
 	if (show_demo) ImGui::ShowDemoWindow(&show_demo);
-	RenderMenu();
-	RenderSidebar();
+	Menu();
+	Sidebar();
 	return UPDATE_CONTINUE;
 }
 

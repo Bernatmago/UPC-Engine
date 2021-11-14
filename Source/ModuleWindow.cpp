@@ -29,10 +29,11 @@ bool ModuleWindow::Init()
 		int height = SCREEN_HEIGHT;
 		Uint32 flags = SDL_WINDOW_SHOWN |  SDL_WINDOW_OPENGL;
 
-		if(FULLSCREEN == true)
-		{
+		if(FULLSCREEN)
 			flags |= SDL_WINDOW_FULLSCREEN;
-		}
+		if (RESIZABLE)
+			flags |= SDL_WINDOW_RESIZABLE;
+
 
 		window = SDL_CreateWindow(TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, flags);
 
@@ -43,10 +44,15 @@ bool ModuleWindow::Init()
 		}
 		else
 		{
-			//Get window surface
-			
+			// Get window surface
+			// TODO: Check how to update on resize
 			screen_surface = SDL_GetWindowSurface(window);
 		}
+
+		SDL_DisplayMode mode;
+		SDL_GetDisplayMode(0, 0, &mode);
+		refresh_rate = mode.refresh_rate;
+
 	}
 
 	return ret;
@@ -66,5 +72,33 @@ bool ModuleWindow::CleanUp()
 	//Quit SDL subsystems
 	SDL_Quit();
 	return true;
+}
+
+void ModuleWindow::WindowResized()
+{
+	SDL_UpdateWindowSurface(window);
+	screen_surface = SDL_GetWindowSurface(window);
+}
+
+void ModuleWindow::SetFullScreen(bool fullscreen)
+{
+	// Method returns negative error code on failure
+	if (fullscreen)
+		SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+	else
+		SDL_SetWindowFullscreen(window, 0);
+}
+
+void ModuleWindow::SetResizable(bool resizable)
+{
+	if(resizable)
+		SDL_SetWindowResizable(window, SDL_TRUE);
+	else
+		SDL_SetWindowResizable(window, SDL_FALSE);
+}
+
+void ModuleWindow::SetSize(int w, int h)
+{
+	SDL_SetWindowSize(window, w, h);
 }
 

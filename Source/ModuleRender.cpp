@@ -96,6 +96,10 @@ bool ModuleRender::Init()
 	glDebugMessageCallback(&OurOpenGLErrorFunction, nullptr); // Set the callback
 	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, true); // Filter notifications
 
+	int w, h;
+	SDL_GetWindowSize(App->window->window, &w, &h);
+	glViewport(0, 0, w, h);
+
 	vbo = CreateTriangleVBO();
 
 	return true;
@@ -103,9 +107,6 @@ bool ModuleRender::Init()
 
 update_status ModuleRender::PreUpdate()
 {
-	int w, h;
-	SDL_GetWindowSize(App->window->window, &w, &h);
-	glViewport(0, 0, w, h);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -146,5 +147,8 @@ bool ModuleRender::CleanUp()
 
 void ModuleRender::WindowResized(unsigned width, unsigned height)
 {
+	int w, h;
+	SDL_GetWindowSize(App->window->window, &w, &h);
+	glViewport(0, 0, w, h);
 }
 

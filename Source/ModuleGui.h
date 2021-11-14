@@ -32,9 +32,12 @@ public:
 	update_status PostUpdate();
 	bool CleanUp();
 
-	void RenderMenu();
-	void RenderAboutSidebar();
-	void RenderSidebar();
+	void Menu();
+
+	// Sidebar
+	void Sidebar();
+	void WindowOptions();
+	void About();
 
 	//TODO
 	//fps graph
