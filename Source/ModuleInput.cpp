@@ -3,7 +3,7 @@
 #include "ModuleInput.h"
 #include "ModuleRender.h"
 #include "ModuleWindow.h"
-#include "SDL/include/SDL.h"
+#include "SDL.h"
 
 #include "imgui_impl_sdl.h"
 
