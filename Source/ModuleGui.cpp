@@ -16,7 +16,6 @@ ModuleGui::ModuleGui()
 {
 }
 
-// Destructor
 ModuleGui::~ModuleGui()
 {
 }

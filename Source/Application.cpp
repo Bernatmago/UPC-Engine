@@ -6,6 +6,7 @@
 #include "ModuleGui.h"
 #include "ModuleInput.h"
 #include "ModuleShader.h"
+#include "ModuleCamera.h"
 
 using namespace std;
 
@@ -17,6 +18,7 @@ Application::Application()
 	modules.push_back(gui = new ModuleGui());
 	modules.push_back(input = new ModuleInput());
 	modules.push_back(shader = new ModuleShader());
+	modules.push_back(camera = new ModuleCamera());
 }
 
 Application::~Application()

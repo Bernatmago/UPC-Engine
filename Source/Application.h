@@ -9,6 +9,7 @@ class ModuleRender;
 class ModuleGui;
 class ModuleInput;
 class ModuleShader;
+class ModuleCamera;
 
 class ModuleRenderExercise;
 class ModuleTextures;
@@ -32,6 +33,7 @@ public:
 	ModuleGui* gui = nullptr;
 	ModuleInput* input = nullptr;
 	ModuleShader* shader = nullptr;
+	ModuleCamera* camera = nullptr;
 
 	Console* console = nullptr;
 
