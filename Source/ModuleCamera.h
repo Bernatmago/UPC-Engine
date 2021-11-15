@@ -17,6 +17,8 @@ public:
 	update_status PostUpdate();
 	bool CleanUp();
 
+	void LookAt(const float3& position);
+
 	// SetFOV (horizontal fov)
 	// SetAspectRatio (vertical fov)
 	// SetPlaneDistances()
@@ -29,6 +31,9 @@ public:
 	
 	// Dont do orbit
 	// Add debugdraw to use
-
+private:
+	float4x4 view;
+	Frustum frustum;
+	float4x4 projection;
 };
 

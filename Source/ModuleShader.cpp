@@ -12,17 +12,12 @@ ModuleShader::ModuleShader()
 bool ModuleShader::Init()
 {
 	static const bool transpose = GL_TRUE;
-	vertex_shader_id = CompileShader(GL_VERTEX_SHADER, LoadShaderSource("vertex_mvp.glsl"));
-	//vertex_shader_id = CompileShader(GL_VERTEX_SHADER, LoadShaderSource("vertex_simple.glsl"));
+	vertex_shader_id = CompileShader(GL_VERTEX_SHADER, LoadShaderSource("vertex.glsl"));
 	fragment_shader_id = CompileShader(GL_FRAGMENT_SHADER, LoadShaderSource("fragment.glsl"));
 	shader_id = CreateProgram(vertex_shader_id, fragment_shader_id);
 	
 	glUseProgram(shader_id);
-	//glUniformMatrix4fv(glGetUniformLocation(shader_id, "model"), 1, transpose, &model[0][0]);
-	//glUniformMatrix4fv(glGetUniformLocation(shader_id, "view"), 1, transpose, &view[0][0]);
-	//glUniformMatrix4fv(glGetUniformLocation(shader_id, "proj"), 1, transpose, &proj[0][0]);
-
-
+	
 	return true;
 }
 

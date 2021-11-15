@@ -10,6 +10,6 @@ out vec2 tex_coord;
 
 void main()
 {
-    gl_Position = vec4(position, 1.0);
+    gl_Position = proj * view *  model * vec4(position, 1.0);
     tex_coord = vec2(in_tex_coord.x, in_tex_coord.y);
 }

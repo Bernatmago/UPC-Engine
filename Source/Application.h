@@ -10,9 +10,9 @@ class ModuleGui;
 class ModuleInput;
 class ModuleShader;
 class ModuleCamera;
+class ModuleDebugDraw;
 
-class ModuleRenderExercise;
-class ModuleTextures;
+class ModuleTextures; // TODO: move textures here
 
 class Console;
 
@@ -34,6 +34,7 @@ public:
 	ModuleInput* input = nullptr;
 	ModuleShader* shader = nullptr;
 	ModuleCamera* camera = nullptr;
+	ModuleDebugDraw* debug = nullptr;
 
 	Console* console = nullptr;
 
