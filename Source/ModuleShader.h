@@ -17,8 +17,5 @@ public:
     unsigned int fragment_shader_id;
     unsigned int shader_id;
 private:
-    float4x4 model;
-    float4x4 view;
-    float4x4 proj;
 };
 

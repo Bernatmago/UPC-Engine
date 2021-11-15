@@ -2,31 +2,10 @@
 
 #include "glew.h"
 
+#include "MathGeoLib.h"
 
 ModuleShader::ModuleShader()
 {
-	// TODO: FIX this matrix nonsense and add to the shader
-	model = float4x4::FromTRS(float3(0.0f, 0.0f, 0.0f),
-		float4x4::RotateZ(0), float3(1.0f, 1.0f, 1.0f));
-
-	//float3 &localForward, float3 &targetDirection, float3 &localUp, float3 &worldUp
-	// local up must be perpendicular to forward
-	view = float4x4::LookAt(float3(0.0f, 0.0f, 1.0f), float3(0.0f, 1.0f, 0.0f), float3::unitY, float3::unitY);
-
-	//float4x4 view = LookAt(float3(0.0f, 4.0f, 8.0f), float3(0.0f, 0.0f, 0.0f), float3::unitY);
-		
-	Frustum frustum;
-	frustum.type = FrustumType::PerspectiveFrustum;
-	frustum.pos = float3::zero;
-	frustum.front = -float3::unitZ;
-	frustum.up = float3::unitY;
-	frustum.nearPlaneDistance = 0.1f;
-	frustum.farPlaneDistance = 100.0f;
-	frustum.verticalFov = math::pi / 4.0f;
-	// TODO: Understand operation and fix
-	int aspect = 1;
-	frustum.horizontalFov = 2.f * atanf(tanf(frustum.verticalFov * 0.5f) * aspect);
-	proj = frustum.ProjectionMatrix();
 
 }
 
@@ -39,9 +18,9 @@ bool ModuleShader::Init()
 	shader_id = CreateProgram(vertex_shader_id, fragment_shader_id);
 	
 	glUseProgram(shader_id);
-	glUniformMatrix4fv(glGetUniformLocation(shader_id, "model"), 1, transpose, &model[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(shader_id, "view"), 1, transpose, &view[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(shader_id, "proj"), 1, transpose, &proj[0][0]);
+	//glUniformMatrix4fv(glGetUniformLocation(shader_id, "model"), 1, transpose, &model[0][0]);
+	//glUniformMatrix4fv(glGetUniformLocation(shader_id, "view"), 1, transpose, &view[0][0]);
+	//glUniformMatrix4fv(glGetUniformLocation(shader_id, "proj"), 1, transpose, &proj[0][0]);
 
 
 	return true;
