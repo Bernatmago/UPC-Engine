@@ -9,6 +9,7 @@
 
 #include "MathGeoLib.h"
 #include "il.h"
+#include "ilu.h"
 
 
 ModuleRender::ModuleRender()
@@ -59,6 +60,8 @@ unsigned int LoadSingleImage(const char* path)
 	ilBindImage(name);
 	ilLoadImage(path);
 	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
+	iluRotate(180.0f);
+
 	return name;
 }
 
@@ -91,9 +94,6 @@ unsigned int CreateSquareVBO() {
 
 unsigned int CreateSquareEBO()
 {
-	// TODO: Fix leaks
-	
-
 	unsigned int indices[] = {
 		0, 1, 2,
 		2, 3, 0
@@ -142,6 +142,7 @@ bool ModuleRender::Init()
 	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, true); // Filter notifications
 
 	// Textures params
+	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -157,13 +158,17 @@ bool ModuleRender::Init()
 	// Generate
 	glGenTextures(1, &texture_id);
 	glBindTexture(GL_TEXTURE_2D, texture_id);
-	// Linear interpolation for filters
+	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);	
+	
+	// TODO: Manage tex parameters via gui
+	// TODO: Generate mip map
 	glTexImage2D(GL_TEXTURE_2D, 0, ilGetInteger(IL_IMAGE_BPP), ilGetInteger(IL_IMAGE_WIDTH),
 		ilGetInteger(IL_IMAGE_HEIGHT), 0, ilGetInteger(IL_IMAGE_FORMAT), GL_UNSIGNED_BYTE,
 		ilGetData());
-	ilDeleteImages(1, &texture_id);
+
+	ilDeleteImages(1, &img_id);
 
 	return true;
 }
