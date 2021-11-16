@@ -3,6 +3,8 @@
 #include "Application.h"
 #include "ModuleCamera.h"
 #include "ModuleShader.h"
+#include "ModuleWindow.h"
+
 #include "Math/MathConstants.h"
 
 ModuleCamera::ModuleCamera()
@@ -15,24 +17,20 @@ ModuleCamera::~ModuleCamera()
 
 
 
-
-
 bool ModuleCamera::Init()
 {
-    // TODO Not hardoded aspect ratio
-    const float aspect_ratio = 16.0f / 9.0f;
-    const float horizontal_fov_deg = 90.0f;
-    const float deg_to_rad = pi / 180.0f;
+    // TODO Not hardoded aspect ratio   
 
     float4x4 model = float4x4::identity;
     const float3 look_position = float3(0.0f, 0.0f, 0.0f);
-    const float3 camera_position = float3(1.0f, 1.0f, 2.0f);
-
+    const float3 camera_position = float3(1.0f, 1.0f, 0.5f);
 
     frustum.SetKind(FrustumSpaceGL, FrustumRightHanded);
+    SetAspectRatio(SCREEN_WIDTH, SCREEN_HEIGHT);
+    SetHorizontalFov(90.0f);
+    RefreshFov();
     frustum.SetViewPlaneDistances(0.1f, 100.0f);
 
-    frustum.SetHorizontalFovAndAspectRatio(deg_to_rad * horizontal_fov_deg, aspect_ratio );
     frustum.SetPos(camera_position);
     frustum.SetFront(float3::unitZ);
     frustum.SetUp(float3::unitY);
@@ -51,6 +49,7 @@ bool ModuleCamera::Init()
     // TODO: Manage uniforms properly and check if it is better to transpose in opengl
     auto shader_id = App->shader->shader_id;
 
+    // TODO: Check how are they updated on shader
     glUseProgram(shader_id);
     glUniformMatrix4fv(glGetUniformLocation(shader_id, "model"), 1, GL_FALSE, &model[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(shader_id, "view"), 1, GL_FALSE, &view[0][0]);
@@ -77,4 +76,27 @@ update_status ModuleCamera::PostUpdate()
 bool ModuleCamera::CleanUp()
 {
     return false;
+}
+
+void ModuleCamera::SetAspectRatio(unsigned int screen_width, unsigned int screen_height)
+{
+    aspect_ratio = screen_width / screen_height;
+}
+
+void ModuleCamera::SetHorizontalFov(float fov_deg)
+{
+    static const float deg_to_rad = pi / 180.0f;
+    horizontal_fov_deg = fov_deg;
+    horizontal_fov = fov_deg * deg_to_rad;
+}
+
+void ModuleCamera::RefreshFov()
+{
+    frustum.SetHorizontalFovAndAspectRatio(horizontal_fov, aspect_ratio);
+}
+
+void ModuleCamera::WindowResized(unsigned int screen_width, unsigned int screen_height)
+{
+    SetAspectRatio(screen_width, screen_height);
+    RefreshFov();
 }

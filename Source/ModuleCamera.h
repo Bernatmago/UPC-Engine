@@ -16,11 +16,13 @@ public:
 	update_status Update();
 	update_status PostUpdate();
 	bool CleanUp();
+	
+	void SetAspectRatio(unsigned int screen_width, unsigned int screen_height);
+	void SetHorizontalFov(float fov_deg);
 
-	void LookAt(const float3& position);
+	void RefreshFov();
+	void WindowResized(unsigned int screen_width, unsigned int screen_height);
 
-	// SetFOV (horizontal fov)
-	// SetAspectRatio (vertical fov)
 	// SetPlaneDistances()
 	// Position()
 	// Orientation()
@@ -31,7 +33,12 @@ public:
 	
 	// Dont do orbit
 	// Add debugdraw to use
+	
+
 private:
+	float aspect_ratio;
+	float horizontal_fov_deg;
+	float horizontal_fov;
 	float4x4 view;
 	Frustum frustum;
 	float4x4 projection;

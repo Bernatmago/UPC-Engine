@@ -213,7 +213,7 @@ bool ModuleRender::CleanUp()
 	return true;
 }
 
-void ModuleRender::WindowResized(unsigned width, unsigned height)
+void ModuleRender::WindowResized(unsigned int width, unsigned int height)
 {
 	int w, h;
 	SDL_GetWindowSize(App->window->window, &w, &h);

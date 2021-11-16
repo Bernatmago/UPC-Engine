@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "ModuleInput.h"
 #include "ModuleRender.h"
+#include "ModuleCamera.h"
 #include "ModuleWindow.h"
 #include "SDL.h"
 
@@ -46,9 +47,12 @@ update_status ModuleInput::Update()
                 //if (sdlEvent.window.event == SDL_WINDOWEVENT_RESIZED || sdlEvent.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
                 if (sdlEvent.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
                 {
-                    LOG("Resizing Window");
+                    LOG("Resizing Window")
+                    // Update window surface so it is correct
                     App->window->WindowResized();
                     App->renderer->WindowResized(sdlEvent.window.data1, sdlEvent.window.data2);
+                    App->camera->WindowResized(sdlEvent.window.data1, sdlEvent.window.data2);
+                    LOG("%d", App->window->screen_surface->w)
                 }
                     
                 break;
