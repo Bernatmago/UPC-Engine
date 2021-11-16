@@ -24,23 +24,30 @@ bool ModuleCamera::Init()
     const float horizontal_fov_deg = 90.0f;
     const float deg_to_rad = pi / 180.0f;
 
+    float4x4 model = float4x4::identity;
+    const float3 look_position = float3(0.0f, 0.0f, 0.0f);
+    const float3 camera_position = float3(1.0f, 1.0f, 2.0f);
+
 
     frustum.SetKind(FrustumSpaceGL, FrustumRightHanded);
-    frustum.SetViewPlaneDistances(0.1f, 200.0f);
+    frustum.SetViewPlaneDistances(0.1f, 100.0f);
 
-    frustum.SetHorizontalFovAndAspectRatio(deg_to_rad * aspect_ratio, aspect_ratio );
-    frustum.SetPos(float3(0.0f, 1.0f, -2.0f));
+    frustum.SetHorizontalFovAndAspectRatio(deg_to_rad * horizontal_fov_deg, aspect_ratio );
+    frustum.SetPos(camera_position);
     frustum.SetFront(float3::unitZ);
     frustum.SetUp(float3::unitY);
 
-    // TODO: Lookat
     projection = frustum.ProjectionMatrix().Transposed();
 
-    LookAt(float3(0.0f, 0.0f, 0.0f));    
+    float3 direction = look_position - frustum.Pos();
+
+    // localForward, targetDirection, localUp, worldUp
+    float3x3 look_rotation = float3x3::LookAt(frustum.Front(), direction.Normalized(), frustum.Up(), float3::unitY);
+    frustum.SetFront(look_rotation.MulDir(frustum.Front()).Normalized());
+    frustum.SetUp(look_rotation.MulDir(frustum.Up()).Normalized());
 
     view = float4x4(frustum.ViewMatrix()).Transposed();
 
-    auto model = float4x4::zero;
     // TODO: Manage uniforms properly and check if it is better to transpose in opengl
     auto shader_id = App->shader->shader_id;
 
@@ -70,14 +77,4 @@ update_status ModuleCamera::PostUpdate()
 bool ModuleCamera::CleanUp()
 {
     return false;
-}
-
-void ModuleCamera::LookAt(const float3& position)
-{
-    float3 dir = position - frustum.Pos();
-
-    // TODO: Understand better
-    float3x3 a = float3x3::LookAt(frustum.Front(), dir.Normalized(), frustum.Up(), float3::unitY);
-    frustum.SetFront(a.MulDir(frustum.Front().Normalized()));
-    frustum.SetUp(a.MulDir(frustum.Up().Normalized()));
 }
