@@ -17,6 +17,7 @@ public:
 	update_status PostUpdate();
 	bool CleanUp();
 	
+	void SetPosition(const float3& position);
 	void SetAspectRatio(unsigned int screen_width, unsigned int screen_height);
 	void SetHorizontalFov(float fov_deg);
 
@@ -36,11 +37,14 @@ public:
 	
 
 private:
+	Frustum frustum;
 	float aspect_ratio;
 	float horizontal_fov_deg;
 	float horizontal_fov;
-	float4x4 view;
-	Frustum frustum;
+	float3 look_position;
+	float3 camera_position;
+	float4x4 model;
+	float4x4 view;	
 	float4x4 projection;
 };
 

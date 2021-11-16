@@ -38,6 +38,7 @@ public:
 	void Sidebar();
 	void Performance();
 	void WindowOptions();
+	void CameraOptions();
 	void About();
 
 	//TODO

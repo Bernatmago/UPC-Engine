@@ -1,6 +1,8 @@
 #include "Globals.h"
 #include "Application.h"
 #include "ModuleWindow.h"
+#include "ModuleRender.h"
+#include "ModuleCamera.h"
 
 ModuleWindow::ModuleWindow()
 {
@@ -76,8 +78,11 @@ bool ModuleWindow::CleanUp()
 
 void ModuleWindow::WindowResized()
 {
+	// Update window surface so it is correct
 	SDL_UpdateWindowSurface(window);
 	screen_surface = SDL_GetWindowSurface(window);
+	App->renderer->WindowResized(screen_surface->w, screen_surface->h);
+	App->camera->WindowResized(screen_surface->w, screen_surface->h);
 }
 
 void ModuleWindow::SetFullScreen(bool fullscreen)

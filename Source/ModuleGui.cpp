@@ -4,6 +4,7 @@
 #include "ModuleWindow.h"
 #include "ModuleShader.h"
 #include "ModuleRender.h"
+#include "ModuleCamera.h"
 #include "SDL.h"
 #include "Console.h"
 
@@ -82,6 +83,7 @@ void ModuleGui::Sidebar() {
 	}
 
 	if (ImGui::CollapsingHeader("Window Options")) WindowOptions();
+	if (ImGui::CollapsingHeader("Camera Options")) CameraOptions();
 	if (ImGui::CollapsingHeader("Performance")) Performance();
 	if (ImGui::CollapsingHeader("About")) About();
 
@@ -116,6 +118,16 @@ void ModuleGui::WindowOptions() {
 
 	ImGui::Text("Refresh Rate: %d", refresh_rate);
 
+}
+
+void ModuleGui::CameraOptions()
+{
+	//static float f3[3] = { 0.0f, 0.0f, 1.0f };
+	static float3 position(0.0f, 0.0f, 1.0f);
+	if (ImGui::SliderFloat3("Position", &position[0], -1.0f, 1.0f)) {
+		// Camera set position
+		App->camera->SetPosition(position);
+	}
 }
 
 void ModuleGui::About() {
