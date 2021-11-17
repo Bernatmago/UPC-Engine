@@ -20,29 +20,26 @@ public:
 	void SetPosition(const float3& position);
 	void SetAspectRatio(unsigned int screen_width, unsigned int screen_height);
 	void SetHorizontalFov(float fov_deg);
+	void LookAt(const float3& position);
 
 	void RefreshFov();
 	void WindowResized(unsigned int screen_width, unsigned int screen_height);
 
 	// SetPlaneDistances()
-	// Position()
 	// Orientation()
-	// LookAt()
-	// GetProjectionMatrix() correct orientation
-	// GetViewMatrix() correct orientation
-	// Detect resize and update fov
 	
 	// Dont do orbit
 	// Add debugdraw to use
-	
+
+	bool locked;
+	float3 position;
 
 private:
 	Frustum frustum;
 	float aspect_ratio;
 	float horizontal_fov_deg;
 	float horizontal_fov;
-	float3 look_position;
-	float3 camera_position;
+	float3 look_position;	
 	float4x4 model;
 	float4x4 view;	
 	float4x4 projection;

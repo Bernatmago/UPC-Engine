@@ -16,34 +16,21 @@ ModuleCamera::~ModuleCamera()
 {
 }
 
-
-
 bool ModuleCamera::Init()
 {
     // TODO: Remove redundant variables when it works
+    position = float3(0.0f, 0.0f, 1.0f);
     model = float4x4::identity;
-    look_position = float3(0.0f, 0.0f, 0.0f);
-    camera_position = float3(1.0f, 1.0f, 0.5f);
-
     frustum.SetKind(FrustumSpaceGL, FrustumRightHanded);
     auto screen_surface = App->window->screen_surface;
     SetAspectRatio(screen_surface->w, screen_surface->h);
     SetHorizontalFov(90.0f);
     RefreshFov();
     frustum.SetViewPlaneDistances(0.1f, 100.0f);
-
-    frustum.SetPos(camera_position);
+    SetPosition(position);
     frustum.SetFront(float3::unitZ);
     frustum.SetUp(float3::unitY);    
-
-    float3 direction = look_position - frustum.Pos();
-    // localForward, targetDirection, localUp, worldUp
-    float3x3 look_rotation = float3x3::LookAt(frustum.Front(), direction.Normalized(), frustum.Up(), float3::unitY);
-    frustum.SetFront(look_rotation.MulDir(frustum.Front()).Normalized());
-    frustum.SetUp(look_rotation.MulDir(frustum.Up()).Normalized());
-
-
-    
+    LookAt(float3(0.0f, 0.0f, 0.0f));
     return true;
 }
 
@@ -52,6 +39,11 @@ update_status ModuleCamera::PreUpdate()
     // TODO: Manage uniforms properly and check if it is better to transpose in opengl
     projection = frustum.ProjectionMatrix().Transposed();
     view = float4x4(frustum.ViewMatrix()).Transposed();
+
+    SetPosition(position);
+
+    if (locked)
+        LookAt(float3(0.0f, 0.0f, 0.0f));
 
     auto shader_id = App->shader->shader_id;
     glUseProgram(shader_id);
@@ -76,10 +68,9 @@ bool ModuleCamera::CleanUp()
     return false;
 }
 
-void ModuleCamera::SetPosition(const float3& position)
+void ModuleCamera::SetPosition(const float3& new_position)
 {
-    camera_position = position;
-    frustum.SetPos(camera_position);
+    frustum.SetPos(position);
 }
 
 void ModuleCamera::SetAspectRatio(unsigned int screen_width, unsigned int screen_height)
@@ -92,6 +83,15 @@ void ModuleCamera::SetHorizontalFov(float fov_deg)
     static const float deg_to_rad = pi / 180.0f;
     horizontal_fov_deg = fov_deg;
     horizontal_fov = fov_deg * deg_to_rad;
+}
+
+void ModuleCamera::LookAt(const float3& look_position)
+{
+    float3 direction = look_position - frustum.Pos();
+    // localForward, targetDirection, localUp, worldUp
+    float3x3 look_rotation = float3x3::LookAt(frustum.Front(), direction.Normalized(), frustum.Up(), float3::unitY);
+    frustum.SetFront(look_rotation.MulDir(frustum.Front()).Normalized());
+    frustum.SetUp(look_rotation.MulDir(frustum.Up()).Normalized());
 }
 
 void ModuleCamera::RefreshFov()

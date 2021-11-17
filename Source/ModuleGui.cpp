@@ -123,11 +123,10 @@ void ModuleGui::WindowOptions() {
 void ModuleGui::CameraOptions()
 {
 	//static float f3[3] = { 0.0f, 0.0f, 1.0f };
-	static float3 position(0.0f, 0.0f, 1.0f);
-	if (ImGui::SliderFloat3("Position", &position[0], -1.0f, 1.0f)) {
-		// Camera set position
-		App->camera->SetPosition(position);
-	}
+	float3& camera_pos = App->camera->position;
+	ImGui::SliderFloat2("X, Y", &camera_pos[0], -1.0f, 1.0f);
+	ImGui::SliderFloat("Z", &camera_pos.z, 1.0f, 5.0f);
+	ImGui::Checkbox("Look Center", &App->camera->locked);
 }
 
 void ModuleGui::About() {
