@@ -34,14 +34,13 @@ public:
 	bool locked;
 	float3 position;
 
+	float4x4 GetView() const;
+	float4x4 GetProjection() const;
+
 private:
 	Frustum frustum;
 	float aspect_ratio;
-	float horizontal_fov_deg;
 	float horizontal_fov;
-	float3 look_position;	
-	float4x4 model;
-	float4x4 view;	
-	float4x4 projection;
+	float3 look_position;
 };
 

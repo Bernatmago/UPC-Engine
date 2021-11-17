@@ -20,7 +20,6 @@ bool ModuleCamera::Init()
 {
     // TODO: Remove redundant variables when it works
     position = float3(0.0f, 0.0f, 1.0f);
-    model = float4x4::identity;
     frustum.SetKind(FrustumSpaceGL, FrustumRightHanded);
     auto screen_surface = App->window->screen_surface;
     SetAspectRatio(screen_surface->w, screen_surface->h);
@@ -29,7 +28,7 @@ bool ModuleCamera::Init()
     frustum.SetViewPlaneDistances(0.1f, 100.0f);
     SetPosition(position);
     frustum.SetFront(float3::unitZ);
-    frustum.SetUp(float3::unitY);    
+    frustum.SetUp(float3::unitY); 
     LookAt(float3(0.0f, 0.0f, 0.0f));
     return true;
 }
@@ -37,19 +36,12 @@ bool ModuleCamera::Init()
 update_status ModuleCamera::PreUpdate()
 {
     // TODO: Manage uniforms properly and check if it is better to transpose in opengl
-    projection = frustum.ProjectionMatrix().Transposed();
-    view = float4x4(frustum.ViewMatrix()).Transposed();
 
     SetPosition(position);
 
     if (locked)
         LookAt(float3(0.0f, 0.0f, 0.0f));
 
-    auto shader_id = App->shader->shader_id;
-    glUseProgram(shader_id);
-    glUniformMatrix4fv(glGetUniformLocation(shader_id, "model"), 1, GL_FALSE, &model[0][0]);
-    glUniformMatrix4fv(glGetUniformLocation(shader_id, "view"), 1, GL_FALSE, &view[0][0]);
-    glUniformMatrix4fv(glGetUniformLocation(shader_id, "proj"), 1, GL_FALSE, &projection[0][0]);
     return UPDATE_CONTINUE;
 }
 
@@ -81,7 +73,6 @@ void ModuleCamera::SetAspectRatio(unsigned int screen_width, unsigned int screen
 void ModuleCamera::SetHorizontalFov(float fov_deg)
 {
     static const float deg_to_rad = pi / 180.0f;
-    horizontal_fov_deg = fov_deg;
     horizontal_fov = fov_deg * deg_to_rad;
 }
 
@@ -103,4 +94,14 @@ void ModuleCamera::WindowResized(unsigned int screen_width, unsigned int screen_
 {
     SetAspectRatio(screen_width, screen_height);
     RefreshFov();
+}
+
+float4x4 ModuleCamera::GetView() const
+{
+    return float4x4(frustum.ViewMatrix()).Transposed();
+}
+
+float4x4 ModuleCamera::GetProjection() const
+{
+    return frustum.ProjectionMatrix().Transposed();
 }

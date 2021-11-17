@@ -14,13 +14,16 @@ using namespace std;
 Application::Application()
 {	
 	// Order matters: they will Init/start/update in this order
-	modules.push_back(window = new ModuleWindow());
-	modules.push_back(renderer = new ModuleRender());
-	modules.push_back(gui = new ModuleGui());
+	modules.push_back(window = new ModuleWindow());	
+	// TODO: Add more modules
+	// Mesh
+	// Textures	
 	modules.push_back(input = new ModuleInput());
-	modules.push_back(shader = new ModuleShader());
 	modules.push_back(camera = new ModuleCamera());
-	modules.push_back(debug = new ModuleDebugDraw());
+	modules.push_back(renderer = new ModuleRender());
+	modules.push_back(shader = new ModuleShader());
+	modules.push_back(gui = new ModuleGui());
+	//modules.push_back(debug = new ModuleDebugDraw());
 }
 
 Application::~Application()

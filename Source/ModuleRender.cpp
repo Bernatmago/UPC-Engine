@@ -3,6 +3,7 @@
 #include "ModuleRender.h"
 #include "ModuleWindow.h"
 #include "ModuleShader.h"
+#include "ModuleCamera.h"
 
 #include "SDL.h"
 #include "glew.h"
@@ -145,7 +146,7 @@ bool ModuleRender::Init()
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+	
 	int w, h;
 	SDL_GetWindowSize(App->window->window, &w, &h);
 	glViewport(0, 0, w, h);
@@ -154,7 +155,7 @@ bool ModuleRender::Init()
 	square_ebo = CreateSquareEBO();
 
 	ilInit();
-	unsigned int img_id = LoadSingleImage("lenna.png");
+	unsigned int img_id = LoadSingleImage("pepe.png");
 	// Generate
 	glGenTextures(1, &texture_id);
 	glBindTexture(GL_TEXTURE_2D, texture_id);
@@ -188,7 +189,12 @@ update_status ModuleRender::Update()
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture_id);
 
-	glUseProgram(App->shader->shader_id);
+	unsigned int shader_id = App->shader->shader_id;
+	glUseProgram(shader_id);
+	float4x4 model = float4x4::identity;	
+	glUniformMatrix4fv(glGetUniformLocation(shader_id, "model"), 1, GL_FALSE, &model[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(shader_id, "view"), 1, GL_FALSE, &App->camera->GetView()[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(shader_id, "proj"), 1, GL_FALSE, &App->camera->GetProjection()[0][0]);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, square_ebo);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
