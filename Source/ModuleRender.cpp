@@ -145,8 +145,6 @@ bool ModuleRender::Init()
 
 	// Textures params
 	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	int w, h;
 	SDL_GetWindowSize(App->window->window, &w, &h);
@@ -189,11 +187,15 @@ update_status ModuleRender::Update()
 	auto a = App->window->screen_surface;
 	App->debug->Draw(App->camera->GetView(), App->camera->GetProjection(), a->w, a->h);
 
+	// Debug draw disables blending
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture_id);
 
 	unsigned int shader_id = App->shader->shader_id;
 	glUseProgram(shader_id);
+	
 	float4x4 model = float4x4::identity;	
 	glUniformMatrix4fv(glGetUniformLocation(shader_id, "model"), 1, GL_FALSE, &model[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(shader_id, "view"), 1, GL_FALSE, &App->camera->GetGLView()[0][0]);
