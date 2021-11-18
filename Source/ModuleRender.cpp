@@ -4,6 +4,7 @@
 #include "ModuleWindow.h"
 #include "ModuleShader.h"
 #include "ModuleCamera.h"
+#include "ModuleDebugDraw.h"
 
 #include "SDL.h"
 #include "glew.h"
@@ -74,10 +75,10 @@ void DeleteImage(unsigned int name)
 
 unsigned int CreateSquareVBO() {
 	float positions[] = {
-		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
-		 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-		 0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
-		-0.5f,  0.5f, 0.0f, 0.0f, 1.0f
+		-50.0f, -50.0f, -1.0f, 0.0f, 0.0f,
+		 50.0f, -50.0f, -1.0f, 1.0f, 0.0f,
+		 50.0f,  50.0f, -1.0f, 1.0f, 1.0f,
+		-50.0f,  50.0f, -1.0f, 0.0f, 1.0f
 	};
 	unsigned int vbo;
 	glGenBuffers(1, &vbo);
@@ -185,6 +186,8 @@ update_status ModuleRender::PreUpdate()
 // Called every draw update
 update_status ModuleRender::Update()
 {
+	auto a = App->window->screen_surface;
+	App->debug->Draw(App->camera->GetView(), App->camera->GetProjection(), a->w, a->h);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture_id);
@@ -193,17 +196,20 @@ update_status ModuleRender::Update()
 	glUseProgram(shader_id);
 	float4x4 model = float4x4::identity;	
 	glUniformMatrix4fv(glGetUniformLocation(shader_id, "model"), 1, GL_FALSE, &model[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(shader_id, "view"), 1, GL_FALSE, &App->camera->GetView()[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(shader_id, "proj"), 1, GL_FALSE, &App->camera->GetProjection()[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(shader_id, "view"), 1, GL_FALSE, &App->camera->GetGLView()[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(shader_id, "proj"), 1, GL_FALSE, &App->camera->GetGLProjection()[0][0]);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, square_ebo);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+	
 
 	return UPDATE_CONTINUE;
 }
 
 update_status ModuleRender::PostUpdate()
-{
+{	
 	SDL_GL_SwapWindow(App->window->window);
+	
 	return UPDATE_CONTINUE;
 }
 

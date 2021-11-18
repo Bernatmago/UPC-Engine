@@ -23,7 +23,7 @@ Application::Application()
 	modules.push_back(renderer = new ModuleRender());
 	modules.push_back(shader = new ModuleShader());
 	modules.push_back(gui = new ModuleGui());
-	//modules.push_back(debug = new ModuleDebugDraw());
+	modules.push_back(debug = new ModuleDebugDraw());
 }
 
 Application::~Application()

@@ -19,13 +19,13 @@ ModuleCamera::~ModuleCamera()
 bool ModuleCamera::Init()
 {
     // TODO: Remove redundant variables when it works
-    position = float3(0.0f, 0.0f, 1.0f);
+    position = float3(0.0f, 0.0f, 100.0f);
     frustum.SetKind(FrustumSpaceGL, FrustumRightHanded);
     auto screen_surface = App->window->screen_surface;
     SetAspectRatio(screen_surface->w, screen_surface->h);
     SetHorizontalFov(90.0f);
     RefreshFov();
-    frustum.SetViewPlaneDistances(0.1f, 100.0f);
+    frustum.SetViewPlaneDistances(0.1f, 250.0f);
     SetPosition(position);
     frustum.SetFront(float3::unitZ);
     frustum.SetUp(float3::unitY); 
@@ -96,12 +96,22 @@ void ModuleCamera::WindowResized(unsigned int screen_width, unsigned int screen_
     RefreshFov();
 }
 
-float4x4 ModuleCamera::GetView() const
+float4x4 ModuleCamera::GetGLView() const
 {
     return float4x4(frustum.ViewMatrix()).Transposed();
 }
 
-float4x4 ModuleCamera::GetProjection() const
+float4x4 ModuleCamera::GetView() const
+{
+    return float4x4(frustum.ViewMatrix());
+}
+
+float4x4 ModuleCamera::GetGLProjection() const
 {
     return frustum.ProjectionMatrix().Transposed();
+}
+
+float4x4 ModuleCamera::GetProjection() const
+{
+    return frustum.ProjectionMatrix();
 }

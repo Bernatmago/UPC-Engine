@@ -34,7 +34,9 @@ public:
 	bool locked;
 	float3 position;
 
+	float4x4 GetGLView() const;
 	float4x4 GetView() const;
+	float4x4 GetGLProjection() const;
 	float4x4 GetProjection() const;
 
 private:
