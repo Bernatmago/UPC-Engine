@@ -102,22 +102,22 @@ void ModuleGui::WindowOptions() {
 	static int height = SCREEN_HEIGHT;
 	static const int refresh_rate = App->window->refresh_rate;
 
-	if (ImGui::SliderInt("Width", &width, 0, SCREEN_MAX_WIDTH)) {
-		App->window->SetSize(width, height);
-	}
-	if (ImGui::SliderInt("Height", &height, 0, SCREEN_MAX_HEIGHT)) {
-		App->window->SetSize(width, height);
-	}
-
 	if (ImGui::Checkbox("Fullscreen", &fullscreen))
 		App->window->SetFullScreen(fullscreen);
 
-	ImGui::SameLine();
-	if (ImGui::Checkbox("Resizable", &resizable))
-		App->window->SetResizable(resizable);
+	if (!fullscreen) {
+		ImGui::SameLine();
+		if (ImGui::Checkbox("Resizable", &resizable))
+			App->window->SetResizable(resizable);
 
+		if (ImGui::SliderInt("Width", &width, 0, SCREEN_MAX_WIDTH)) {
+			App->window->SetSize(width, height);
+		}
+		if (ImGui::SliderInt("Height", &height, 0, SCREEN_MAX_HEIGHT)) {
+			App->window->SetSize(width, height);
+		}
+	}
 	ImGui::Text("Refresh Rate: %d", refresh_rate);
-
 }
 
 void ModuleGui::CameraOptions()

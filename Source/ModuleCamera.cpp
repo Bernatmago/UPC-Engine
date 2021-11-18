@@ -8,6 +8,8 @@
 
 #include "Math/MathConstants.h"
 
+#include "assimp/scene.h"
+
 ModuleCamera::ModuleCamera()
 {
 }
