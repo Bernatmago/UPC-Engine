@@ -2,7 +2,7 @@
 #include "Application.h"
 #include "ModuleGui.h"
 #include "ModuleWindow.h"
-#include "ModuleShader.h"
+#include "ModuleProgram.h"
 #include "ModuleRender.h"
 #include "ModuleCamera.h"
 #include "SDL.h"

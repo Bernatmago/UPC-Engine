@@ -3,7 +3,7 @@
 #include "Application.h"
 #include "ModuleWindow.h"
 #include "ModuleCamera.h"
-#include "ModuleShader.h"
+#include "ModuleProgram.h"
 #include "ModuleWindow.h"
 
 #include "Math/MathConstants.h"

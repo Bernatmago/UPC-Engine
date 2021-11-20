@@ -1,15 +1,15 @@
-#include "ModuleShader.h"
+#include "ModuleProgram.h"
 
 #include "glew.h"
 
 #include "MathGeoLib.h"
 
-ModuleShader::ModuleShader()
+ModuleProgram::ModuleProgram()
 {
 
 }
 
-bool ModuleShader::Init()
+bool ModuleProgram::Init()
 {
 	static const bool transpose = GL_TRUE;
 	vertex_shader_id = CompileShader(GL_VERTEX_SHADER, LoadShaderSource("vertex.glsl"));
@@ -21,7 +21,7 @@ bool ModuleShader::Init()
 	return true;
 }
 
-char* ModuleShader::LoadShaderSource(const char* shader_file_name)
+char* ModuleProgram::LoadShaderSource(const char* shader_file_name)
 {
 	char* data = nullptr;
 	FILE* file = nullptr;
@@ -39,7 +39,7 @@ char* ModuleShader::LoadShaderSource(const char* shader_file_name)
 	return data;
 }
 
-unsigned int ModuleShader::CompileShader(unsigned type, const char* source)
+unsigned int ModuleProgram::CompileShader(unsigned type, const char* source)
 {
 	unsigned shader_id = glCreateShader(type);
 	glShaderSource(shader_id, 1, &source, 0);
@@ -62,7 +62,7 @@ unsigned int ModuleShader::CompileShader(unsigned type, const char* source)
 	return shader_id;
 }
 
-unsigned ModuleShader::CreateProgram(unsigned vtx_shader, unsigned frg_shader)
+unsigned ModuleProgram::CreateProgram(unsigned vtx_shader, unsigned frg_shader)
 {
 	unsigned program_id = glCreateProgram();
 	glAttachShader(program_id, vtx_shader);

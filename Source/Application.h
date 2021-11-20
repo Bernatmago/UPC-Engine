@@ -8,7 +8,7 @@ class ModuleWindow;
 class ModuleRender;
 class ModuleGui;
 class ModuleInput;
-class ModuleShader;
+class ModuleProgram;
 class ModuleCamera;
 class ModuleDebugDraw;
 
@@ -32,7 +32,7 @@ public:
 	ModuleRender* renderer = nullptr;
 	ModuleGui* gui = nullptr;
 	ModuleInput* input = nullptr;
-	ModuleShader* shader = nullptr;
+	ModuleProgram* shader = nullptr;
 	ModuleCamera* camera = nullptr;
 	ModuleDebugDraw* debug = nullptr;
 

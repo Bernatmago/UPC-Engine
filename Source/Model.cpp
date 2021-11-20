@@ -1,32 +1,92 @@
 #include "Globals.h"
 #include "Model.h"
+#include "Application.h"
+
+#include "glew.h"
 #include "assimp/cimport.h"
 #include "assimp/postprocess.h"
+#include "il.h"
+#include "ilu.h"
+
+unsigned int LoadSingleImage(const char* path)
+{
+	ilInit();
+	ILuint name; // The image name to return.
+	ilGenImages(1, &name); // Grab a new image name.
+	ilBindImage(name);
+	ilLoadImage(path);
+	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
+	iluRotate(180.0f);
+
+	return name;
+}
 
 void Model::Load(const char* file_name)
 {
-	/*const aiScene* scene = aiImportFile(file_name, aiProcessPreset_TargetRealtime_MaxQuality);
-	if (scene){
-		// TODO: LoadTextures(scene->mMaterials, scene->mNumMaterials);
-		// TODO: 
+	const aiScene* scene = aiImportFile(file_name, aiProcessPreset_TargetRealtime_MaxQuality);
+	if (scene)
+	{		
+		LoadTextures(scene);
+		LoadMeshes(scene);
 	}
-	else {
-		LOG("Error loading %s: %s", file_name, aiGetErrorString())
-	}*/
+	else
+	{
+		LOG("Error loading %s: %s", file_name, aiGetErrorString());
+	}
 }
 
-void Model::LoadMaterial(const aiScene* scene)
+void Model::LoadTextures(const aiScene* scene)
 {
-	/*
 	aiString file;
-	// TODO create materials data structure
-	materials.reserve(scene->mNumMaterials);
+	textures.reserve(scene->mNumMaterials);
 	for (unsigned i = 0; i < scene->mNumMaterials; ++i)
 	{
-		if (scene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, 0, &file) == AI_SUCCESS)
+		// Atm we only support a single texture so index is hardcoded to 0
+		static const int index = 0;
+		if (scene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, index, &file) == AI_SUCCESS)
 		{
-			// TODO: Create textures module
-			//materials.push_back(App->textures->Load(file.data));
+			// TODO: Move stuff to textures module
+			textures.push_back(LoadTexture(file.data));
 		}
-	}*/
+	}
+}
+
+void Model::LoadMeshes(const aiScene* scene)
+{
+	// Create vbo using mVertices, mTextureCoords and mNumVertices
+	int num = scene->mNumMeshes;
+	for (unsigned i = 0; i < scene->mNumMeshes; i++)
+	{
+		aiMesh* mesh = scene->mMeshes[i];
+		LoadVBO(mesh);
+		LoadEBO(mesh);
+	}
+	LOG("Loading meshes")
+}
+
+void Model::LoadVBO(const aiMesh* mesh)
+{
+}
+
+void Model::LoadEBO(const aiMesh* mesh)
+{
+}
+
+Texture Model::LoadTexture(const char* path)
+{
+	Texture texture;
+	texture.path = path;
+	unsigned int img_id = LoadSingleImage(path);	
+
+	glGenTextures(1, &texture.id);
+	glBindTexture(GL_TEXTURE_2D, texture.id);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, ilGetInteger(IL_IMAGE_BPP), ilGetInteger(IL_IMAGE_WIDTH),
+		ilGetInteger(IL_IMAGE_HEIGHT), 0, ilGetInteger(IL_IMAGE_FORMAT), GL_UNSIGNED_BYTE,
+		ilGetData());
+
+	ilDeleteImages(1, &img_id);
+	return texture;
 }

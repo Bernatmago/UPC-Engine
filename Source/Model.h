@@ -6,12 +6,22 @@
 
 #include <vector>
 
+struct Texture {
+	unsigned int id;	
+	std::string path;
+	//std::string type;
+};
+
 class Model
 {
 public:
 	void Load(const char* file_name);
-	void LoadMaterial(const aiScene* scene);
+	void LoadTextures(const aiScene* scene);
+	void LoadMeshes(const aiScene* scene);
+	void LoadVBO(const aiMesh* mesh);
+	void LoadEBO(const aiMesh* mesh);
+	Texture LoadTexture(const char* path);
 private:
-	//std::vector<aiMaterial> materials;
+	std::vector<Texture> textures;
 };
 

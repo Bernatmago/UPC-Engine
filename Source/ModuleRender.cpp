@@ -2,9 +2,11 @@
 #include "Application.h"
 #include "ModuleRender.h"
 #include "ModuleWindow.h"
-#include "ModuleShader.h"
+#include "ModuleProgram.h"
 #include "ModuleCamera.h"
 #include "ModuleDebugDraw.h"
+
+#include "Model.h"
 
 #include "SDL.h"
 #include "glew.h"
@@ -13,6 +15,10 @@
 #include "il.h"
 #include "ilu.h"
 
+void TestModel() {
+	auto a = Model();
+	a.Load("BakerHouse.fbx");
+}
 
 ModuleRender::ModuleRender()
 {
@@ -54,24 +60,6 @@ void __stdcall OurOpenGLErrorFunction(GLenum source, GLenum type, GLuint id, GLe
 	};
 	LOG("<Source:%s> <Type:%s> <Severity:%s> <ID:%d> <Message:%s>\n", tmp_source, tmp_type, tmp_severity, id, message);
 }
-
-unsigned int LoadSingleImage(const char* path)
-{
-	ILuint name; // The image name to return.
-	ilGenImages(1, &name); // Grab a new image name.
-	ilBindImage(name);
-	ilLoadImage(path);
-	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
-	iluRotate(180.0f);
-
-	return name;
-}
-
-void DeleteImage(unsigned int name)
-{
-	ilDeleteImages(1, &name); // Delete the image name.
-}
-
 
 unsigned int CreateSquareVBO() {
 	float positions[] = {
@@ -150,25 +138,10 @@ bool ModuleRender::Init()
 	SDL_GetWindowSize(App->window->window, &w, &h);
 	glViewport(0, 0, w, h);
 
+	TestModel();
+
 	square_vbo = CreateSquareVBO();
 	square_ebo = CreateSquareEBO();
-
-	ilInit();
-	unsigned int img_id = LoadSingleImage("pepe.png");
-	// Generate
-	glGenTextures(1, &texture_id);
-	glBindTexture(GL_TEXTURE_2D, texture_id);
-	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);	
-	
-	// TODO: Manage tex parameters via gui
-	// TODO: Generate mip map
-	glTexImage2D(GL_TEXTURE_2D, 0, ilGetInteger(IL_IMAGE_BPP), ilGetInteger(IL_IMAGE_WIDTH),
-		ilGetInteger(IL_IMAGE_HEIGHT), 0, ilGetInteger(IL_IMAGE_FORMAT), GL_UNSIGNED_BYTE,
-		ilGetData());
-
-	ilDeleteImages(1, &img_id);
 
 	return true;
 }

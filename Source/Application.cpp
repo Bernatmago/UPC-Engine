@@ -5,7 +5,7 @@
 #include "ModuleRender.h"
 #include "ModuleGui.h"
 #include "ModuleInput.h"
-#include "ModuleShader.h"
+#include "ModuleProgram.h"
 #include "ModuleCamera.h"
 #include "ModuleDebugDraw.h"
 
@@ -21,7 +21,7 @@ Application::Application()
 	modules.push_back(input = new ModuleInput());
 	modules.push_back(camera = new ModuleCamera());
 	modules.push_back(renderer = new ModuleRender());
-	modules.push_back(shader = new ModuleShader());
+	modules.push_back(shader = new ModuleProgram());
 	modules.push_back(gui = new ModuleGui());
 	modules.push_back(debug = new ModuleDebugDraw());
 }
