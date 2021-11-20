@@ -5,6 +5,7 @@
 #include "glew.h"
 #include "assimp/cimport.h"
 #include "assimp/postprocess.h"
+#include "assimp/Importer.hpp"
 #include "il.h"
 #include "ilu.h"
 
@@ -33,15 +34,15 @@ Model::~Model()
 
 void Model::Draw()
 {
-	for (Mesh mesh : meshes) {
+	for (Mesh& mesh : meshes) {
 		mesh.Draw(textures);
 	}
-	//meshes[0].Draw(textures);
 }
 
 void Model::Load(const char* file_name)
 {
-	const aiScene* scene = aiImportFile(file_name, aiProcessPreset_TargetRealtime_MaxQuality);
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile(file_name, aiProcess_Triangulate);
 	if (scene)
 	{		
 		LoadTextures(scene);
