@@ -1,14 +1,13 @@
-#include "glew.h"
+#include "ModuleCamera.h"
 
 #include "Application.h"
 #include "ModuleWindow.h"
-#include "ModuleCamera.h"
 #include "ModuleProgram.h"
 #include "ModuleWindow.h"
 
-#include "Math/MathConstants.h"
-
+#include "glew.h"
 #include "assimp/scene.h"
+#include "Math/MathConstants.h"
 
 ModuleCamera::ModuleCamera()
 {
@@ -21,13 +20,13 @@ ModuleCamera::~ModuleCamera()
 bool ModuleCamera::Init()
 {
     // TODO: Remove redundant variables when it works
-    position = float3(0.0f, 0.0f, 100.0f);
+    position = float3(0.0f, 0.0f, 10.0f);
     frustum.SetKind(FrustumSpaceGL, FrustumRightHanded);
     auto screen_surface = App->window->screen_surface;
     SetAspectRatio(screen_surface->w, screen_surface->h);
     SetHorizontalFov(90.0f);
     RefreshFov();
-    frustum.SetViewPlaneDistances(0.1f, 250.0f);
+    frustum.SetViewPlaneDistances(0.1f, 100.0f);
     SetPosition(position);
     frustum.SetFront(float3::unitZ);
     frustum.SetUp(float3::unitY); 

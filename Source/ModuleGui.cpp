@@ -124,8 +124,8 @@ void ModuleGui::CameraOptions()
 {
 	//static float f3[3] = { 0.0f, 0.0f, 1.0f };
 	float3& camera_pos = App->camera->position;
-	ImGui::SliderFloat2("X, Y", &camera_pos[0], -50.0f, 50.0f);
-	ImGui::SliderFloat("Z", &camera_pos.z, 1.0f, 200.0f);
+	ImGui::SliderFloat2("X, Y", &camera_pos[0], -5.0f, 5.0f);
+	ImGui::SliderFloat("Z", &camera_pos.z, 0.5f, 10.0f);
 	ImGui::Checkbox("Look Center", &App->camera->locked);
 }
 

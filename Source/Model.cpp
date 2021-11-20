@@ -21,6 +21,24 @@ unsigned int LoadSingleImage(const char* path)
 	return name;
 }
 
+Model::Model(const char* file_name)
+{
+	Load(file_name);
+}
+
+Model::~Model()
+{
+	// TODO: Define and manage
+}
+
+void Model::Draw()
+{
+	for (Mesh mesh : meshes) {
+		mesh.Draw(textures);
+	}
+	//meshes[0].Draw(textures);
+}
+
 void Model::Load(const char* file_name)
 {
 	const aiScene* scene = aiImportFile(file_name, aiProcessPreset_TargetRealtime_MaxQuality);
@@ -45,8 +63,8 @@ void Model::LoadTextures(const aiScene* scene)
 		static const int index = 0;
 		if (scene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, index, &file) == AI_SUCCESS)
 		{
-			// TODO: Move stuff to textures module
-			textures.push_back(LoadTexture(file.data));
+			// TODO: Move stuff to textures module and change to store similar to struct
+			textures.push_back(LoadTexture(file.data).id);
 		}
 	}
 }
@@ -54,22 +72,12 @@ void Model::LoadTextures(const aiScene* scene)
 void Model::LoadMeshes(const aiScene* scene)
 {
 	// Create vbo using mVertices, mTextureCoords and mNumVertices
-	int num = scene->mNumMeshes;
+	textures.reserve(scene->mNumMeshes);
 	for (unsigned i = 0; i < scene->mNumMeshes; i++)
 	{
-		aiMesh* mesh = scene->mMeshes[i];
-		LoadVBO(mesh);
-		LoadEBO(mesh);
+		meshes.push_back(Mesh(scene->mMeshes[i]));
 	}
 	LOG("Loading meshes")
-}
-
-void Model::LoadVBO(const aiMesh* mesh)
-{
-}
-
-void Model::LoadEBO(const aiMesh* mesh)
-{
 }
 
 Texture Model::LoadTexture(const char* path)

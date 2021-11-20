@@ -6,19 +6,12 @@
 #include "ModuleCamera.h"
 #include "ModuleDebugDraw.h"
 
-#include "Model.h"
-
 #include "SDL.h"
 #include "glew.h"
 
 #include "MathGeoLib.h"
 #include "il.h"
 #include "ilu.h"
-
-void TestModel() {
-	auto a = Model();
-	a.Load("BakerHouse.fbx");
-}
 
 ModuleRender::ModuleRender()
 {
@@ -138,10 +131,10 @@ bool ModuleRender::Init()
 	SDL_GetWindowSize(App->window->window, &w, &h);
 	glViewport(0, 0, w, h);
 
-	TestModel();
+	house = new Model("BakerHouse.fbx");
 
-	square_vbo = CreateSquareVBO();
-	square_ebo = CreateSquareEBO();
+	//square_vbo = CreateSquareVBO();
+	//square_ebo = CreateSquareEBO();
 
 	return true;
 }
@@ -157,26 +150,14 @@ update_status ModuleRender::PreUpdate()
 // Called every draw update
 update_status ModuleRender::Update()
 {
-	auto a = App->window->screen_surface;
+	auto &a = App->window->screen_surface;
 	App->debug->Draw(App->camera->GetView(), App->camera->GetProjection(), a->w, a->h);
 
-	// Debug draw disables blending
+	// Note: Debug draw disables blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture_id);
+	house->Draw();
 
-	unsigned int shader_id = App->shader->shader_id;
-	glUseProgram(shader_id);
-	
-	float4x4 model = float4x4::identity;	
-	glUniformMatrix4fv(glGetUniformLocation(shader_id, "model"), 1, GL_FALSE, &model[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(shader_id, "view"), 1, GL_FALSE, &App->camera->GetGLView()[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(shader_id, "proj"), 1, GL_FALSE, &App->camera->GetGLProjection()[0][0]);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, square_ebo);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-	
 
 	return UPDATE_CONTINUE;
 }
@@ -192,9 +173,11 @@ update_status ModuleRender::PostUpdate()
 bool ModuleRender::CleanUp()
 {
 	LOG("Destroying renderer");
-	glDeleteTextures(1, &texture_id);
-	glDeleteBuffers(1, &square_ebo);
-	glDeleteBuffers(1, &square_vbo);
+	
+	// TODO: Add delete model
+	// glDeleteTextures(1, &texture_id);
+	// glDeleteBuffers(1, &square_ebo);
+	// glDeleteBuffers(1, &square_vbo);
 	SDL_GL_DeleteContext(context);
 
 	return true;

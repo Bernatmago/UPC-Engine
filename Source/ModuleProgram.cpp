@@ -14,9 +14,9 @@ bool ModuleProgram::Init()
 	static const bool transpose = GL_TRUE;
 	vertex_shader_id = CompileShader(GL_VERTEX_SHADER, LoadShaderSource("vertex.glsl"));
 	fragment_shader_id = CompileShader(GL_FRAGMENT_SHADER, LoadShaderSource("fragment.glsl"));
-	shader_id = CreateProgram(vertex_shader_id, fragment_shader_id);
+	program_id = CreateProgram(vertex_shader_id, fragment_shader_id);
 	
-	glUseProgram(shader_id);
+	glUseProgram(program_id);
 	
 	return true;
 }

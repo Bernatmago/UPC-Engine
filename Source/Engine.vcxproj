@@ -195,6 +195,7 @@
     <ClCompile Include="Dependencies\MathGeoLib\Geometry\Triangle2D.cpp" />
     <ClCompile Include="Dependencies\MathGeoLib\Geometry\TriangleMesh.cpp" />
     <ClCompile Include="Dependencies\MathGeoLib\Time\Clock.cpp" />
+    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModuleCamera.cpp" />
     <ClCompile Include="ModuleDebugDraw.cpp" />
@@ -295,6 +296,7 @@
     <ClInclude Include="Dependencies\MathGeoLib\MathGeoLib.h" />
     <ClInclude Include="Dependencies\MathGeoLib\MathGeoLibFwd.h" />
     <ClInclude Include="Dependencies\MathGeoLib\Time\Clock.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Module.h" />
     <ClInclude Include="ModuleCamera.h" />

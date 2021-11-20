@@ -16,7 +16,7 @@ public:
     unsigned CreateProgram(unsigned vtx_shader, unsigned frg_shader);
     unsigned int vertex_shader_id;
     unsigned int fragment_shader_id;
-    unsigned int shader_id;
+    unsigned int program_id;
 private:
 };
 

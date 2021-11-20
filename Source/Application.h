@@ -32,7 +32,7 @@ public:
 	ModuleRender* renderer = nullptr;
 	ModuleGui* gui = nullptr;
 	ModuleInput* input = nullptr;
-	ModuleProgram* shader = nullptr;
+	ModuleProgram* program = nullptr;
 	ModuleCamera* camera = nullptr;
 	ModuleDebugDraw* debug = nullptr;
 

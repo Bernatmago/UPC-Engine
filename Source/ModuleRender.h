@@ -1,6 +1,7 @@
 #pragma once
 #include "Module.h"
 #include "Globals.h"
+#include "Model.h"
 
 struct SDL_Texture;
 struct SDL_Renderer;
@@ -22,7 +23,6 @@ public:
 	void* context;
 
 private:
-	unsigned int square_vbo;
-	unsigned int square_ebo;
+	Model* house = nullptr;
 	unsigned int texture_id;
 };
