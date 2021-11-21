@@ -28,10 +28,10 @@ bool ModuleCamera::Init()
     SetAspectRatio(screen_surface->w, screen_surface->h);
     SetHorizontalFov(90.0f);
     SetPlaneDistances(0.1f, 100.0f);
-    SetPosition(float3(0.0f, 0.0f, 10.0f));
-    
-    frustum.SetFront(float3::unitZ);
-    frustum.SetUp(float3::unitY); 
+    SetPosition(float3(0.0f, 0.5f, 10.0f));
+    rotation = float3x3::identity;
+    frustum.SetFront(rotation.WorldZ());
+    frustum.SetUp(rotation.WorldY());
     LookAt(float3(0.0f, 0.0f, 0.0f));
     return true;
 }
@@ -43,9 +43,8 @@ update_status ModuleCamera::PreUpdate()
 
 update_status ModuleCamera::Update()
 {
+    
     CameraController();
-
-    SetPosition(position);
     SetPlaneDistances(near_distance, far_distance);
 
     if (locked)
@@ -69,6 +68,14 @@ void ModuleCamera::SetPosition(const float3& new_position)
     frustum.SetPos(position = new_position);
 }
 
+void ModuleCamera::Rotate(float pitch, float yaw)
+{
+    // TODO: FIX..
+    float3x3 current = float3x3::RotateAxisAngle(rotation.WorldX(), pitch * deg_to_rad) *
+        float3x3::RotateAxisAngle(float3::unitY, -yaw * deg_to_rad);
+    rotation = current.Mul(rotation);
+}
+
 void ModuleCamera::SetAspectRatio(unsigned int screen_width, unsigned int screen_height)
 {
     aspect_ratio = (float)screen_width / (float)screen_height;
@@ -85,9 +92,10 @@ void ModuleCamera::LookAt(const float3& look_position)
 {
     float3 direction = look_position - frustum.Pos();
     // localForward, targetDirection, localUp, worldUp
-    float3x3 look_rotation = float3x3::LookAt(frustum.Front(), direction.Normalized(), frustum.Up(), float3::unitY);
-    frustum.SetFront(look_rotation.MulDir(frustum.Front()).Normalized());
-    frustum.SetUp(look_rotation.MulDir(frustum.Up()).Normalized());
+    // TODO: We are using rotation in two different ways, fix
+    rotation = float3x3::LookAt(frustum.Front(), direction.Normalized(), frustum.Up(), float3::unitY);
+    frustum.SetFront(rotation.MulDir(frustum.Front()).Normalized());
+    frustum.SetUp(rotation.MulDir(frustum.Up()).Normalized());
 }
 
 void ModuleCamera::SetPlaneDistances(const float near_dist, const float far_dist)
@@ -103,30 +111,45 @@ void ModuleCamera::WindowResized(unsigned int screen_width, unsigned int screen_
 void ModuleCamera::CameraController()
 {
    static const float speed = 0.02f;
-   uint32_t delta = App->GetDeltaTime();
-   if (App->input->GetMouseButton(SDL_BUTTON_RIGHT)) {
-        int delta_x, delta_y;
-        App->input->GetMouseDelta(delta_x, delta_y);
-        /*float3x3 rotation = float3x3::RotateAxisAngle(float3::unitX, delta_y * delta * deg_to_rad) *
-            rotation = float3x3::RotateAxisAngle(float3::unitY, -delta_x * delta * deg_to_rad);
-        */
-        LOG("%d, %d", delta_x, delta_y);
-    }   
-
+   uint32_t delta = App->GetDeltaTime();   
     
-    //App->input->GetMouseMotion(deltaX, deltaY);
-    if (App->input->GetKey(SDL_SCANCODE_W))
-        position.z -= speed * delta;
-    if (App->input->GetKey(SDL_SCANCODE_S))
-        position.z += speed * delta;
-    if (App->input->GetKey(SDL_SCANCODE_A))
-        position.x -= speed * delta;
-    if (App->input->GetKey(SDL_SCANCODE_D))
-        position.x += speed * delta;
-    if (App->input->GetKey(SDL_SCANCODE_Q))
-        position.y += speed * delta;
-    if (App->input->GetKey(SDL_SCANCODE_E))
-        position.y -= speed * delta;
+   if (!locked && App->input->GetMouseButton(SDL_BUTTON_RIGHT)) {
+       int delta_x, delta_y;
+       App->input->GetMouseDelta(delta_x, delta_y);
+       //Rotate(speed * delta_y * delta, speed * delta_x * delta);
+       //Rotate(speed * delta_y * delta, speed * delta_x * delta);
+       Rotate(speed * delta_y * delta, 0.0f);
+       Rotate(0.0f, speed * delta_x * delta);
+       //LOG("%d, %d", delta_x, delta_y);
+   }
+   if (App->input->GetKey(SDL_SCANCODE_UP))
+       Rotate(-speed * 5 * delta, 0.0f);
+   if (App->input->GetKey(SDL_SCANCODE_DOWN))
+       Rotate(speed * 5 * delta, 0.0f);
+   if (App->input->GetKey(SDL_SCANCODE_LEFT))
+       Rotate(0.0f, -speed * 5 * delta);
+   if (App->input->GetKey(SDL_SCANCODE_RIGHT))
+       Rotate(0.0f, speed * 5 * delta);
+
+
+   // TODO: Move along frustrum front
+   if (App->input->GetKey(SDL_SCANCODE_W))
+       position += rotation.WorldZ() * speed * delta;
+   if (App->input->GetKey(SDL_SCANCODE_S))
+       position -= rotation.WorldZ()* speed * delta;
+   if (App->input->GetKey(SDL_SCANCODE_A))
+       position += rotation.WorldX() * speed * delta;
+   if (App->input->GetKey(SDL_SCANCODE_D))
+       position -= rotation.WorldX() * speed * delta;
+   if (App->input->GetKey(SDL_SCANCODE_Q))
+       position += rotation.WorldY() * speed * delta;
+   if (App->input->GetKey(SDL_SCANCODE_E))
+       position -= rotation.WorldY() * speed * delta;
+   
+   frustum.SetPos(position);
+   frustum.SetFront(rotation.WorldZ());
+   frustum.SetUp(rotation.WorldY());
+   //frustum.set
 }
 
 float4x4 ModuleCamera::GetGLView() const

@@ -18,6 +18,7 @@ public:
 	bool CleanUp();
 	
 	void SetPosition(const float3& position);
+	void Rotate(float pitch, float yaw);
 	void SetAspectRatio(unsigned int screen_width, unsigned int screen_height);
 	void SetHorizontalFov(float fov_deg);
 	void LookAt(const float3& position);
@@ -26,6 +27,11 @@ public:
 	void WindowResized(unsigned int screen_width, unsigned int screen_height);
 
 	void CameraController();
+
+	float4x4 GetGLView() const;
+	float4x4 GetView() const;
+	float4x4 GetGLProjection() const;
+	float4x4 GetProjection() const;
 	
 	// Orientation()
 	
@@ -34,13 +40,11 @@ public:
 
 	bool locked = false;
 	float3 position;
+	float3x3 rotation;
 	float near_distance;
 	float far_distance;
 
-	float4x4 GetGLView() const;
-	float4x4 GetView() const;
-	float4x4 GetGLProjection() const;
-	float4x4 GetProjection() const;
+	
 
 private:
 	Frustum frustum;

@@ -43,7 +43,7 @@ public:
 private:
 	std::list<Module*> modules;
 
-	uint32_t delta = 0;
+	uint32_t  delta = 0;
 	uint32_t  prev_tick_time = 0;
 };
 
