@@ -29,7 +29,7 @@ bool ModuleCamera::Init()
     SetHorizontalFov(90.0f);
     SetPlaneDistances(0.1f, 100.0f);
     SetPosition(float3(0.0f, 0.5f, 10.0f));
-    rotation = float3x3::identity;
+    float3x3 rotation = float3x3::identity;
     frustum.SetFront(rotation.WorldZ());
     frustum.SetUp(rotation.WorldY());
     LookAt(float3(0.0f, 0.0f, 0.0f));
@@ -47,8 +47,8 @@ update_status ModuleCamera::Update()
     CameraController();
     SetPlaneDistances(near_distance, far_distance);
 
-    if (locked)
-        LookAt(float3(0.0f, 0.0f, 0.0f));
+    //if (locked)
+      //  LookAt(float3(0.0f, 0.0f, 0.0f));
 
     return UPDATE_CONTINUE;
 }
@@ -68,14 +68,6 @@ void ModuleCamera::SetPosition(const float3& new_position)
     frustum.SetPos(position = new_position);
 }
 
-void ModuleCamera::Rotate(float pitch, float yaw)
-{
-    // TODO: FIX..
-    float3x3 current = float3x3::RotateAxisAngle(rotation.WorldX(), pitch * deg_to_rad) *
-        float3x3::RotateAxisAngle(float3::unitY, -yaw * deg_to_rad);
-    rotation = current.Mul(rotation);
-}
-
 void ModuleCamera::SetAspectRatio(unsigned int screen_width, unsigned int screen_height)
 {
     aspect_ratio = (float)screen_width / (float)screen_height;
@@ -93,9 +85,71 @@ void ModuleCamera::LookAt(const float3& look_position)
     float3 direction = look_position - frustum.Pos();
     // localForward, targetDirection, localUp, worldUp
     // TODO: We are using rotation in two different ways, fix
-    rotation = float3x3::LookAt(frustum.Front(), direction.Normalized(), frustum.Up(), float3::unitY);
-    frustum.SetFront(rotation.MulDir(frustum.Front()).Normalized());
-    frustum.SetUp(rotation.MulDir(frustum.Up()).Normalized());
+    float3x3 look_dir = float3x3::LookAt(frustum.Front(), direction.Normalized(), frustum.Up(), float3::unitY);
+    frustum.SetFront(look_dir.MulDir(frustum.Front()).Normalized());
+    frustum.SetUp(look_dir.MulDir(frustum.Up()).Normalized());
+}
+
+void ModuleCamera::Rotate(float pitch, float yaw)
+{
+    if (yaw != 0.0f) {
+        // Rotate in Y absolut axis
+        Quat rot = Quat::RotateY(yaw);
+        frustum.SetFront(rot.Mul(frustum.Front()).Normalized());
+        frustum.SetUp(rot.Mul(frustum.Up()).Normalized());
+    }
+
+    if (pitch != 0.0f) {
+        // Rotate in X local axis
+        Quat rot = Quat::RotateAxisAngle(frustum.WorldRight(), pitch);
+        float3 a = rot.Mul(frustum.Up()).Normalized();
+        frustum.SetUp(a);      
+        frustum.SetFront(rot.Mul(frustum.Front()).Normalized());
+    }
+}
+
+void ModuleCamera::CameraController()
+{
+   static const float speed = 3.0f;
+   static const float rot_speed = 1.5f;
+   float delta = App->GetDeltaTime();   
+
+   int moved_x, moved_y;
+   App->input->GetMouseDelta(moved_x, moved_y);    
+   if (App->input->GetMouseButton(SDL_BUTTON_RIGHT)) {
+       
+       //Rotate(speed * delta_y * delta, speed * delta_x * delta);
+       if (moved_x != 0 or moved_y != 0)
+       {
+           Rotate(-rot_speed * (float)moved_y * delta, -rot_speed * (float)moved_x * delta);
+       }
+   }
+   if (App->input->GetKey(SDL_SCANCODE_UP))
+       Rotate(-speed * delta, 0.0f);
+   if (App->input->GetKey(SDL_SCANCODE_DOWN))
+       Rotate(speed * delta, 0.0f);
+   if (App->input->GetKey(SDL_SCANCODE_LEFT))
+       Rotate(0.0f, -speed * delta);
+   if (App->input->GetKey(SDL_SCANCODE_RIGHT))
+       Rotate(0.0f, speed * delta);
+
+
+   // TODO: Move along frustrum front
+   if (App->input->GetKey(SDL_SCANCODE_W))
+       position += frustum.Front() * speed * delta;
+   if (App->input->GetKey(SDL_SCANCODE_S))
+       position -= frustum.Front() * speed * delta;
+   if (App->input->GetKey(SDL_SCANCODE_A))
+       position -= frustum.WorldRight() * speed * delta;
+   if (App->input->GetKey(SDL_SCANCODE_D))
+       position += frustum.WorldRight() * speed * delta;
+   if (App->input->GetKey(SDL_SCANCODE_Q))
+       position += frustum.Up() * speed * delta;
+   if (App->input->GetKey(SDL_SCANCODE_E))
+       position -= frustum.Up() * speed * delta;
+   
+   frustum.SetPos(position);
+   //frustum.set
 }
 
 void ModuleCamera::SetPlaneDistances(const float near_dist, const float far_dist)
@@ -106,50 +160,6 @@ void ModuleCamera::SetPlaneDistances(const float near_dist, const float far_dist
 void ModuleCamera::WindowResized(unsigned int screen_width, unsigned int screen_height)
 {
     SetAspectRatio(screen_width, screen_height);
-}
-
-void ModuleCamera::CameraController()
-{
-   static const float speed = 0.02f;
-   uint32_t delta = App->GetDeltaTime();   
-    
-   if (!locked && App->input->GetMouseButton(SDL_BUTTON_RIGHT)) {
-       int delta_x, delta_y;
-       App->input->GetMouseDelta(delta_x, delta_y);
-       //Rotate(speed * delta_y * delta, speed * delta_x * delta);
-       //Rotate(speed * delta_y * delta, speed * delta_x * delta);
-       Rotate(speed * delta_y * delta, 0.0f);
-       Rotate(0.0f, speed * delta_x * delta);
-       //LOG("%d, %d", delta_x, delta_y);
-   }
-   if (App->input->GetKey(SDL_SCANCODE_UP))
-       Rotate(-speed * 5 * delta, 0.0f);
-   if (App->input->GetKey(SDL_SCANCODE_DOWN))
-       Rotate(speed * 5 * delta, 0.0f);
-   if (App->input->GetKey(SDL_SCANCODE_LEFT))
-       Rotate(0.0f, -speed * 5 * delta);
-   if (App->input->GetKey(SDL_SCANCODE_RIGHT))
-       Rotate(0.0f, speed * 5 * delta);
-
-
-   // TODO: Move along frustrum front
-   if (App->input->GetKey(SDL_SCANCODE_W))
-       position += rotation.WorldZ() * speed * delta;
-   if (App->input->GetKey(SDL_SCANCODE_S))
-       position -= rotation.WorldZ()* speed * delta;
-   if (App->input->GetKey(SDL_SCANCODE_A))
-       position += rotation.WorldX() * speed * delta;
-   if (App->input->GetKey(SDL_SCANCODE_D))
-       position -= rotation.WorldX() * speed * delta;
-   if (App->input->GetKey(SDL_SCANCODE_Q))
-       position += rotation.WorldY() * speed * delta;
-   if (App->input->GetKey(SDL_SCANCODE_E))
-       position -= rotation.WorldY() * speed * delta;
-   
-   frustum.SetPos(position);
-   frustum.SetFront(rotation.WorldZ());
-   frustum.SetUp(rotation.WorldY());
-   //frustum.set
 }
 
 float4x4 ModuleCamera::GetGLView() const

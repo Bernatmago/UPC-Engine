@@ -40,7 +40,7 @@ public:
 
 	bool locked = false;
 	float3 position;
-	float3x3 rotation;
+	//float3x3 rotation;
 	float near_distance;
 	float far_distance;
 

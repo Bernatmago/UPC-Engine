@@ -47,7 +47,7 @@ bool Application::Init()
 update_status Application::Update()
 {
 	uint32_t tick_time = SDL_GetTicks();
-	delta = tick_time - prev_tick_time;
+	delta = (float)(tick_time - prev_tick_time) / 1000.0f;
 	prev_tick_time = tick_time;
 
 	update_status ret = UPDATE_CONTINUE;

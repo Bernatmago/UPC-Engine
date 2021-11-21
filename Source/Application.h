@@ -27,7 +27,7 @@ public:
 	update_status Update();
 	bool CleanUp();
 
-	inline uint32_t GetDeltaTime() { return delta; };
+	float GetDeltaTime() { return delta; };
 
 public:
 	ModuleWindow* window = nullptr;
@@ -43,7 +43,7 @@ public:
 private:
 	std::list<Module*> modules;
 
-	uint32_t  delta = 0;
+	float  delta = 0;
 	uint32_t  prev_tick_time = 0;
 };
 
