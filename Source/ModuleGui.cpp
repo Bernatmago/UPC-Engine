@@ -123,9 +123,14 @@ void ModuleGui::WindowOptions() {
 void ModuleGui::CameraOptions()
 {
 	//static float f3[3] = { 0.0f, 0.0f, 1.0f };
-	float3& camera_pos = App->camera->position;
+	static float3& camera_pos = App->camera->position;
+	static float& near_distance = App->camera->near_distance;
+	static float& far_distance = App->camera->far_distance;
+
 	ImGui::SliderFloat2("X, Y", &camera_pos[0], -5.0f, 5.0f);
 	ImGui::SliderFloat("Z", &camera_pos.z, 0.5f, 10.0f);
+	ImGui::SliderFloat("N", &near_distance, 0.1f, 500.0f);
+	ImGui::SliderFloat("F", &far_distance, 0.1f, 500.0f);
 	ImGui::Checkbox("Look Center", &App->camera->locked);
 }
 
@@ -142,7 +147,6 @@ void ModuleGui::About() {
 	ImGui::Separator();
 	ImGui::Text("CPUs: %d", about.n_cpu);
 	ImGui::Text("System RAM: %.1f Gb", about.ram_gb);
-	;
 	// Caps (que es)
 	ImGui::Separator();
 	ImGui::Text("GPU: %s", about.gpu);
@@ -150,7 +154,6 @@ void ModuleGui::About() {
 	ImGui::Text("VRAM Budget: %.1f Mb", vram_budget_mb);
 	ImGui::Text("Vram Usage:  %.1f Mb", vram_usage_mb);
 	ImGui::Text("Vram Avaliable:  %.1f Mb", vram_free_mb);
-	// Vram Reserved
 }
 
 update_status ModuleGui::PreUpdate()

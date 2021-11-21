@@ -46,6 +46,10 @@ bool Application::Init()
 
 update_status Application::Update()
 {
+	uint32_t tick_time = SDL_GetTicks();
+	delta = tick_time - prev_tick_time;
+	prev_tick_time = tick_time;
+
 	update_status ret = UPDATE_CONTINUE;
 
 	for(list<Module*>::iterator it = modules.begin(); it != modules.end() && ret == UPDATE_CONTINUE; ++it)

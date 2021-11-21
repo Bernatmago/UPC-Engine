@@ -1,8 +1,8 @@
+#include "ModuleInput.h"
+
 #include "Globals.h"
 #include "Application.h"
-#include "ModuleInput.h"
 #include "ModuleWindow.h"
-#include "SDL.h"
 
 #include "imgui_impl_sdl.h"
 
@@ -32,27 +32,29 @@ bool ModuleInput::Init()
 // Called every draw update
 update_status ModuleInput::Update()
 {
-    SDL_Event sdlEvent;
-
-    while (SDL_PollEvent(&sdlEvent) != 0)
+    SDL_Event event;
+    // TODO: Improve delta management
+    mouse_delta_x = 0;
+    mouse_delta_y = 0;
+    while (SDL_PollEvent(&event) != 0)
     {
-        ImGui_ImplSDL2_ProcessEvent(&sdlEvent);
-        switch (sdlEvent.type)
+        ImGui_ImplSDL2_ProcessEvent(&event);
+        switch (event.type)
         {
             case SDL_QUIT:
                 return UPDATE_STOP;
             case SDL_WINDOWEVENT:
-                //if (sdlEvent.window.event == SDL_WINDOWEVENT_RESIZED || sdlEvent.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
-                if (sdlEvent.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
-                {
-                    App->window->WindowResized();
-                }
-                    
+                if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
+                    App->window->WindowResized();    
                 break;
+            case SDL_MOUSEMOTION:
+                mouse_delta_x = event.motion.xrel;
+                mouse_delta_y = event.motion.yrel;
         }
     }
 
     keyboard = SDL_GetKeyboardState(NULL);
+    mouse = SDL_GetMouseState(&mouse_x, &mouse_y);
 
     return UPDATE_CONTINUE;
 }
@@ -63,4 +65,20 @@ bool ModuleInput::CleanUp()
 	LOG("Quitting SDL input event subsystem");
 	SDL_QuitSubSystem(SDL_INIT_EVENTS);
 	return true;
+}
+
+const unsigned ModuleInput::GetKey(SDL_Scancode key) const
+{
+    return keyboard[key];
+}
+
+const bool ModuleInput::GetMouseButton(int button) const
+{
+    return (mouse & SDL_BUTTON(button));
+}
+
+const void ModuleInput::GetMouseDelta(int& x, int& y) const
+{
+    x = mouse_delta_x;
+    y = mouse_delta_y;
 }

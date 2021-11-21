@@ -21,18 +21,21 @@ public:
 	void SetAspectRatio(unsigned int screen_width, unsigned int screen_height);
 	void SetHorizontalFov(float fov_deg);
 	void LookAt(const float3& position);
+	void SetPlaneDistances(const float near_distance, const float far_distance);
 
-	void RefreshFov();
 	void WindowResized(unsigned int screen_width, unsigned int screen_height);
 
-	// SetPlaneDistances()
+	void CameraController();
+	
 	// Orientation()
 	
 	// Dont do orbit
 	// Add debugdraw to use
 
-	bool locked;
+	bool locked = false;
 	float3 position;
+	float near_distance;
+	float far_distance;
 
 	float4x4 GetGLView() const;
 	float4x4 GetView() const;
@@ -43,6 +46,6 @@ private:
 	Frustum frustum;
 	float aspect_ratio;
 	float horizontal_fov;
-	float3 look_position;
+	float3 look_position;	
 };
 
