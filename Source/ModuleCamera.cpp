@@ -47,8 +47,8 @@ update_status ModuleCamera::Update()
     CameraController();
     SetPlaneDistances(near_distance, far_distance);
 
-    //if (locked)
-      //  LookAt(float3(0.0f, 0.0f, 0.0f));
+    if (locked)
+        LookAt(float3(0.0f, 0.0f, 0.0f));
 
     return UPDATE_CONTINUE;
 }
@@ -110,8 +110,8 @@ void ModuleCamera::Rotate(float pitch, float yaw)
 
 void ModuleCamera::CameraController()
 {
-   static const float speed = 3.0f;
-   static const float rot_speed = 1.5f;
+   static const float speed = 15.0f;
+   static const float rot_speed = 2.5f;
    float delta = App->GetDeltaTime();   
 
    int moved_x, moved_y;
@@ -125,13 +125,13 @@ void ModuleCamera::CameraController()
        }
    }
    if (App->input->GetKey(SDL_SCANCODE_UP))
-       Rotate(-speed * delta, 0.0f);
+       Rotate(rot_speed * delta, 0.0f);
    if (App->input->GetKey(SDL_SCANCODE_DOWN))
-       Rotate(speed * delta, 0.0f);
+       Rotate(-rot_speed * delta, 0.0f);
    if (App->input->GetKey(SDL_SCANCODE_LEFT))
-       Rotate(0.0f, -speed * delta);
+       Rotate(0.0f, rot_speed * delta);
    if (App->input->GetKey(SDL_SCANCODE_RIGHT))
-       Rotate(0.0f, speed * delta);
+       Rotate(0.0f, -rot_speed * delta);
 
 
    // TODO: Move along frustrum front
@@ -149,7 +149,6 @@ void ModuleCamera::CameraController()
        position -= frustum.Up() * speed * delta;
    
    frustum.SetPos(position);
-   //frustum.set
 }
 
 void ModuleCamera::SetPlaneDistances(const float near_dist, const float far_dist)
@@ -162,22 +161,25 @@ void ModuleCamera::WindowResized(unsigned int screen_width, unsigned int screen_
     SetAspectRatio(screen_width, screen_height);
 }
 
-float4x4 ModuleCamera::GetGLView() const
-{
-    return float4x4(frustum.ViewMatrix()).Transposed();
-}
-
 float4x4 ModuleCamera::GetView() const
 {
     return float4x4(frustum.ViewMatrix());
 }
 
-float4x4 ModuleCamera::GetGLProjection() const
-{
-    return frustum.ProjectionMatrix().Transposed();
-}
-
 float4x4 ModuleCamera::GetProjection() const
 {
     return frustum.ProjectionMatrix();
+}
+
+void ModuleCamera::OptionsMenu()
+{
+    ImGui::SliderFloat2("X, Y", &position[0], -5.0f, 5.0f);
+    ImGui::SliderFloat("Z", &position.z, 0.5f, 10.0f);
+    ImGui::SliderFloat("N", &near_distance, 0.1f, 500.0f);
+    ImGui::SliderFloat("F", &far_distance, 0.1f, 500.0f);
+    ImGui::Checkbox("Look Center", &locked);
+    if (locked) {
+        ImGui::SameLine();
+        ImGui::Text("Rotation disabled");
+    }
 }

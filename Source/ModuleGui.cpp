@@ -82,8 +82,8 @@ void ModuleGui::Sidebar() {
 		ImGui::EndMenuBar();
 	}
 
-	if (ImGui::CollapsingHeader("Window Options")) WindowOptions();
-	if (ImGui::CollapsingHeader("Camera Options")) CameraOptions();
+	if (ImGui::CollapsingHeader("Window Options")) App->window->OptionsMenu();
+	if (ImGui::CollapsingHeader("Camera Options")) App->camera->OptionsMenu();
 	if (ImGui::CollapsingHeader("Performance")) Performance();
 	if (ImGui::CollapsingHeader("About")) About();
 
@@ -92,46 +92,6 @@ void ModuleGui::Sidebar() {
 
 void ModuleGui::Performance() {
 
-}
-
-void ModuleGui::WindowOptions() {
-	// TODO: Load properly
-	static bool fullscreen = FULLSCREEN;
-	static bool resizable = RESIZABLE;
-	static int width = SCREEN_WIDTH;
-	static int height = SCREEN_HEIGHT;
-	static const int refresh_rate = App->window->refresh_rate;
-
-	if (ImGui::Checkbox("Fullscreen", &fullscreen))
-		App->window->SetFullScreen(fullscreen);
-
-	if (!fullscreen) {
-		ImGui::SameLine();
-		if (ImGui::Checkbox("Resizable", &resizable))
-			App->window->SetResizable(resizable);
-
-		if (ImGui::SliderInt("Width", &width, 0, SCREEN_MAX_WIDTH)) {
-			App->window->SetSize(width, height);
-		}
-		if (ImGui::SliderInt("Height", &height, 0, SCREEN_MAX_HEIGHT)) {
-			App->window->SetSize(width, height);
-		}
-	}
-	ImGui::Text("Refresh Rate: %d", refresh_rate);
-}
-
-void ModuleGui::CameraOptions()
-{
-	//static float f3[3] = { 0.0f, 0.0f, 1.0f };
-	static float3& camera_pos = App->camera->position;
-	static float& near_distance = App->camera->near_distance;
-	static float& far_distance = App->camera->far_distance;
-
-	ImGui::SliderFloat2("X, Y", &camera_pos[0], -5.0f, 5.0f);
-	ImGui::SliderFloat("Z", &camera_pos.z, 0.5f, 10.0f);
-	ImGui::SliderFloat("N", &near_distance, 0.1f, 500.0f);
-	ImGui::SliderFloat("F", &far_distance, 0.1f, 500.0f);
-	ImGui::Checkbox("Look Center", &App->camera->locked);
 }
 
 void ModuleGui::About() {

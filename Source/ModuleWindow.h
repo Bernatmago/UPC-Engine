@@ -12,22 +12,16 @@ public:
 
 	ModuleWindow();
 
-	// Destructor
 	virtual ~ModuleWindow();
-
-	// Called before quitting
 	bool Init();
-
-	// Called before quitting
 	bool CleanUp();
 
 	void WindowResized();
-
 	void SetFullScreen(bool fullscreen);
-
 	void SetResizable(bool resizable);
-
 	void SetSize(int w, int h);
+
+	void OptionsMenu();
 
 public:
 	//The window we'll be rendering to

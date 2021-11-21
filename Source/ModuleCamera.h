@@ -22,27 +22,20 @@ public:
 	void SetAspectRatio(unsigned int screen_width, unsigned int screen_height);
 	void SetHorizontalFov(float fov_deg);
 	void LookAt(const float3& position);
+	void CameraController();
 	void SetPlaneDistances(const float near_distance, const float far_distance);
-
 	void WindowResized(unsigned int screen_width, unsigned int screen_height);
 
-	void CameraController();
+	void OptionsMenu();
 
-	float4x4 GetGLView() const;
+	
+
 	float4x4 GetView() const;
-	float4x4 GetGLProjection() const;
 	float4x4 GetProjection() const;
 	
-	// Orientation()
-	
-	// Dont do orbit
-	// Add debugdraw to use
+	// Orbit and more controls
 
-	bool locked = false;
-	float3 position;
-	//float3x3 rotation;
-	float near_distance;
-	float far_distance;
+	
 
 	
 
@@ -51,5 +44,10 @@ private:
 	float aspect_ratio;
 	float horizontal_fov;
 	float3 look_position;	
+
+	bool locked = false;
+	float3 position;
+	float near_distance;
+	float far_distance;
 };
 
