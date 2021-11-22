@@ -17,7 +17,6 @@ ModuleRender::ModuleRender()
 {
 }
 
-// Destructor
 ModuleRender::~ModuleRender()
 {
 }
@@ -54,48 +53,6 @@ void __stdcall OurOpenGLErrorFunction(GLenum source, GLenum type, GLuint id, GLe
 	LOG("<Source:%s> <Type:%s> <Severity:%s> <ID:%d> <Message:%s>\n", tmp_source, tmp_type, tmp_severity, id, message);
 }
 
-unsigned int CreateSquareVBO() {
-	float positions[] = {
-		-50.0f, -50.0f, -1.0f, 0.0f, 0.0f,
-		 50.0f, -50.0f, -1.0f, 1.0f, 0.0f,
-		 50.0f,  50.0f, -1.0f, 1.0f, 1.0f,
-		-50.0f,  50.0f, -1.0f, 0.0f, 1.0f
-	};
-	unsigned int vbo;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo); // set vbo active 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
-	// Position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)0);
-	glEnableVertexAttribArray(0);
-	// Texture coord attribute
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-	return vbo;
-}
-
-unsigned int CreateSquareEBO()
-{
-	unsigned int indices[] = {
-		0, 1, 2,
-		2, 3, 0
-	};
-	
-	unsigned int ebo;
-	glGenBuffers(1, &ebo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	return ebo;
-}
-// This function must be called one time at destruction of vertex buffer
-void DestroyVBO(unsigned vbo)
-{
-	glDeleteBuffers(1, &vbo);
-}
-
-// Called before render is available
 bool ModuleRender::Init()
 {
 	LOG("Creating Renderer context");
@@ -131,10 +88,8 @@ bool ModuleRender::Init()
 	SDL_GetWindowSize(App->window->window, &w, &h);
 	glViewport(0, 0, w, h);
 
-	house = new Model("BakerHouse.fbx");
-
-	//square_vbo = CreateSquareVBO();
-	//square_ebo = CreateSquareEBO();
+	house = new Model();
+	house->Load("BakerHouse.fbx");
 
 	return true;
 }
@@ -147,7 +102,6 @@ update_status ModuleRender::PreUpdate()
 	return UPDATE_CONTINUE;
 }
 
-// Called every draw update
 update_status ModuleRender::Update()
 {
 	auto &a = App->window->screen_surface;
@@ -157,7 +111,6 @@ update_status ModuleRender::Update()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	house->Draw();
-
 
 	return UPDATE_CONTINUE;
 }
@@ -169,24 +122,20 @@ update_status ModuleRender::PostUpdate()
 	return UPDATE_CONTINUE;
 }
 
-// Called before quitting
-bool ModuleRender::CleanUp()
-{
-	LOG("Destroying renderer");
-	
-	// TODO: Add delete model
-	// glDeleteTextures(1, &texture_id);
-	// glDeleteBuffers(1, &square_ebo);
-	// glDeleteBuffers(1, &square_vbo);
-	SDL_GL_DeleteContext(context);
-
-	return true;
-}
-
 void ModuleRender::WindowResized(unsigned int width, unsigned int height)
 {
 	int w, h;
 	SDL_GetWindowSize(App->window->window, &w, &h);
 	glViewport(0, 0, w, h);
+}
+
+bool ModuleRender::CleanUp()
+{
+	LOG("Destroying renderer");	
+	house->CleanUp();
+	delete house;
+	SDL_GL_DeleteContext(context);
+
+	return true;
 }
 

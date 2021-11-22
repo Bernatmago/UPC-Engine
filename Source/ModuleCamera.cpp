@@ -22,7 +22,6 @@ ModuleCamera::~ModuleCamera()
 
 bool ModuleCamera::Init()
 {
-    // TODO: Remove redundant variables when it works
     frustum.SetKind(FrustumSpaceGL, FrustumRightHanded);
     auto screen_surface = App->window->screen_surface;
     SetAspectRatio(screen_surface->w, screen_surface->h);
@@ -60,7 +59,7 @@ update_status ModuleCamera::PostUpdate()
 
 bool ModuleCamera::CleanUp()
 {
-    return false;
+    return true;
 }
 
 void ModuleCamera::SetPosition(const float3& new_position)
@@ -84,7 +83,6 @@ void ModuleCamera::LookAt(const float3& look_position)
 {
     float3 direction = look_position - frustum.Pos();
     // localForward, targetDirection, localUp, worldUp
-    // TODO: We are using rotation in two different ways, fix
     float3x3 look_dir = float3x3::LookAt(frustum.Front(), direction.Normalized(), frustum.Up(), float3::unitY);
     frustum.SetFront(look_dir.MulDir(frustum.Front()).Normalized());
     frustum.SetUp(look_dir.MulDir(frustum.Up()).Normalized());
@@ -133,8 +131,6 @@ void ModuleCamera::CameraController()
    if (App->input->GetKey(SDL_SCANCODE_RIGHT))
        Rotate(0.0f, -rot_speed * delta);
 
-
-   // TODO: Move along frustrum front
    if (App->input->GetKey(SDL_SCANCODE_W))
        position += frustum.Front() * speed * delta;
    if (App->input->GetKey(SDL_SCANCODE_S))

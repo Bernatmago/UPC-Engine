@@ -22,18 +22,17 @@ unsigned int LoadSingleImage(const char* path)
 	return name;
 }
 
-Model::Model(const char* file_name)
+Model::Model()
 {
-	Load(file_name);
 }
 
 Model::~Model()
 {
-	// TODO: Define and manage
 }
 
 void Model::Draw()
 {
+	assert(loaded == true);
 	for (Mesh& mesh : meshes) {
 		mesh.Draw(textures);
 	}
@@ -47,6 +46,7 @@ void Model::Load(const char* file_name)
 	{		
 		LoadTextures(scene);
 		LoadMeshes(scene);
+		loaded = true;
 	}
 	else
 	{
@@ -76,9 +76,11 @@ void Model::LoadMeshes(const aiScene* scene)
 	textures.reserve(scene->mNumMeshes);
 	for (unsigned i = 0; i < scene->mNumMeshes; i++)
 	{
-		meshes.push_back(Mesh(scene->mMeshes[i]));
+		LOG("Push mesh %d", i);
+		meshes.push_back(Mesh());
+		meshes[i].Load(scene->mMeshes[i]);
 	}
-	LOG("Loading meshes")
+	
 }
 
 Texture Model::LoadTexture(const char* path)
@@ -98,4 +100,16 @@ Texture Model::LoadTexture(const char* path)
 
 	ilDeleteImages(1, &img_id);
 	return texture;
+}
+
+void Model::CleanUp()
+{
+	assert(loaded == true);
+	for (Mesh& mesh : meshes) {
+		mesh.CleanUp();
+	}
+	for (unsigned texture_id : textures) {
+		glDeleteTextures(1, &texture_id);
+	}
+	loaded = false;
 }

@@ -11,17 +11,23 @@
 #include "MathGeoLib.h"
 
 
-Mesh::Mesh(const aiMesh* mesh)
+
+
+Mesh::Mesh()
+{
+}
+
+Mesh::~Mesh()
+{
+}
+
+void Mesh::Load(const aiMesh* mesh)
 {
 	texture_index = mesh->mMaterialIndex;
 	LoadVBO(mesh);
 	LoadEBO(mesh);
 	CreateVAO();
-}
-
-Mesh::~Mesh()
-{
-	// TODO: Write destructor and clean
+	loaded = true;
 }
 
 void Mesh::LoadVBO(const aiMesh* mesh)
@@ -98,6 +104,7 @@ void Mesh::CreateVAO()
 
 void Mesh::Draw(const std::vector<unsigned>& model_textures)
 {
+	assert(loaded == true);
 	unsigned program_id = App->program->program_id;
 	float4x4 model = float4x4::identity;
 	
@@ -113,4 +120,12 @@ void Mesh::Draw(const std::vector<unsigned>& model_textures)
 	//glUniform1i(glGetUniformLocation(program_id, "diffuse"), 0);
 	glBindVertexArray(vao);
 	glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_INT, nullptr);
+}
+
+void Mesh::CleanUp()
+{
+	assert(loaded == true);
+	glDeleteBuffers(1, &ebo);
+	glDeleteBuffers(1, &vbo);
+	loaded = false;
 }

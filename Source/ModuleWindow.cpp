@@ -46,15 +46,13 @@ bool ModuleWindow::Init()
 		}
 		else
 		{
-			// Get window surface
-			// TODO: Check how to update on resize
+			// Get window surface, it must be updated on resize
 			screen_surface = SDL_GetWindowSurface(window);
 		}
 
 		SDL_DisplayMode mode;
 		SDL_GetDisplayMode(0, 0, &mode);
 		refresh_rate = mode.refresh_rate;
-
 	}
 
 	return ret;

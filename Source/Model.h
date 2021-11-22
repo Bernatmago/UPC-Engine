@@ -15,11 +15,14 @@ struct Texture {
 class Model
 {
 public:
-	Model(const char* file_name);
+	Model();
 	~Model();
-	void Draw();
-private:
 	void Load(const char* file_name);
+	void Draw();
+	void CleanUp();
+private:
+	bool loaded = false;
+	
 	void LoadTextures(const aiScene* scene);
 	void LoadMeshes(const aiScene* scene);
 	Texture LoadTexture(const char* path);

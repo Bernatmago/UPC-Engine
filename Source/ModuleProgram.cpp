@@ -21,6 +21,12 @@ bool ModuleProgram::Init()
 	return true;
 }
 
+bool ModuleProgram::CleanUp()
+{
+	glDeleteProgram(program_id);
+	return true;
+}
+
 char* ModuleProgram::LoadShaderSource(const char* shader_file_name)
 {
 	char* data = nullptr;

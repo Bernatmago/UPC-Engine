@@ -74,7 +74,6 @@ void ModuleGui::Sidebar() {
 	if (ImGui::BeginMenuBar())
 	{
 		if (ImGui::BeginMenu("Tools")) {
-			// TODO: Investigate shortcut null
 			ImGui::MenuItem("Console", NULL ,&show_console);
 			ImGui::MenuItem("Demo", NULL, &show_demo);
 			ImGui::EndMenu();
@@ -101,13 +100,11 @@ void ModuleGui::About() {
 	float vram_free_mb = about.vram_free / 1024.0f;
 	float vram_usage_mb = vram_budget_mb - vram_free_mb;
 
-	// TODO: Add missing rows
 	ImGui::Text("SDL Version: %d.%d.%d", about.sdl_version.major,
 		about.sdl_version.minor, about.sdl_version.patch);
 	ImGui::Separator();
 	ImGui::Text("CPUs: %d", about.n_cpu);
 	ImGui::Text("System RAM: %.1f Gb", about.ram_gb);
-	// Caps (que es)
 	ImGui::Separator();
 	ImGui::Text("GPU: %s", about.gpu);
 	ImGui::Text("Brand: %s", about.gpu_brand);
