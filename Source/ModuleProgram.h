@@ -9,8 +9,8 @@ class ModuleProgram :
 public:
     ModuleProgram();
 
-    bool Init();
-    bool CleanUp();
+    bool Init() override;
+    bool CleanUp() override;
 
     char* LoadShaderSource(const char* shader_file_name);
     unsigned int CompileShader(unsigned type, const char* source);

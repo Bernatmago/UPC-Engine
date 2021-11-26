@@ -29,37 +29,40 @@ bool ModuleInput::Init()
 	return ret;
 }
 
-// Called every draw update
-update_status ModuleInput::Update()
+update_status ModuleInput::PreUpdate()
 {
     SDL_Event event;
     // TODO: Improve delta management
     mouse_delta_x = 0;
     mouse_delta_y = 0;
+    scroll_delta = 0;
     while (SDL_PollEvent(&event) != 0)
     {
         ImGui_ImplSDL2_ProcessEvent(&event);
         switch (event.type)
         {
-            case SDL_QUIT:
-                return UPDATE_STOP;
-            case SDL_WINDOWEVENT:
-                if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
-                    App->window->WindowResized();    
-                break;
-            case SDL_MOUSEMOTION:
-                mouse_delta_x = event.motion.xrel;
-                mouse_delta_y = event.motion.yrel;
+        case SDL_QUIT:
+            return UPDATE_STOP;
+        case SDL_WINDOWEVENT:
+            if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
+                App->window->WindowResized();
+            break;
+        case SDL_MOUSEMOTION:
+            mouse_delta_x = event.motion.xrel;
+            mouse_delta_y = event.motion.yrel;
+            break;
+        case SDL_MOUSEWHEEL:
+            scroll_delta = event.wheel.y;
+            break;
         }
     }
-
     keyboard = SDL_GetKeyboardState(NULL);
+    keymods = SDL_GetModState();
     mouse = SDL_GetMouseState(&mouse_x, &mouse_y);
 
     return UPDATE_CONTINUE;
 }
 
-// Called before quitting
 bool ModuleInput::CleanUp()
 {
 	LOG("Quitting SDL input event subsystem");
@@ -72,6 +75,11 @@ const unsigned ModuleInput::GetKey(SDL_Scancode key) const
     return keyboard[key];
 }
 
+const bool ModuleInput::GetKeyMod(SDL_Keymod modifier) const
+{
+    return (keymods & modifier);
+}
+
 const bool ModuleInput::GetMouseButton(int button) const
 {
     return (mouse & SDL_BUTTON(button));
@@ -81,4 +89,9 @@ const void ModuleInput::GetMouseDelta(int& x, int& y) const
 {
     x = mouse_delta_x;
     y = mouse_delta_y;
+}
+
+int ModuleInput::GetScrollDelta() const
+{
+    return scroll_delta;
 }

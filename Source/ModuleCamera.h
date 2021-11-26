@@ -11,16 +11,15 @@ public:
 	ModuleCamera();
 	~ModuleCamera();
 
-	bool Init();
-	update_status PreUpdate();
-	update_status Update();
-	update_status PostUpdate();
-	bool CleanUp();
+	bool Init() override;
+	update_status Update() override;
+	bool CleanUp() override;
 	
 	void SetPosition(const float3& position);
 	void Rotate(float pitch, float yaw);
 	void SetAspectRatio(unsigned int screen_width, unsigned int screen_height);
 	void SetHorizontalFov(float fov_deg);
+	void Zoom(float deg_diff);
 	void LookAt(const float3& position);
 	void CameraController();
 	void SetPlaneDistances(const float near_distance, const float far_distance);

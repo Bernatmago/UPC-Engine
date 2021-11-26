@@ -34,6 +34,7 @@ bool ModuleGui::Init()
 	ImGui::StyleColorsDark();
 	ImGui_ImplSDL2_InitForOpenGL(App->window->window, App->renderer->context);
 	ImGui_ImplOpenGL3_Init("#version 330");
+	ImGui::StyleColorsDark();
 
 	 SDL_GetVersion(&about.sdl_version);
 	 about.n_cpu = SDL_GetCPUCount();
@@ -65,7 +66,6 @@ void ModuleGui::Menu() {
 }
 
 void ModuleGui::Sidebar() {
-	//Sidebar
 	ImGuiWindowFlags window_flags = 0;
 	window_flags |= ImGuiWindowFlags_MenuBar;
 	//window_flags |= ImGuiWindowFlags_NoMove;
@@ -132,11 +132,6 @@ update_status ModuleGui::Update()
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-	return UPDATE_CONTINUE;
-}
-
-update_status ModuleGui::PostUpdate()
-{	
 	return UPDATE_CONTINUE;
 }
 

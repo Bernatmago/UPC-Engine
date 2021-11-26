@@ -35,11 +35,6 @@ bool ModuleCamera::Init()
     return true;
 }
 
-update_status ModuleCamera::PreUpdate()
-{    
-    return UPDATE_CONTINUE;
-}
-
 update_status ModuleCamera::Update()
 {
     
@@ -49,11 +44,6 @@ update_status ModuleCamera::Update()
     if (locked)
         LookAt(float3(0.0f, 0.0f, 0.0f));
 
-    return UPDATE_CONTINUE;
-}
-
-update_status ModuleCamera::PostUpdate()
-{
     return UPDATE_CONTINUE;
 }
 
@@ -76,6 +66,20 @@ void ModuleCamera::SetAspectRatio(unsigned int screen_width, unsigned int screen
 void ModuleCamera::SetHorizontalFov(float fov_deg)
 {
     horizontal_fov = fov_deg * deg_to_rad;
+    frustum.SetHorizontalFovAndAspectRatio(horizontal_fov, aspect_ratio);
+}
+
+void ModuleCamera::Zoom(float deg_diff)
+{
+    static const float max_fov = 2.5f;
+    static const float min_fov = 1.0f;
+    horizontal_fov += deg_diff * deg_to_rad;
+    if (horizontal_fov > max_fov)
+        horizontal_fov = max_fov;
+    if (horizontal_fov < min_fov)
+        horizontal_fov = min_fov;
+    
+    LOG("HF %f", horizontal_fov)
     frustum.SetHorizontalFovAndAspectRatio(horizontal_fov, aspect_ratio);
 }
 
@@ -108,12 +112,23 @@ void ModuleCamera::Rotate(float pitch, float yaw)
 
 void ModuleCamera::CameraController()
 {
-   static const float speed = 15.0f;
+   static const float move_speed = 15.0f;
+   static const float speed_modifier = 2.0f;
    static const float rot_speed = 2.5f;
+   static const float zoom_speed = 3.0f;
    float delta = App->GetDeltaTime();   
+
+   float effective_speed = move_speed;
+   if (App->input->GetKeyMod(KMOD_SHIFT))
+       effective_speed *= speed_modifier;
 
    int moved_x, moved_y;
    App->input->GetMouseDelta(moved_x, moved_y);    
+   int scrolled_y = App->input->GetScrollDelta();
+   if (scrolled_y != 0) {
+       Zoom(zoom_speed * -scrolled_y);
+   }
+       
    if (App->input->GetMouseButton(SDL_BUTTON_RIGHT)) {
        
        //Rotate(speed * delta_y * delta, speed * delta_x * delta);
@@ -131,18 +146,21 @@ void ModuleCamera::CameraController()
    if (App->input->GetKey(SDL_SCANCODE_RIGHT))
        Rotate(0.0f, -rot_speed * delta);
 
+   
+
+   
    if (App->input->GetKey(SDL_SCANCODE_W))
-       position += frustum.Front() * speed * delta;
+       position += frustum.Front() * effective_speed * delta;
    if (App->input->GetKey(SDL_SCANCODE_S))
-       position -= frustum.Front() * speed * delta;
+       position -= frustum.Front() * effective_speed * delta;
    if (App->input->GetKey(SDL_SCANCODE_A))
-       position -= frustum.WorldRight() * speed * delta;
+       position -= frustum.WorldRight() * effective_speed * delta;
    if (App->input->GetKey(SDL_SCANCODE_D))
-       position += frustum.WorldRight() * speed * delta;
+       position += frustum.WorldRight() * effective_speed * delta;
    if (App->input->GetKey(SDL_SCANCODE_Q))
-       position += frustum.Up() * speed * delta;
+       position += frustum.Up() * effective_speed * delta;
    if (App->input->GetKey(SDL_SCANCODE_E))
-       position -= frustum.Up() * speed * delta;
+       position -= frustum.Up() * effective_speed * delta;
    
    frustum.SetPos(position);
 }

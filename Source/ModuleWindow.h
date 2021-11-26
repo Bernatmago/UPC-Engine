@@ -11,10 +11,10 @@ class ModuleWindow : public Module
 public:
 
 	ModuleWindow();
+	~ModuleWindow();
 
-	virtual ~ModuleWindow();
-	bool Init();
-	bool CleanUp();
+	bool Init() override;
+	bool CleanUp() override;
 
 	void WindowResized();
 	void SetFullScreen(bool fullscreen);
@@ -23,7 +23,6 @@ public:
 
 	void OptionsMenu();
 
-public:
 	//The window we'll be rendering to
 	SDL_Window* window = NULL;
 

@@ -122,7 +122,7 @@ update_status ModuleRender::PostUpdate()
 	return UPDATE_CONTINUE;
 }
 
-void ModuleRender::WindowResized(unsigned int width, unsigned int height)
+void ModuleRender::WindowResized(unsigned width, unsigned height)
 {
 	int w, h;
 	SDL_GetWindowSize(App->window->window, &w, &h);
