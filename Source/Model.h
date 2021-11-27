@@ -1,17 +1,12 @@
 #pragma once
 
+#include "ModuleTextures.h"
 #include "Mesh.h"
 
 #include "assimp/scene.h"
 #include "MathGeoLib.h"
 
 #include <vector>
-
-struct Texture {
-	unsigned id;	
-	std::string path;
-	//std::string type;
-};
 
 class Model
 {
@@ -26,6 +21,7 @@ public:
 	const float3& GetPosition() const;
 
 	void OptionsMenu();
+	void PropertiesWindow(bool* p_open);
 
 private:
 	bool loaded = false;
@@ -35,7 +31,7 @@ private:
 	void LoadTextures(const aiScene* scene);
 	void LoadMeshes(const aiScene* scene);
 	Texture LoadTexture(const char* path);
-	std::vector<unsigned> textures;
+	std::vector<Texture> textures;
 	std::vector<Mesh> meshes;
 };
 

@@ -13,6 +13,8 @@
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
 
+#include <shellapi.h>
+
 ModuleGui::ModuleGui()
 {
 }
@@ -51,14 +53,18 @@ bool ModuleGui::Init()
 void ModuleGui::Menu() {
 	// Main Menu
 	if (ImGui::BeginMainMenuBar()) {
-		if (ImGui::BeginMenu("File")) {
-			ImGui::MenuItem("Save");
-			ImGui::MenuItem("Load");
+		if (ImGui::BeginMenu("Help")) {
+			ImGui::MenuItem("Gui Demo", NULL, &show_demo);
+			if (ImGui::MenuItem("About"))
+				OpenBrowser("https://github.com/Bernatmago/UPC-Engine");			
+			if (ImGui::MenuItem("Bug Report"))
+				OpenBrowser("https://github.com/Bernatmago/UPC-Engine/issues");
 			ImGui::EndMenu();
 		}
-		if (ImGui::BeginMenu("Edit")) {
-			if (ImGui::MenuItem("Do")) {}
-			if (ImGui::MenuItem("Undo")) {}
+		if (ImGui::BeginMenu("Windows")) {
+			ImGui::MenuItem("Sidebar", NULL, &show_sidebar);
+			ImGui::MenuItem("Model Properties", NULL, &show_model_properties); // TODO: Add properties menu
+			ImGui::MenuItem("Console", NULL, &show_console);
 			ImGui::EndMenu();
 		}
 		ImGui::EndMainMenuBar();
@@ -70,37 +76,27 @@ void ModuleGui::Sidebar() {
 	window_flags |= ImGuiWindowFlags_MenuBar;
 	//window_flags |= ImGuiWindowFlags_NoMove;
 	//window_flags |= ImGuiWindowFlags_NoResize;
-	ImGui::Begin("Sidebar", NULL, window_flags);
-	if (ImGui::BeginMenuBar())
-	{
-		if (ImGui::BeginMenu("Tools")) {
-			ImGui::MenuItem("Console", NULL ,&show_console);
-			ImGui::MenuItem("Demo", NULL, &show_demo);
-			ImGui::EndMenu();
-		}
-		ImGui::EndMenuBar();
-	}
-
+	ImGui::Begin("Sidebar", &show_sidebar, window_flags);
 	if (ImGui::CollapsingHeader("Window")) App->window->OptionsMenu();
 	if (ImGui::CollapsingHeader("Camera")) App->camera->OptionsMenu();
 	if (ImGui::CollapsingHeader("Model")) App->renderer->model->OptionsMenu();
 	if (ImGui::CollapsingHeader("Performance")) Performance();
 	if (ImGui::CollapsingHeader("About")) About();
-
 	ImGui::End();
 }
 
 void ModuleGui::Performance() {
-
-}
-
-void ModuleGui::About() {
-	static SDL_version version;
 	static const float vram_budget_mb = about.vram_budget / 1024.0f;
 	glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &about.vram_free);
 	float vram_free_mb = about.vram_free / 1024.0f;
 	float vram_usage_mb = vram_budget_mb - vram_free_mb;
+	ImGui::Text("VRAM Budget: %.1f Mb", vram_budget_mb);
+	ImGui::Text("Vram Usage:  %.1f Mb", vram_usage_mb);
+	ImGui::Text("Vram Avaliable:  %.1f Mb", vram_free_mb);
+}
 
+void ModuleGui::About() {
+	static SDL_version version;
 	ImGui::Text("SDL Version: %d.%d.%d", about.sdl_version.major,
 		about.sdl_version.minor, about.sdl_version.patch);
 	ImGui::Separator();
@@ -109,9 +105,19 @@ void ModuleGui::About() {
 	ImGui::Separator();
 	ImGui::Text("GPU: %s", about.gpu);
 	ImGui::Text("Brand: %s", about.gpu_brand);
-	ImGui::Text("VRAM Budget: %.1f Mb", vram_budget_mb);
-	ImGui::Text("Vram Usage:  %.1f Mb", vram_usage_mb);
-	ImGui::Text("Vram Avaliable:  %.1f Mb", vram_free_mb);
+
+	
+}
+
+void ModuleGui::OpenBrowser(const char* url)
+{
+	// Handle parent window (none)
+	// Verb to be executed (0 uses default)
+	// Object to execute with verb (url)
+	// Executable file (none)
+	// Workdir for the action (default)
+	// Show the window
+	ShellExecute(0, 0, url, 0, 0, SW_SHOW);
 }
 
 update_status ModuleGui::PreUpdate()
@@ -119,12 +125,13 @@ update_status ModuleGui::PreUpdate()
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL2_NewFrame();
 	ImGui::NewFrame();
-
+		
+	Menu();
+	if (show_sidebar) Sidebar(); // TODO: Make all vatiables editable for renderer, window, input and textures
 	if (show_console) Logger->Draw(&show_console);
 	if (show_demo) ImGui::ShowDemoWindow(&show_demo);
-	Menu();
-	Sidebar();
-
+	if (show_model_properties)
+		App->renderer->model->PropertiesWindow(&show_model_properties);
 
 	return UPDATE_CONTINUE;
 }

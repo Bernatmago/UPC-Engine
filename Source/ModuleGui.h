@@ -38,6 +38,7 @@ public:
 	void Performance();
 	void About();
 
+	void OpenBrowser(const char* url);
 	//TODO
 	//fps graph
 	//window options
@@ -46,6 +47,8 @@ public:
 private:
 	bool show_console = false;
 	bool show_demo = false;
+	bool show_sidebar = true;
+	bool show_model_properties = false;
 	AboutData about;
 };
 

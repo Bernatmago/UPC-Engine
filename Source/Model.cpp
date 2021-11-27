@@ -68,7 +68,7 @@ void Model::LoadTextures(const aiScene* scene)
 		if (scene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, index, &file) == AI_SUCCESS)
 		{
 			// TODO: Move stuff to textures module and change to store similar to struct
-			textures.push_back(LoadTexture(file.data).id);
+			textures.push_back(LoadTexture(file.data));
 		}
 	}
 }
@@ -90,15 +90,15 @@ Texture Model::LoadTexture(const char* path)
 {
 	Texture texture;
 	texture.path = path;
-	unsigned int img_id = LoadSingleImage(path);	
+	unsigned int img_id = LoadSingleImage(path);
 
 	glGenTextures(1, &texture.id);
 	glBindTexture(GL_TEXTURE_2D, texture.id);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, ilGetInteger(IL_IMAGE_BPP), ilGetInteger(IL_IMAGE_WIDTH),
-		ilGetInteger(IL_IMAGE_HEIGHT), 0, ilGetInteger(IL_IMAGE_FORMAT), GL_UNSIGNED_BYTE,
+	glTexImage2D(GL_TEXTURE_2D, 0, ilGetInteger(IL_IMAGE_BPP), texture.width=ilGetInteger(IL_IMAGE_WIDTH),
+		texture.height=ilGetInteger(IL_IMAGE_HEIGHT), 0, ilGetInteger(IL_IMAGE_FORMAT), GL_UNSIGNED_BYTE,
 		ilGetData());
 
 	ilDeleteImages(1, &img_id);
@@ -111,8 +111,8 @@ void Model::CleanUp()
 	for (Mesh& mesh : meshes) {
 		mesh.CleanUp();
 	}
-	for (unsigned texture_id : textures) {
-		glDeleteTextures(1, &texture_id);
+	for (Texture texture : textures) {
+		glDeleteTextures(1, &texture.id);
 	}
 	loaded = false;
 }
@@ -158,8 +158,32 @@ void Model::OptionsMenu()
 			}
 		}
 	}
+	// TODO: Add rotation	
+}
 
-	// TODO: Add rotation
-		
+void Model::PropertiesWindow(bool* p_open)
+{
+	ImGui::SetNextWindowSize(ImVec2(250, 200), ImGuiCond_Once);
+	ImGui::Begin("Model Properties", p_open); // TODO: Fill with filename
+	// TODO: Add path
+	ImGui::Text("Texture");
+	for (int i = 0; i < textures.size(); ++i) {
+		const Texture& texture = textures[i];
+		ImGui::Text("T[%d]: %s %dx%d", i, texture.path.c_str(), texture.width, texture.height);
+	}
+	ImGui::Separator();
+	ImGui::Text("Meshes");
+
+	int vertices = 0;
+	int indexes = 0;
+	for (int i = 0; i < meshes.size(); ++i) {
+		const Mesh& mesh = meshes[i];
+		ImGui::Text("M[%d]: %dt, (%dv, %di)", i, mesh.GetNumIndexes()/3, mesh.GetNumVertices(), mesh.GetNumIndexes());
+		indexes += mesh.GetNumIndexes();
+		vertices += mesh.GetNumVertices();
+	}
+	ImGui::Text("Total : %dt, (%dv, %di)", indexes/3, vertices, indexes);
+
+	ImGui::End();
 
 }
