@@ -187,8 +187,8 @@ float4x4 ModuleCamera::GetProjection() const
 
 void ModuleCamera::OptionsMenu()
 {
-    ImGui::SliderFloat2("X, Y", &position[0], -5.0f, 5.0f);
-    ImGui::SliderFloat("Z", &position.z, 0.5f, 10.0f);
+    ImGui::SliderFloat2("cX, cY", &position[0], -5.0f, 5.0f);
+    ImGui::SliderFloat("cZ", &position.z, 0.5f, 10.0f);
     ImGui::SliderFloat("N", &near_distance, 0.1f, 500.0f);
     ImGui::SliderFloat("F", &far_distance, 0.1f, 500.0f);
     ImGui::Checkbox("Look Center", &locked);

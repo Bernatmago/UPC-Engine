@@ -81,8 +81,9 @@ void ModuleGui::Sidebar() {
 		ImGui::EndMenuBar();
 	}
 
-	if (ImGui::CollapsingHeader("Window Options")) App->window->OptionsMenu();
-	if (ImGui::CollapsingHeader("Camera Options")) App->camera->OptionsMenu();
+	if (ImGui::CollapsingHeader("Window")) App->window->OptionsMenu();
+	if (ImGui::CollapsingHeader("Camera")) App->camera->OptionsMenu();
+	if (ImGui::CollapsingHeader("Model")) App->renderer->model->OptionsMenu();
 	if (ImGui::CollapsingHeader("Performance")) Performance();
 	if (ImGui::CollapsingHeader("About")) About();
 
@@ -123,6 +124,8 @@ update_status ModuleGui::PreUpdate()
 	if (show_demo) ImGui::ShowDemoWindow(&show_demo);
 	Menu();
 	Sidebar();
+
+
 	return UPDATE_CONTINUE;
 }
 

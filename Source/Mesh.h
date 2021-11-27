@@ -1,6 +1,7 @@
 #pragma once
 
 #include "assimp/scene.h"
+#include "MathGeoLib.h"
 
 #include <vector>
 
@@ -13,7 +14,7 @@ public:
 	~Mesh();
 
 	void Load(const aiMesh* mesh);
-	void Draw(const std::vector<unsigned>& model_textures);
+	void Draw(float4x4& model, const std::vector<unsigned>& model_textures);
 	void CleanUp();
 
 private:

@@ -1,7 +1,6 @@
 #include "ModuleProgram.h"
 
 #include "glew.h"
-
 #include "MathGeoLib.h"
 
 ModuleProgram::ModuleProgram()

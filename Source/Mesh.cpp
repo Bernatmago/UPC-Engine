@@ -8,10 +8,6 @@
 #include "glew.h"
 #include "assimp/cimport.h"
 #include "assimp/postprocess.h"
-#include "MathGeoLib.h"
-
-
-
 
 Mesh::Mesh()
 {
@@ -102,14 +98,13 @@ void Mesh::CreateVAO()
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(float) * 3 * num_vertices)); // Texture coords
 }
 
-void Mesh::Draw(const std::vector<unsigned>& model_textures)
+void Mesh::Draw(float4x4& model, const std::vector<unsigned>& model_textures)
 {
 	assert(loaded == true);
 	unsigned program_id = App->program->program_id;
-	float4x4 model = float4x4::identity;
 	
 	glUseProgram(program_id);
-	glUniformMatrix4fv(glGetUniformLocation(program_id, "model"), 1, GL_FALSE, &model[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(program_id, "model"), 1, GL_TRUE, &model[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(program_id, "view"), 1, GL_TRUE, &App->camera->GetView()[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(program_id, "proj"), 1, GL_TRUE, &App->camera->GetProjection()[0][0]);
 		

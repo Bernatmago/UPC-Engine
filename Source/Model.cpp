@@ -8,6 +8,7 @@
 #include "assimp/Importer.hpp"
 #include "il.h"
 #include "ilu.h"
+#include "imgui.h"
 
 unsigned int LoadSingleImage(const char* path)
 {
@@ -34,12 +35,14 @@ void Model::Draw()
 {
 	assert(loaded == true);
 	for (Mesh& mesh : meshes) {
-		mesh.Draw(textures);
+		mesh.Draw(model, textures);
 	}
 }
 
 void Model::Load(const char* file_name)
 {
+	model = float4x4::identity; // Reset on load
+	
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(file_name, aiProcess_Triangulate);
 	if (scene)
@@ -112,4 +115,46 @@ void Model::CleanUp()
 		glDeleteTextures(1, &texture_id);
 	}
 	loaded = false;
+}
+
+void Model::OptionsMenu()
+{
+	static bool locked = true;
+	float3 position = model.TranslatePart(); //Equal to col3(3)
+	float3 scale = model.ExtractScale();	
+	
+	// TODO: Move in world coords
+	ImGui::Text("Translation");
+	if (ImGui::SliderFloat3("t.XYZ", &position[0], -5.0f, 5.0f))
+		model.SetTranslatePart(position);
+	ImGui::Separator();
+
+	ImGui::Text("Scale");
+	ImGui::Checkbox("Lock", &locked);
+	ImGui::SameLine();
+	float3 scale_delta = scale;
+	if (ImGui::SliderFloat3("s.XYZ", &scale[0], 0.5, 5.0f)) {
+		if (!locked) {
+			model.scaleX = scale[0];
+			model.scaleY = scale[1];
+			model.scaleZ = scale[2];
+		}
+		else {
+			scale_delta -= scale;
+			// TODO: Check the increment symbol position stuff
+			for (int i = 0; i < 3; i++) {
+				if (scale_delta[i] != 0.0f) {
+					LOG("Changed scale %d", i)
+					model.scaleX = scale[i];
+					model.scaleY = scale[i];
+					model.scaleZ = scale[i];
+					break; // Only one axis can change
+				}
+			}
+		}
+	}
+
+	// TODO: Add rotation
+		
+
 }

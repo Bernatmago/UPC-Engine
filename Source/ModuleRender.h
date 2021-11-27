@@ -22,8 +22,5 @@ public:
 	void WindowResized(unsigned width, unsigned height);
 
 	void* context;
-
-private:
-	Model* house = nullptr;
-	unsigned int texture_id;
+	Model* model = nullptr;
 };
