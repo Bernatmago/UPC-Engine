@@ -23,6 +23,8 @@ public:
 	void Draw();
 	void CleanUp();
 
+	const float3& GetPosition() const;
+
 	void OptionsMenu();
 
 private:

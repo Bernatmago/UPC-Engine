@@ -12,7 +12,7 @@ public:
 	~ModuleCamera();
 
 	bool Init() override;
-	update_status Update() override;
+	update_status Update(const float delta) override;
 	bool CleanUp() override;
 	
 	void SetPosition(const float3& position);
@@ -21,7 +21,7 @@ public:
 	void SetHorizontalFov(float fov_deg);
 	void Zoom(float deg_diff);
 	void LookAt(const float3& position);
-	void CameraController();
+	void CameraController(const float delta);
 	void SetPlaneDistances(const float near_distance, const float far_distance);
 	void WindowResized(unsigned int screen_width, unsigned int screen_height);
 

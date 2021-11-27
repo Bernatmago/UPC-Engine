@@ -72,7 +72,7 @@ update_status ModuleRender::PreUpdate()
 	return UPDATE_CONTINUE;
 }
 
-update_status ModuleRender::Update()
+update_status ModuleRender::Update(const float delta)
 {
 	auto &a = App->window->screen_surface;
 	App->debug->Draw(App->camera->GetView(), App->camera->GetProjection(), a->w, a->h);

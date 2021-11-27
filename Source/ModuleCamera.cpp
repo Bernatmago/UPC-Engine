@@ -5,6 +5,7 @@
 #include "ModuleProgram.h"
 #include "ModuleWindow.h"
 #include "ModuleInput.h"
+#include "ModuleRender.h"
 
 #include "glew.h"
 #include "assimp/scene.h"
@@ -35,14 +36,13 @@ bool ModuleCamera::Init()
     return true;
 }
 
-update_status ModuleCamera::Update()
+update_status ModuleCamera::Update(const float delta)
 {
     
-    CameraController();
+    CameraController(delta);
     SetPlaneDistances(near_distance, far_distance);
-
     if (locked)
-        LookAt(float3(0.0f, 0.0f, 0.0f));
+        LookAt(App->renderer->model->GetPosition());
 
     return UPDATE_CONTINUE;
 }
@@ -110,33 +110,47 @@ void ModuleCamera::Rotate(float pitch, float yaw)
     }
 }
 
-void ModuleCamera::CameraController()
+void ModuleCamera::CameraController(const float delta)
 {
    static const float move_speed = 15.0f;
    static const float speed_modifier = 2.0f;
    static const float rot_speed = 2.5f;
    static const float zoom_speed = 3.0f;
-   float delta = App->GetDeltaTime();   
+      
+   if (App->input->GetMouseButton(SDL_BUTTON_RIGHT)) {   
+       int moved_x, moved_y;
+       App->input->GetMouseDelta(moved_x, moved_y);
 
-   float effective_speed = move_speed;
-   if (App->input->GetKeyMod(KMOD_SHIFT))
-       effective_speed *= speed_modifier;
+       if (moved_x != 0 or moved_y != 0)
+           Rotate(-rot_speed * (float)moved_y * delta, -rot_speed * (float)moved_x * delta);
 
-   int moved_x, moved_y;
-   App->input->GetMouseDelta(moved_x, moved_y);    
+       float effective_speed = move_speed;
+       if (App->input->GetKeyMod(KMOD_SHIFT))
+           effective_speed *= speed_modifier;
+
+       if (App->input->GetKey(SDL_SCANCODE_W))
+           position += frustum.Front() * effective_speed * delta;
+       if (App->input->GetKey(SDL_SCANCODE_S))
+           position -= frustum.Front() * effective_speed * delta;
+       if (App->input->GetKey(SDL_SCANCODE_A))
+           position -= frustum.WorldRight() * effective_speed * delta;
+       if (App->input->GetKey(SDL_SCANCODE_D))
+           position += frustum.WorldRight() * effective_speed * delta;
+       if (App->input->GetKey(SDL_SCANCODE_Q))
+           position += frustum.Up() * effective_speed * delta;
+       if (App->input->GetKey(SDL_SCANCODE_E))
+           position -= frustum.Up() * effective_speed * delta;
+   }
+   else if (App->input->GetKey(SDL_SCANCODE_F)) {
+       LookAt(App->renderer->model->GetPosition());
+   }
+
    int scrolled_y = App->input->GetScrollDelta();
    if (scrolled_y != 0) {
        Zoom(zoom_speed * -scrolled_y);
    }
-       
-   if (App->input->GetMouseButton(SDL_BUTTON_RIGHT)) {
-       
-       //Rotate(speed * delta_y * delta, speed * delta_x * delta);
-       if (moved_x != 0 or moved_y != 0)
-       {
-           Rotate(-rot_speed * (float)moved_y * delta, -rot_speed * (float)moved_x * delta);
-       }
-   }
+
+   // Extra rotation keys
    if (App->input->GetKey(SDL_SCANCODE_UP))
        Rotate(rot_speed * delta, 0.0f);
    if (App->input->GetKey(SDL_SCANCODE_DOWN))
@@ -144,23 +158,7 @@ void ModuleCamera::CameraController()
    if (App->input->GetKey(SDL_SCANCODE_LEFT))
        Rotate(0.0f, rot_speed * delta);
    if (App->input->GetKey(SDL_SCANCODE_RIGHT))
-       Rotate(0.0f, -rot_speed * delta);
-
-   
-
-   
-   if (App->input->GetKey(SDL_SCANCODE_W))
-       position += frustum.Front() * effective_speed * delta;
-   if (App->input->GetKey(SDL_SCANCODE_S))
-       position -= frustum.Front() * effective_speed * delta;
-   if (App->input->GetKey(SDL_SCANCODE_A))
-       position -= frustum.WorldRight() * effective_speed * delta;
-   if (App->input->GetKey(SDL_SCANCODE_D))
-       position += frustum.WorldRight() * effective_speed * delta;
-   if (App->input->GetKey(SDL_SCANCODE_Q))
-       position += frustum.Up() * effective_speed * delta;
-   if (App->input->GetKey(SDL_SCANCODE_E))
-       position -= frustum.Up() * effective_speed * delta;
+       Rotate(0.0f, -rot_speed * delta);      
    
    frustum.SetPos(position);
 }

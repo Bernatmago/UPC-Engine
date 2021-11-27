@@ -41,22 +41,25 @@ bool Application::Init()
 	for(list<Module*>::iterator it = modules.begin(); it != modules.end() && ret; ++it)
 		ret = (*it)->Init();
 
+	delta = 0;
+	timer = PerformanceTimer();
+	timer.Start();
+	prev_tick_time = timer.Read();
 	return ret;
 }
 
 update_status Application::Update()
 {
-	uint32_t tick_time = SDL_GetTicks();
-	delta = (float)(tick_time - prev_tick_time) / 1000.0f;
+	double tick_time = timer.Read();
+	delta = tick_time - prev_tick_time;
 	prev_tick_time = tick_time;
-
 	update_status ret = UPDATE_CONTINUE;
-
+	LOG("%f", delta)
 	for(list<Module*>::iterator it = modules.begin(); it != modules.end() && ret == UPDATE_CONTINUE; ++it)
 		ret = (*it)->PreUpdate();
 
 	for(list<Module*>::iterator it = modules.begin(); it != modules.end() && ret == UPDATE_CONTINUE; ++it)
-		ret = (*it)->Update();
+		ret = (*it)->Update((float)delta);
 
 	for(list<Module*>::iterator it = modules.begin(); it != modules.end() && ret == UPDATE_CONTINUE; ++it)
 		ret = (*it)->PostUpdate();
@@ -67,6 +70,7 @@ update_status Application::Update()
 bool Application::CleanUp()
 {
 	bool ret = true;
+	timer.Stop();
 
 	for(list<Module*>::reverse_iterator it = modules.rbegin(); it != modules.rend() && ret; ++it)
 		ret = (*it)->CleanUp();

@@ -3,6 +3,7 @@
 #include<list>
 #include "Globals.h"
 #include "Module.h"
+#include "Timer.h"
 
 class ModuleWindow;
 class ModuleRender;
@@ -27,7 +28,7 @@ public:
 	update_status Update();
 	bool CleanUp();
 
-	float GetDeltaTime() { return delta; };
+	double GetDeltaTime() { return delta; };
 
 public:
 	ModuleWindow* window = nullptr;
@@ -42,9 +43,10 @@ public:
 
 private:
 	std::list<Module*> modules;
+	PerformanceTimer timer;
 
-	float  delta = 0;
-	uint32_t  prev_tick_time = 0;
+	double  delta = 0;
+	double  prev_tick_time = 0;
 };
 
 extern Application* App;

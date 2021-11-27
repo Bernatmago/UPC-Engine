@@ -34,7 +34,7 @@ double PerformanceTimer::Read()
 	static const double frequency = (double)SDL_GetPerformanceFrequency();
 	if (running) {
 		uint64_t now = SDL_GetPerformanceCounter();
-		current_time = (double)((now - start_time) * 1000 / frequency); // ms
+		current_time = (double)((now - start_time)/ frequency); // TODO: Return desired units
 	}
 	return current_time;
 }

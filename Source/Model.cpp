@@ -117,6 +117,11 @@ void Model::CleanUp()
 	loaded = false;
 }
 
+const float3& Model::GetPosition() const
+{
+	return model.TranslatePart();
+}
+
 void Model::OptionsMenu()
 {
 	static bool locked = true;

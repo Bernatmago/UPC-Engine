@@ -130,7 +130,7 @@ update_status ModuleGui::PreUpdate()
 }
 
 // Called every draw update
-update_status ModuleGui::Update()
+update_status ModuleGui::Update(const float delta)
 {	
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
