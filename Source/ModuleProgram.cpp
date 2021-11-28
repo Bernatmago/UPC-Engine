@@ -5,7 +5,10 @@
 
 ModuleProgram::ModuleProgram()
 {
+}
 
+ModuleProgram::~ModuleProgram()
+{
 }
 
 bool ModuleProgram::Init()

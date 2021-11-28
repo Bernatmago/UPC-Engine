@@ -10,8 +10,19 @@ struct Texture {
 	unsigned height;
 };
 
-class ModuleTextures : public Module
+class ModuleTextures : 
+	public Module
 {
-	// TODO
+public:
+	ModuleTextures();
+	~ModuleTextures();
+
+	bool Init() override;
+	bool CleanUp() override;
+
+	Texture Load(const char* path);
+private:
+	unsigned int LoadImg(const char* path);
+	void DeleteImg(unsigned& img_id);
 };
 

@@ -12,8 +12,7 @@ class ModuleInput;
 class ModuleProgram;
 class ModuleCamera;
 class ModuleDebugDraw;
-
-class ModuleTextures; // TODO: move textures here
+class ModuleTextures;
 
 class Console;
 
@@ -38,6 +37,7 @@ public:
 	ModuleProgram* program = nullptr;
 	ModuleCamera* camera = nullptr;
 	ModuleDebugDraw* debug = nullptr;
+	ModuleTextures* textures = nullptr;
 
 	Console* console = nullptr;
 

@@ -8,6 +8,7 @@ class ModuleProgram :
 {
 public:
     ModuleProgram();
+    ~ModuleProgram();
 
     bool Init() override;
     bool CleanUp() override;

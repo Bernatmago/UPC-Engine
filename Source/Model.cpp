@@ -10,19 +10,6 @@
 #include "ilu.h"
 #include "imgui.h"
 
-unsigned int LoadSingleImage(const char* path)
-{
-	ilInit();
-	ILuint name; // The image name to return.
-	ilGenImages(1, &name); // Grab a new image name.
-	ilBindImage(name);
-	ilLoadImage(path);
-	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
-	iluRotate(180.0f);
-
-	return name;
-}
-
 Model::Model()
 {
 }
@@ -41,10 +28,9 @@ void Model::Draw()
 
 void Model::Load(const std::string& path)
 {
-	if (loaded) {
+	if (loaded)
 		CleanUp();
-		loaded = true;
-	}
+
 	matrix = float4x4::identity; // Reset on load
 
 	file_name = path.substr(path.find_last_of("/\\") + 1);
@@ -70,12 +56,15 @@ void Model::LoadTextures(const aiScene* scene)
 	textures.reserve(scene->mNumMaterials);
 	for (unsigned i = 0; i < scene->mNumMaterials; ++i)
 	{
-		// Atm we only support a single texture so index is hardcoded to 0
+		// Atm we only support loading a single texture so index is hardcoded to 0
 		static const int index = 0;
 		if (scene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, index, &file) == AI_SUCCESS)
 		{
-			// TODO: Move stuff to textures module and change to store similar to struct
-			textures.push_back(LoadTexture(file.data));
+			// TODO: Try to find the texture (in order)
+			// Path described by fbx
+			// Same folder than fbx
+			// Textures folder (workdir)
+			textures.push_back(App->textures->Load(file.data));
 		}
 	}
 }
@@ -90,30 +79,6 @@ void Model::LoadMeshes(const aiScene* scene)
 		meshes.push_back(Mesh());
 		meshes[i].Load(scene->mMeshes[i]);
 	}
-	
-}
-
-Texture Model::LoadTexture(const char* path)
-{
-	Texture texture;
-	texture.path = path;
-	// TODO: Try to find the texture (in order)
-	// Path described by fbx
-	// Same folder than fbx
-	// Textures folder (workdir)
-	unsigned int img_id = LoadSingleImage(path);
-
-	glGenTextures(1, &texture.id);
-	glBindTexture(GL_TEXTURE_2D, texture.id);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, ilGetInteger(IL_IMAGE_BPP), texture.width=ilGetInteger(IL_IMAGE_WIDTH),
-		texture.height=ilGetInteger(IL_IMAGE_HEIGHT), 0, ilGetInteger(IL_IMAGE_FORMAT), GL_UNSIGNED_BYTE,
-		ilGetData());
-
-	ilDeleteImages(1, &img_id);
-	return texture;
 }
 
 void Model::CleanUp()
@@ -198,5 +163,4 @@ void Model::PropertiesWindow(bool* p_open)
 	ImGui::Text("Total : %dt, (%dv, %di)", indexes/3, vertices, indexes);
 
 	ImGui::End();
-
 }
