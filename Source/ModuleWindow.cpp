@@ -22,7 +22,8 @@ bool ModuleWindow::Init()
 	
 	fullscreen = FULLSCREEN;
 	resizable = RESIZABLE;
-	vsync = VSYNC; // TODO: Use
+	vsync = true;
+
 
 	LOG("Init SDL window & surface");
 	bool ret = true;
@@ -53,10 +54,9 @@ bool ModuleWindow::Init()
 			// Get window surface, it must be updated on resize
 			screen_surface = SDL_GetWindowSurface(window);
 		}
-
 		SDL_DisplayMode mode;
 		SDL_GetDisplayMode(0, 0, &mode);
-		refresh_rate = mode.refresh_rate;
+		refresh_rate = mode.refresh_rate;		
 	}
 
 	return ret;
@@ -106,15 +106,19 @@ void ModuleWindow::SetSize(int w, int h)
 	SDL_SetWindowSize(window, w, h);
 }
 
+void ModuleWindow::SetVsync(bool vsync)
+{
+	SDL_GL_SetSwapInterval((int)vsync);
+}
+
 void ModuleWindow::OptionsMenu()
 {
 	if (ImGui::Checkbox("Fullscreen", &fullscreen))
 		App->window->SetFullScreen(fullscreen);
 	// TODO: Toggle vsync via opengl (and update refresh rate)
-	/*ImGui::SameLine();
-	if (ImGui::Checkbox("Vsync", &vsync)) {
-		
-	}*/
+	ImGui::SameLine();
+	if (ImGui::Checkbox("Vsync", &vsync))
+		SetVsync(vsync);
 
 	if (!fullscreen) {
 		ImGui::Separator();
@@ -128,7 +132,7 @@ void ModuleWindow::OptionsMenu()
 			SetSize(width, height);
 		}
 	}
-	ImGui::Text("Refresh Rate: %d", refresh_rate);
+	ImGui::Text("Monitor Refresh Rate: %d", refresh_rate);
 }
 
 void ModuleWindow::GetMonitorResolution(int& width, int& height)

@@ -21,6 +21,7 @@ public:
 
 	unsigned GetNumVertices() const { return num_vertices; }
 	unsigned GetNumIndexes() const { return num_indices; }
+	bool IsLoaded() const { return loaded; }
 
 private:
 	void LoadVBO(const aiMesh* mesh);

@@ -20,6 +20,7 @@ public:
 	void SetFullScreen(bool fullscreen);
 	void SetResizable(bool resizable);
 	void SetSize(int w, int h);
+	void SetVsync(bool vsync);
 
 	void OptionsMenu();
 

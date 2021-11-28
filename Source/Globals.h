@@ -20,5 +20,4 @@ enum update_status
 #define WINDOWED_RATIO 0.75f
 #define FULLSCREEN false
 #define RESIZABLE false
-#define VSYNC true
 #define TITLE "Super Awesome Engine"

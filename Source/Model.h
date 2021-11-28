@@ -25,8 +25,8 @@ public:
 	void PropertiesWindow(bool* p_open);
 
 private:
-	void LoadMeshes(const aiScene* scene);
-	void LoadTextures(const aiScene* scene);
+	bool LoadMeshes(const aiScene* scene);
+	bool LoadTextures(const aiScene* scene);
 	
 	bool loaded = false;
 	float4x4 matrix = float4x4::identity;

@@ -36,7 +36,6 @@ bool ModuleGui::Init()
 	ImGui::StyleColorsDark();
 	ImGui_ImplSDL2_InitForOpenGL(App->window->window, App->renderer->context);
 	ImGui_ImplOpenGL3_Init("#version 330");
-	ImGui::StyleColorsDark();
 
 	 SDL_GetVersion(&about.sdl_version);
 	 about.n_cpu = SDL_GetCPUCount();

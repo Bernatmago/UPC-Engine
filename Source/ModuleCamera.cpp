@@ -188,9 +188,9 @@ void ModuleCamera::OptionsMenu()
     ImGui::SliderFloat("cZ", &position.z, 0.5f, 10.0f);
     ImGui::SliderFloat("N", &near_distance, 0.1f, 500.0f);
     ImGui::SliderFloat("F", &far_distance, 0.1f, 500.0f);
-    ImGui::Checkbox("Look Center", &locked);
+    ImGui::Checkbox("Lock Model", &locked);
     if (locked) {
         ImGui::SameLine();
-        ImGui::Text("Rotation disabled");
+        ImGui::Text(" (Rotation disabled)");
     }
 }

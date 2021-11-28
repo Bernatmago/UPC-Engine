@@ -20,10 +20,11 @@ Model::~Model()
 
 void Model::Draw()
 {
-	assert(loaded == true);
-	for (Mesh& mesh : meshes) {
-		mesh.Draw(matrix, textures);
-	}
+	if (loaded) {
+		for (Mesh& mesh : meshes) {
+			mesh.Draw(matrix, textures);
+		}
+	}	
 }
 
 void Model::Load(const std::string& model_path)
@@ -41,28 +42,33 @@ void Model::Load(const std::string& model_path)
 	const aiScene* scene = importer.ReadFile(model_path, aiProcess_Triangulate);
 	if (scene)
 	{		
-		LoadTextures(scene);
-		LoadMeshes(scene);
-		loaded = true;
+		bool success = true;
+		LOG("Loading %s model", file_name.c_str())
+		success = LoadTextures(scene);
+		if(success)
+			success = LoadMeshes(scene);
+		if(success)
+			loaded = true;
+		else
+			LOG("Could not load model %s", file_name.c_str())
 	}
 	else
 	{
-		LOG("Error loading %s: %s", file_name, aiGetErrorString());
+		LOG("Error loading file %s: %s", file_name.c_str(), aiGetErrorString());
 	}
 }
 
-void Model::LoadTextures(const aiScene* scene)
+bool Model::LoadTextures(const aiScene* scene)
 {
 	aiString file;
 	textures.reserve(scene->mNumMaterials);
+	LOG("Loading %d textures", scene->mNumMaterials)
 	for (unsigned i = 0; i < scene->mNumMaterials; ++i)
 	{
-		
 		// Atm we only support loading a single texture so index is hardcoded to 0
 		static const int index = 0;
 		if (scene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, index, &file) == AI_SUCCESS)
 		{
-			
 			std::string model_texture_path(file.data);
 			std::string texture_file = model_texture_path.substr(model_texture_path.find_last_of("/\\") + 1);
 			std::string default_path("Textures\\");
@@ -79,29 +85,38 @@ void Model::LoadTextures(const aiScene* scene)
 			if (!texture.loaded) {
 				LOG("Failed to load texture from default: %s", texture.path.c_str())
 				LOG("Could not find texture %s")
-				return;
+				return false;
 			}				
 			textures.push_back(texture);
 			LOG("Loaded texture from %s", texture.path.c_str())
 		}
 	}
+	return true;
 }
 
-void Model::LoadMeshes(const aiScene* scene)
+bool Model::LoadMeshes(const aiScene* scene)
 {
 	// Create vbo using mVertices, mTextureCoords and mNumVertices
 	textures.reserve(scene->mNumMeshes);
+	LOG("Loading %d meshes", scene->mNumMeshes)
 	for (unsigned i = 0; i < scene->mNumMeshes; i++)
 	{
 		LOG("Loaded mesh %d", i);
-		meshes.push_back(Mesh());
-		meshes[i].Load(scene->mMeshes[i]);
+		Mesh mesh = Mesh();
+		mesh.Load(scene->mMeshes[i]);
+		if (mesh.IsLoaded()) {
+			meshes.push_back(mesh);
+		}
+		else {
+			LOG("Error loading mesh %d: %s", i, aiGetErrorString());
+			return false;
+		}			
 	}
+	return true;
 }
 
 void Model::CleanUp()
 {
-	assert(loaded == true);
 	for (Mesh& mesh : meshes) {
 		mesh.CleanUp();
 	}
@@ -111,6 +126,7 @@ void Model::CleanUp()
 	}
 	textures.clear();
 	loaded = false;
+	LOG("Model %s unloaded", file_name.c_str())
 }
 
 const float3& Model::GetPosition() const
@@ -145,7 +161,6 @@ void Model::OptionsMenu()
 			// TODO: Check the increment symbol position stuff
 			for (int i = 0; i < 3; i++) {
 				if (scale_delta[i] != 0.0f) {
-					LOG("Changed scale %d", i)
 					matrix.scaleX = scale[i];
 					matrix.scaleY = scale[i];
 					matrix.scaleZ = scale[i];
@@ -154,19 +169,29 @@ void Model::OptionsMenu()
 			}
 		}
 	}
-	// TODO: Add rotation	
+	// TODO: Add rotation
+	if (ImGui::Button("Unload"))
+		CleanUp();
 }
 
 void Model::PropertiesWindow(bool* p_open)
-{
+{	
 	ImGui::SetNextWindowSize(ImVec2(250, 200), ImGuiCond_Once);
 	ImGui::Begin("Model Properties", p_open); // TODO: Fill with filename
+
+	if (!loaded) {
+		ImGui::Text("No model loaded");
+		ImGui::End();
+		return;
+	}
 	// TODO: Add path
 	ImGui::Text("Name: %s", name.c_str());
-	ImGui::Text("Texture");
+	ImGui::Text("Path: %s", (path + file_name).c_str());
+	ImGui::Separator();
+	ImGui::Text("Textures");
 	for (int i = 0; i < textures.size(); ++i) {
 		const Texture& texture = textures[i];
-		ImGui::Text("T[%d]: %s %dx%d", i, texture.path.c_str(), texture.width, texture.height);
+		ImGui::Text("T[%d]: %dx%d %s", i, texture.width, texture.height, texture.path.c_str());
 	}
 	ImGui::Separator();
 	ImGui::Text("Meshes");
