@@ -4,18 +4,26 @@
 #include "ModuleRender.h"
 #include "ModuleCamera.h"
 
+#include "wtypes.h"
+
 ModuleWindow::ModuleWindow()
 {
 }
 
-// Destructor
 ModuleWindow::~ModuleWindow()
 {
 }
 
-// Called before render is available
 bool ModuleWindow::Init()
 {
+	GetMonitorResolution(max_width, max_height);
+	width = (int)(max_width * WINDOWED_RATIO);
+	height = (int)(max_height * WINDOWED_RATIO);
+	
+	fullscreen = FULLSCREEN;
+	resizable = RESIZABLE;
+	vsync = VSYNC; // TODO: Use
+
 	LOG("Init SDL window & surface");
 	bool ret = true;
 
@@ -26,16 +34,12 @@ bool ModuleWindow::Init()
 	}
 	else
 	{
-		//Create window
-		int width = SCREEN_WIDTH;
-		int height = SCREEN_HEIGHT;
 		Uint32 flags = SDL_WINDOW_SHOWN |  SDL_WINDOW_OPENGL;
 
-		if(FULLSCREEN)
-			flags |= SDL_WINDOW_FULLSCREEN;
-		if (RESIZABLE)
+		if (fullscreen)
+			flags |= SDL_WINDOW_FULLSCREEN;			
+		if (resizable)
 			flags |= SDL_WINDOW_RESIZABLE;
-
 
 		window = SDL_CreateWindow(TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, flags);
 
@@ -94,10 +98,7 @@ void ModuleWindow::SetFullScreen(bool fullscreen)
 
 void ModuleWindow::SetResizable(bool resizable)
 {
-	if(resizable)
-		SDL_SetWindowResizable(window, SDL_TRUE);
-	else
-		SDL_SetWindowResizable(window, SDL_FALSE);
+	SDL_SetWindowResizable(window, (SDL_bool)resizable);
 }
 
 void ModuleWindow::SetSize(int w, int h)
@@ -107,27 +108,36 @@ void ModuleWindow::SetSize(int w, int h)
 
 void ModuleWindow::OptionsMenu()
 {
-	static bool fullscreen = FULLSCREEN;
-	static bool resizable = RESIZABLE;
-	static int width = SCREEN_WIDTH;
-	static int height = SCREEN_HEIGHT;
-	static const int refresh_rate = App->window->refresh_rate;
-
 	if (ImGui::Checkbox("Fullscreen", &fullscreen))
 		App->window->SetFullScreen(fullscreen);
+	// TODO: Toggle vsync via opengl (and update refresh rate)
+	/*ImGui::SameLine();
+	if (ImGui::Checkbox("Vsync", &vsync)) {
+		
+	}*/
 
 	if (!fullscreen) {
-		ImGui::SameLine();
+		ImGui::Separator();
 		if (ImGui::Checkbox("Resizable", &resizable))
-			App->window->SetResizable(resizable);
+			SetResizable(resizable);
 
-		if (ImGui::SliderInt("Width", &width, 0, SCREEN_MAX_WIDTH)) {
-			App->window->SetSize(width, height);
+		if (ImGui::SliderInt("Width", &width, 0, max_width)) {
+			SetSize(width, height);
 		}
-		if (ImGui::SliderInt("Height", &height, 0, SCREEN_MAX_HEIGHT)) {
-			App->window->SetSize(width, height);
+		if (ImGui::SliderInt("Height", &height, 0, max_height)) {
+			SetSize(width, height);
 		}
 	}
 	ImGui::Text("Refresh Rate: %d", refresh_rate);
+}
+
+void ModuleWindow::GetMonitorResolution(int& width, int& height)
+{
+	RECT monitor;
+	const HWND desktop_handle = GetDesktopWindow();
+	// Get the size of screen to the variable desktop
+	GetWindowRect(desktop_handle, &monitor);
+	width = monitor.right;
+	height = monitor.bottom;
 }
 

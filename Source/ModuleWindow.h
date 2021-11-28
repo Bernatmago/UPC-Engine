@@ -28,8 +28,17 @@ public:
 
 	//The surface contained by the window
 	SDL_Surface* screen_surface = NULL;
-	
+private:
+	void GetMonitorResolution(int& width, int&height);
+
+	bool fullscreen;
+	bool resizable;
+	int width;
+	int max_width;
+	int max_height;
+	int height;
 	int refresh_rate;
+	bool vsync;
 };
 
 #endif // __ModuleWindow_H__

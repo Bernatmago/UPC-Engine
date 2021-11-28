@@ -17,10 +17,7 @@ enum update_status
 };
 
 // Configuration -----------
-#define SCREEN_WIDTH 1080
-#define SCREEN_MAX_WIDTH 1920
-#define SCREEN_HEIGHT 720
-#define SCREEN_MAX_HEIGHT 1080
+#define WINDOWED_RATIO 0.75f
 #define FULLSCREEN false
 #define RESIZABLE false
 #define VSYNC true
