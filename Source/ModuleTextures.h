@@ -4,6 +4,7 @@
 #include <string>
 
 struct Texture {
+	bool loaded = false;
 	unsigned id;
 	std::string path;
 	unsigned width;

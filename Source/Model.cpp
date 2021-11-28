@@ -26,18 +26,19 @@ void Model::Draw()
 	}
 }
 
-void Model::Load(const std::string& path)
+void Model::Load(const std::string& model_path)
 {
 	if (loaded)
 		CleanUp();
 
 	matrix = float4x4::identity; // Reset on load
 
-	file_name = path.substr(path.find_last_of("/\\") + 1);
+	path = model_path.substr(0, model_path.find_last_of("/\\") + 1);
+	file_name = model_path.substr(model_path.find_last_of("/\\") + 1);
 	name = file_name.substr(0, std::string::size_type(file_name.find_last_of('.')));
 	
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate);
+	const aiScene* scene = importer.ReadFile(model_path, aiProcess_Triangulate);
 	if (scene)
 	{		
 		LoadTextures(scene);
@@ -56,15 +57,32 @@ void Model::LoadTextures(const aiScene* scene)
 	textures.reserve(scene->mNumMaterials);
 	for (unsigned i = 0; i < scene->mNumMaterials; ++i)
 	{
+		
 		// Atm we only support loading a single texture so index is hardcoded to 0
 		static const int index = 0;
 		if (scene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, index, &file) == AI_SUCCESS)
 		{
-			// TODO: Try to find the texture (in order)
-			// Path described by fbx
-			// Same folder than fbx
-			// Textures folder (workdir)
-			textures.push_back(App->textures->Load(file.data));
+			
+			std::string model_texture_path(file.data);
+			std::string texture_file = model_texture_path.substr(model_texture_path.find_last_of("/\\") + 1);
+			std::string default_path("Textures\\");
+
+			Texture texture;
+			texture = App->textures->Load(file.data);		
+			if (!texture.loaded) {
+				LOG("Failed to load texture from model params: %s", texture.path.c_str())
+				texture = App->textures->Load((path + texture_file).c_str());
+			}				
+			if (!texture.loaded)
+				LOG("Failed to load texture from model file path: %s", texture.path.c_str())
+				texture = App->textures->Load((default_path + texture_file).c_str());
+			if (!texture.loaded) {
+				LOG("Failed to load texture from default: %s", texture.path.c_str())
+				LOG("Could not find texture %s")
+				return;
+			}				
+			textures.push_back(texture);
+			LOG("Loaded texture from %s", texture.path.c_str())
 		}
 	}
 }
@@ -75,7 +93,7 @@ void Model::LoadMeshes(const aiScene* scene)
 	textures.reserve(scene->mNumMeshes);
 	for (unsigned i = 0; i < scene->mNumMeshes; i++)
 	{
-		LOG("Push mesh %d", i);
+		LOG("Loaded mesh %d", i);
 		meshes.push_back(Mesh());
 		meshes[i].Load(scene->mMeshes[i]);
 	}
@@ -144,6 +162,7 @@ void Model::PropertiesWindow(bool* p_open)
 	ImGui::SetNextWindowSize(ImVec2(250, 200), ImGuiCond_Once);
 	ImGui::Begin("Model Properties", p_open); // TODO: Fill with filename
 	// TODO: Add path
+	ImGui::Text("Name: %s", name.c_str());
 	ImGui::Text("Texture");
 	for (int i = 0; i < textures.size(); ++i) {
 		const Texture& texture = textures[i];

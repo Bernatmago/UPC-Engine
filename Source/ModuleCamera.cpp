@@ -79,7 +79,6 @@ void ModuleCamera::Zoom(float deg_diff)
     if (horizontal_fov < min_fov)
         horizontal_fov = min_fov;
     
-    LOG("HF %f", horizontal_fov)
     frustum.SetHorizontalFovAndAspectRatio(horizontal_fov, aspect_ratio);
 }
 
