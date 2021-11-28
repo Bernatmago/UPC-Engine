@@ -3,8 +3,11 @@
 #include "Globals.h"
 #include "Application.h"
 #include "ModuleWindow.h"
+#include "ModuleRender.h"
 
 #include "imgui_impl_sdl.h"
+
+#include <string>
 
 ModuleInput::ModuleInput()
 {}
@@ -53,6 +56,10 @@ update_status ModuleInput::PreUpdate()
             break;
         case SDL_MOUSEWHEEL:
             scroll_delta = event.wheel.y;
+            break;
+        case SDL_DROPFILE:
+            // TODO: should be freed with SDL_free()
+            App->renderer->model->Load(event.drop.file);
             break;
         }
     }

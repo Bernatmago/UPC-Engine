@@ -35,16 +35,23 @@ void Model::Draw()
 {
 	assert(loaded == true);
 	for (Mesh& mesh : meshes) {
-		mesh.Draw(model, textures);
+		mesh.Draw(matrix, textures);
 	}
 }
 
-void Model::Load(const char* file_name)
+void Model::Load(const std::string& path)
 {
-	model = float4x4::identity; // Reset on load
+	if (loaded) {
+		CleanUp();
+		loaded = true;
+	}
+	matrix = float4x4::identity; // Reset on load
+
+	file_name = path.substr(path.find_last_of("/\\") + 1);
+	name = file_name.substr(0, std::string::size_type(file_name.find_last_of('.')));
 	
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(file_name, aiProcess_Triangulate);
+	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate);
 	if (scene)
 	{		
 		LoadTextures(scene);
@@ -90,6 +97,10 @@ Texture Model::LoadTexture(const char* path)
 {
 	Texture texture;
 	texture.path = path;
+	// TODO: Try to find the texture (in order)
+	// Path described by fbx
+	// Same folder than fbx
+	// Textures folder (workdir)
 	unsigned int img_id = LoadSingleImage(path);
 
 	glGenTextures(1, &texture.id);
@@ -111,27 +122,29 @@ void Model::CleanUp()
 	for (Mesh& mesh : meshes) {
 		mesh.CleanUp();
 	}
+	meshes.clear();
 	for (Texture texture : textures) {
 		glDeleteTextures(1, &texture.id);
 	}
+	textures.clear();
 	loaded = false;
 }
 
 const float3& Model::GetPosition() const
 {
-	return model.TranslatePart();
+	return matrix.TranslatePart();
 }
 
 void Model::OptionsMenu()
 {
 	static bool locked = true;
-	float3 position = model.TranslatePart(); //Equal to col3(3)
-	float3 scale = model.ExtractScale();	
+	float3 position = matrix.TranslatePart(); //Equal to col3(3)
+	float3 scale = matrix.ExtractScale();
 	
 	// TODO: Move in world coords
 	ImGui::Text("Translation");
 	if (ImGui::SliderFloat3("t.XYZ", &position[0], -5.0f, 5.0f))
-		model.SetTranslatePart(position);
+		matrix.SetTranslatePart(position);
 	ImGui::Separator();
 
 	ImGui::Text("Scale");
@@ -140,9 +153,9 @@ void Model::OptionsMenu()
 	float3 scale_delta = scale;
 	if (ImGui::SliderFloat3("s.XYZ", &scale[0], 0.5, 5.0f)) {
 		if (!locked) {
-			model.scaleX = scale[0];
-			model.scaleY = scale[1];
-			model.scaleZ = scale[2];
+			matrix.scaleX = scale[0];
+			matrix.scaleY = scale[1];
+			matrix.scaleZ = scale[2];
 		}
 		else {
 			scale_delta -= scale;
@@ -150,9 +163,9 @@ void Model::OptionsMenu()
 			for (int i = 0; i < 3; i++) {
 				if (scale_delta[i] != 0.0f) {
 					LOG("Changed scale %d", i)
-					model.scaleX = scale[i];
-					model.scaleY = scale[i];
-					model.scaleZ = scale[i];
+					matrix.scaleX = scale[i];
+					matrix.scaleY = scale[i];
+					matrix.scaleZ = scale[i];
 					break; // Only one axis can change
 				}
 			}

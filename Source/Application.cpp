@@ -54,7 +54,7 @@ update_status Application::Update()
 	delta = tick_time - prev_tick_time;
 	prev_tick_time = tick_time;
 	update_status ret = UPDATE_CONTINUE;
-	LOG("%f", delta)
+
 	for(list<Module*>::iterator it = modules.begin(); it != modules.end() && ret == UPDATE_CONTINUE; ++it)
 		ret = (*it)->PreUpdate();
 
