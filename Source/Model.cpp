@@ -49,8 +49,10 @@ void Model::Load(const std::string& model_path)
 			success = LoadMeshes(scene);
 		if(success)
 			loaded = true;
-		else
+		else {
 			LOG("Could not load model %s", file_name.c_str())
+			CleanUp();
+		}			
 	}
 	else
 	{
@@ -63,10 +65,11 @@ bool Model::LoadTextures(const aiScene* scene)
 	aiString file;
 	textures.reserve(scene->mNumMaterials);
 	LOG("Loading %d textures", scene->mNumMaterials)
-	for (unsigned i = 0; i < scene->mNumMaterials; ++i)
+	for (unsigned i = 0; i < scene->mNumMaterials; i++)
 	{
 		// Atm we only support loading a single texture so index is hardcoded to 0
 		static const int index = 0;
+		auto a = scene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, index, &file);
 		if (scene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, index, &file) == AI_SUCCESS)
 		{
 			std::string model_texture_path(file.data);
@@ -80,8 +83,10 @@ bool Model::LoadTextures(const aiScene* scene)
 				texture = App->textures->Load((path + texture_file).c_str());
 			}				
 			if (!texture.loaded)
+			{
 				LOG("Failed to load texture from model file path: %s", texture.path.c_str())
 				texture = App->textures->Load((default_path + texture_file).c_str());
+			}				
 			if (!texture.loaded) {
 				LOG("Failed to load texture from default: %s", texture.path.c_str())
 				LOG("Could not find texture %s")
@@ -89,6 +94,10 @@ bool Model::LoadTextures(const aiScene* scene)
 			}				
 			textures.push_back(texture);
 			LOG("Loaded texture from %s", texture.path.c_str())
+		}
+		else {
+			LOG("Error loading textures %s: %s", file_name.c_str(), aiGetErrorString());
+			return false;
 		}
 	}
 	return true;
@@ -117,6 +126,7 @@ bool Model::LoadMeshes(const aiScene* scene)
 
 void Model::CleanUp()
 {
+	
 	for (Mesh& mesh : meshes) {
 		mesh.CleanUp();
 	}
@@ -150,7 +160,7 @@ void Model::OptionsMenu()
 	ImGui::Checkbox("Lock", &locked);
 	ImGui::SameLine();
 	float3 scale_delta = scale;
-	if (ImGui::SliderFloat3("s.XYZ", &scale[0], 0.5, 5.0f)) {
+	if (ImGui::SliderFloat3("s.XYZ", &scale[0], 0.005f, 5.0f)) {
 		if (!locked) {
 			matrix.scaleX = scale[0];
 			matrix.scaleY = scale[1];

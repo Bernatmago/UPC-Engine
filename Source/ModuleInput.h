@@ -14,7 +14,7 @@ public:
 	~ModuleInput();
 
 	bool Init() override;
-	update_status PreUpdate() override;
+	update_status PreUpdate(const float delta) override;
 	bool CleanUp() override;
 
 	const unsigned GetKey(SDL_Scancode key) const;

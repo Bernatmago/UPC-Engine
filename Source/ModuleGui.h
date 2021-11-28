@@ -16,8 +16,6 @@ struct AboutData {
 	float ram_gb;
 	unsigned char* gpu;
 	unsigned char* gpu_brand;
-	int vram_budget;
-	int vram_free;
 };
 
 class ModuleGui : public Module
@@ -27,23 +25,17 @@ public:
 	~ModuleGui();
 
 	bool Init() override;
-	update_status PreUpdate() override;
+	update_status PreUpdate(const float delta) override;
 	update_status Update(const float delta) override;
 	bool CleanUp() override;
 
 	void Menu();
 
-	// Sidebar
-	void Sidebar();
-	void Performance();
+	void Sidebar(const float delta);
 	void About();
 
 	void OpenBrowser(const char* url);
-	//TODO
-	//fps graph
-	//window options
-	//hardware detection
-	//about
+
 private:
 	bool show_console = false;
 	bool show_demo = false;

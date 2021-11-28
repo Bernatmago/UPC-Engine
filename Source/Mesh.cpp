@@ -107,7 +107,8 @@ void Mesh::Draw(float4x4& model, const std::vector<Texture>& model_textures)
 	glUniformMatrix4fv(glGetUniformLocation(program_id, "model"), 1, GL_TRUE, &model[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(program_id, "view"), 1, GL_TRUE, &App->camera->GetView()[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(program_id, "proj"), 1, GL_TRUE, &App->camera->GetProjection()[0][0]);
-		
+	
+	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);	
 	glBindTexture(GL_TEXTURE_2D, model_textures[texture_index].id);
 
@@ -115,6 +116,7 @@ void Mesh::Draw(float4x4& model, const std::vector<Texture>& model_textures)
 	//glUniform1i(glGetUniformLocation(program_id, "diffuse"), 0);
 	glBindVertexArray(vao);
 	glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_INT, nullptr);
+	glDisable(GL_TEXTURE_2D);
 }
 
 void Mesh::CleanUp()

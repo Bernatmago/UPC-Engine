@@ -42,9 +42,42 @@ bool ModuleGui::Init()
 	 about.ram_gb = SDL_GetSystemRAM() / 1024.0f;
 
 	 about.gpu = (unsigned char*)glGetString(GL_RENDERER);
-	 about.gpu_brand = (unsigned char*)glGetString(GL_VENDOR);
-	 glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &about.vram_budget);
-	 glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &about.vram_free);
+	 about.gpu_brand = (unsigned char*)glGetString(GL_VENDOR); 
+
+	return true;
+}
+
+update_status ModuleGui::PreUpdate(const float delta)
+{
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplSDL2_NewFrame();
+	ImGui::NewFrame();
+
+	Menu();
+	if (show_sidebar) Sidebar(delta); // TODO: Make all vatiables editable for renderer, window, input and textures
+	if (show_console) Logger->Draw(&show_console);
+	if (show_demo) ImGui::ShowDemoWindow(&show_demo);
+	if (show_model_properties)
+		App->renderer->model->PropertiesWindow(&show_model_properties);
+
+	return UPDATE_CONTINUE;
+}
+
+// Called every draw update
+update_status ModuleGui::Update(const float delta)
+{
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+	return UPDATE_CONTINUE;
+}
+
+// Called before quitting
+bool ModuleGui::CleanUp()
+{
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplSDL2_Shutdown();
+	ImGui::DestroyContext();
 
 	return true;
 }
@@ -70,7 +103,7 @@ void ModuleGui::Menu() {
 	}
 }
 
-void ModuleGui::Sidebar() {
+void ModuleGui::Sidebar(const float delta) {
 	ImGuiWindowFlags window_flags = 0;
 	window_flags |= ImGuiWindowFlags_MenuBar;
 	//window_flags |= ImGuiWindowFlags_NoMove;
@@ -79,19 +112,9 @@ void ModuleGui::Sidebar() {
 	if (ImGui::CollapsingHeader("Window")) App->window->OptionsMenu();
 	if (ImGui::CollapsingHeader("Camera")) App->camera->OptionsMenu();
 	if (ImGui::CollapsingHeader("Model")) App->renderer->model->OptionsMenu();
-	if (ImGui::CollapsingHeader("Performance")) Performance();
+	if (ImGui::CollapsingHeader("Performance")) App->renderer->PerformanceMenu(delta);
 	if (ImGui::CollapsingHeader("About")) About();
 	ImGui::End();
-}
-
-void ModuleGui::Performance() {
-	static const float vram_budget_mb = about.vram_budget / 1024.0f;
-	glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &about.vram_free);
-	float vram_free_mb = about.vram_free / 1024.0f;
-	float vram_usage_mb = vram_budget_mb - vram_free_mb;
-	ImGui::Text("VRAM Budget: %.1f Mb", vram_budget_mb);
-	ImGui::Text("Vram Usage:  %.1f Mb", vram_usage_mb);
-	ImGui::Text("Vram Avaliable:  %.1f Mb", vram_free_mb);
 }
 
 void ModuleGui::About() {
@@ -118,39 +141,3 @@ void ModuleGui::OpenBrowser(const char* url)
 	// Show the window
 	ShellExecute(0, 0, url, 0, 0, SW_SHOW);
 }
-
-update_status ModuleGui::PreUpdate()
-{
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplSDL2_NewFrame();
-	ImGui::NewFrame();
-		
-	Menu();
-	if (show_sidebar) Sidebar(); // TODO: Make all vatiables editable for renderer, window, input and textures
-	if (show_console) Logger->Draw(&show_console);
-	if (show_demo) ImGui::ShowDemoWindow(&show_demo);
-	if (show_model_properties)
-		App->renderer->model->PropertiesWindow(&show_model_properties);
-
-	return UPDATE_CONTINUE;
-}
-
-// Called every draw update
-update_status ModuleGui::Update(const float delta)
-{	
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-	return UPDATE_CONTINUE;
-}
-
-// Called before quitting
-bool ModuleGui::CleanUp()
-{
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplSDL2_Shutdown();
-	ImGui::DestroyContext();
-
-	return true;
-}
-

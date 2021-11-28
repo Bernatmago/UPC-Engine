@@ -52,7 +52,7 @@ bool ModuleRender::Init()
 	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, true); // Filter notifications
 
 	// Textures params
-	glEnable(GL_TEXTURE_2D);
+	
 	
 	int w, h;
 	SDL_GetWindowSize(App->window->window, &w, &h);
@@ -61,10 +61,12 @@ bool ModuleRender::Init()
 	model = new Model();
 	model->Load("BakerHouse.fbx");
 
+	glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &vram_budget);
+
 	return true;
 }
 
-update_status ModuleRender::PreUpdate()
+update_status ModuleRender::PreUpdate(const float delta)
 {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -85,7 +87,7 @@ update_status ModuleRender::Update(const float delta)
 	return UPDATE_CONTINUE;
 }
 
-update_status ModuleRender::PostUpdate()
+update_status ModuleRender::PostUpdate(const float delta)
 {	
 	SDL_GL_SwapWindow(App->window->window);
 	
@@ -97,6 +99,17 @@ void ModuleRender::WindowResized(unsigned width, unsigned height)
 	int w, h;
 	SDL_GetWindowSize(App->window->window, &w, &h);
 	glViewport(0, 0, w, h);
+}
+
+void ModuleRender::PerformanceMenu(const float delta)
+{
+	static const float vram_budget_mb = vram_budget / 1024.0f;
+	glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &vram_free);
+	float vram_free_mb = vram_free / 1024.0f;
+	float vram_usage_mb = vram_budget_mb - vram_free_mb;
+	ImGui::Text("VRAM Budget: %.1f Mb", vram_budget_mb);
+	ImGui::Text("Vram Usage:  %.1f Mb", vram_usage_mb);
+	ImGui::Text("Vram Avaliable:  %.1f Mb", vram_free_mb);
 }
 
 bool ModuleRender::CleanUp()

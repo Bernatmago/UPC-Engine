@@ -14,13 +14,19 @@ public:
 	~ModuleRender();
 
 	bool Init() override;
-	update_status PreUpdate() override;
+	update_status PreUpdate(const float delta) override;
 	update_status Update(const float delta) override;
-	update_status PostUpdate() override;
+	update_status PostUpdate(const float delta) override;
 	bool CleanUp() override;
 
 	void WindowResized(unsigned width, unsigned height);
 
+	void PerformanceMenu(const float delta);
+
 	void* context;
 	Model* model = nullptr;
+
+private:
+	int vram_budget;
+	int vram_free;
 };

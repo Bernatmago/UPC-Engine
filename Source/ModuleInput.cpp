@@ -32,7 +32,7 @@ bool ModuleInput::Init()
 	return ret;
 }
 
-update_status ModuleInput::PreUpdate()
+update_status ModuleInput::PreUpdate(const float delta)
 {
     SDL_Event event;
     // TODO: Improve delta management
