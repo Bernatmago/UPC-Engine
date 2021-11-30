@@ -22,6 +22,7 @@ public:
 	void WindowResized(unsigned width, unsigned height);
 
 	void PerformanceMenu(const float delta);
+	void FpsGraph(const float delta);
 
 	void* context;
 	Model* model = nullptr;

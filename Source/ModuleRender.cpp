@@ -110,6 +110,22 @@ void ModuleRender::PerformanceMenu(const float delta)
 	ImGui::Text("VRAM Budget: %.1f Mb", vram_budget_mb);
 	ImGui::Text("Vram Usage:  %.1f Mb", vram_usage_mb);
 	ImGui::Text("Vram Avaliable:  %.1f Mb", vram_free_mb);
+	ImGui::Separator();
+	FpsGraph(delta);
+}
+
+void ModuleRender::FpsGraph(const float delta)
+{
+	static const unsigned n_bins = 25;
+	static std::vector<float> fps_log(n_bins);
+	static std::vector<float> ms_log(n_bins);
+	ImGui::Text("Fps: %d", 0);
+
+	char title[25];
+	sprintf_s(title, 25, "Framerate %.1f", fps_log[fps_log.size() - 1]);
+	ImGui::PlotHistogram("##framerate", &fps_log[0], fps_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
+	sprintf_s(title, 25, "Milliseconds %0.1f", ms_log[ms_log.size() - 1]);
+	ImGui::PlotHistogram("##milliseconds", &ms_log[0], ms_log.size(), 0, title, 0.0f, 40.0f, ImVec2(310, 100));
 }
 
 bool ModuleRender::CleanUp()

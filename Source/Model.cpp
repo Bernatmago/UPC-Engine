@@ -202,6 +202,7 @@ void Model::PropertiesWindow(bool* p_open)
 	for (int i = 0; i < textures.size(); ++i) {
 		const Texture& texture = textures[i];
 		ImGui::Text("T[%d]: %dx%d %s", i, texture.width, texture.height, texture.path.c_str());
+		ImGui::Image((void*)texture.id, ImVec2(150, 150));
 	}
 	ImGui::Separator();
 	ImGui::Text("Meshes");
