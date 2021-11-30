@@ -15,6 +15,8 @@
 
 ModuleRender::ModuleRender()
 {
+	fps_log = std::vector<float>(n_bins);
+	ms_log = std::vector<float>(n_bins);
 }
 
 ModuleRender::~ModuleRender()
@@ -90,6 +92,7 @@ update_status ModuleRender::Update(const float delta)
 update_status ModuleRender::PostUpdate(const float delta)
 {	
 	SDL_GL_SwapWindow(App->window->window);
+	AddFrame(delta);
 	
 	return UPDATE_CONTINUE;
 }
@@ -111,14 +114,11 @@ void ModuleRender::PerformanceMenu(const float delta)
 	ImGui::Text("Vram Usage:  %.1f Mb", vram_usage_mb);
 	ImGui::Text("Vram Avaliable:  %.1f Mb", vram_free_mb);
 	ImGui::Separator();
-	FpsGraph(delta);
+	FpsGraph();
 }
 
-void ModuleRender::FpsGraph(const float delta)
+void ModuleRender::FpsGraph()
 {
-	static const unsigned n_bins = 25;
-	static std::vector<float> fps_log(n_bins);
-	static std::vector<float> ms_log(n_bins);
 	ImGui::Text("Fps: %d", 0);
 
 	char title[25];
@@ -126,6 +126,35 @@ void ModuleRender::FpsGraph(const float delta)
 	ImGui::PlotHistogram("##framerate", &fps_log[0], (int)fps_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
 	sprintf_s(title, 25, "Milliseconds %0.1f", ms_log[(int)ms_log.size() - 1]);
 	ImGui::PlotHistogram("##milliseconds", &ms_log[0], (int)ms_log.size(), 0, title, 0.0f, 40.0f, ImVec2(310, 100));
+}
+
+void ModuleRender::AddFrame(const float delta)
+{
+	static int filled_bins = 0;
+	static int frames = 0;
+	static float time = 0;
+
+	++frames;
+	time += delta;
+
+	if (time >= 1.0f)
+	{
+		// TODO: Add bin and reset
+		if (filled_bins == n_bins) {
+			for (int i = 0; i < n_bins - 1; ++i)
+			{
+				fps_log[i] = fps_log[i + 1];
+				ms_log[i] = ms_log[i + 1];
+			}
+		}
+		else {
+			++filled_bins;
+		}
+		fps_log[filled_bins - 1] = float(frames)/time;
+		//fps_log
+		time = 0;
+		frames = 0;
+	}
 }
 
 bool ModuleRender::CleanUp()

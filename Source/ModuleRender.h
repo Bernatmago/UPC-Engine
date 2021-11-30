@@ -3,6 +3,8 @@
 #include "Globals.h"
 #include "Model.h"
 
+#include <vector>
+
 struct SDL_Texture;
 struct SDL_Renderer;
 struct SDL_Rect;
@@ -22,7 +24,8 @@ public:
 	void WindowResized(unsigned width, unsigned height);
 
 	void PerformanceMenu(const float delta);
-	void FpsGraph(const float delta);
+	void FpsGraph();
+	void AddFrame(const float delta);
 
 	void* context;
 	Model* model = nullptr;
@@ -30,4 +33,9 @@ public:
 private:
 	int vram_budget;
 	int vram_free;
+
+	static const unsigned n_bins = 25;
+	std::vector<float> fps_log;
+	std::vector<float> ms_log;
+
 };
