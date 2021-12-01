@@ -50,7 +50,7 @@ bool Application::Init()
 update_status Application::Update()
 {
 	double tick_time = timer.Read();
-	delta = tick_time - prev_tick_time;
+	delta = (tick_time - prev_tick_time)/1000.0;
 	prev_tick_time = tick_time;
 	update_status ret = UPDATE_CONTINUE;
 

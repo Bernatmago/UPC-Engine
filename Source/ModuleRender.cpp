@@ -119,17 +119,18 @@ void ModuleRender::PerformanceMenu(const float delta)
 
 void ModuleRender::FpsGraph()
 {
-	ImGui::Text("Fps: %d", 0);
+	ImGui::Text("Fps: %f", current_fps);
 
 	char title[25];
-	sprintf_s(title, 25, "Framerate %.1f", fps_log[(int)fps_log.size() - 1]);
-	ImGui::PlotHistogram("##framerate", &fps_log[0], (int)fps_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
-	sprintf_s(title, 25, "Milliseconds %0.1f", ms_log[(int)ms_log.size() - 1]);
-	ImGui::PlotHistogram("##milliseconds", &ms_log[0], (int)ms_log.size(), 0, title, 0.0f, 40.0f, ImVec2(310, 100));
+	sprintf_s(title, 25, "Framerate %.1f", current_fps);
+	ImGui::PlotHistogram("##framerate", &fps_log[0], (int)fps_log.size(), 0, title, 0.0f, 1000.f, ImVec2(310, 100));
+	sprintf_s(title, 25, "Milliseconds %0.1f", current_ms);
+	ImGui::PlotHistogram("##milliseconds", &ms_log[0], (int)ms_log.size(), 0, title, 0.0f, 20.0f, ImVec2(310, 100));
 }
 
 void ModuleRender::AddFrame(const float delta)
 {
+	static const float update_frequency_seconds = 0.5f;
 	static int filled_bins = 0;
 	static int frames = 0;
 	static float time = 0;
@@ -137,7 +138,7 @@ void ModuleRender::AddFrame(const float delta)
 	++frames;
 	time += delta;
 
-	if (time >= 1.0f)
+	if (time >= update_frequency_seconds)
 	{
 		// TODO: Add bin and reset
 		if (filled_bins == n_bins) {
@@ -151,6 +152,9 @@ void ModuleRender::AddFrame(const float delta)
 			++filled_bins;
 		}
 		fps_log[filled_bins - 1] = float(frames)/time;
+		current_fps = fps_log[filled_bins - 1];
+		ms_log[filled_bins - 1] = time * 1000.0f / float(frames);
+		current_ms = ms_log[filled_bins - 1];
 		//fps_log
 		time = 0;
 		frames = 0;

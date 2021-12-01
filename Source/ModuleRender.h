@@ -34,8 +34,10 @@ private:
 	int vram_budget;
 	int vram_free;
 
-	static const unsigned n_bins = 25;
+	static const unsigned n_bins = 50;
 	std::vector<float> fps_log;
 	std::vector<float> ms_log;
+	float current_fps;
+	float current_ms;
 
 };
