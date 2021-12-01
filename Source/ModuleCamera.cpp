@@ -24,7 +24,7 @@ ModuleCamera::~ModuleCamera()
 bool ModuleCamera::Init()
 {
     frustum.SetKind(FrustumSpaceGL, FrustumRightHanded);
-    auto screen_surface = App->window->screen_surface;
+    auto screen_surface = App->window->GetScreenSurface();
     SetAspectRatio(screen_surface->w, screen_surface->h);
     SetHorizontalFov(90.0f);
     SetPlaneDistances(0.1f, 100.0f);
@@ -42,7 +42,7 @@ update_status ModuleCamera::Update(const float delta)
     CameraController(delta);
     SetPlaneDistances(near_distance, far_distance);
     if (locked)
-        LookAt(App->renderer->model->GetPosition());
+        LookAt(App->renderer->GetModel()->GetPosition());
 
     return UPDATE_CONTINUE;
 }
@@ -141,7 +141,7 @@ void ModuleCamera::CameraController(const float delta)
            position -= frustum.Up() * effective_speed * delta;
    }
    else if (App->input->GetKey(SDL_SCANCODE_F)) {
-       LookAt(App->renderer->model->GetPosition());
+       LookAt(App->renderer->GetModel()->GetPosition());
    }
 
    int scrolled_y = App->input->GetScrollDelta();

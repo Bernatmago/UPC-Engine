@@ -101,7 +101,7 @@ void Mesh::CreateVAO()
 void Mesh::Draw(float4x4& model, const std::vector<Texture>& model_textures)
 {
 	assert(loaded == true);
-	unsigned program_id = App->program->program_id;
+	unsigned program_id = App->program->GetProgramId();
 	
 	glUseProgram(program_id);
 	glUniformMatrix4fv(glGetUniformLocation(program_id, "model"), 1, GL_TRUE, &model[0][0]);

@@ -24,13 +24,14 @@ public:
 
 	void OptionsMenu();
 
-	//The window we'll be rendering to
-	SDL_Window* window = NULL;
-
-	//The surface contained by the window
-	SDL_Surface* screen_surface = NULL;
+	inline SDL_Surface* GetScreenSurface() const { return screen_surface; }
+	inline SDL_Window* GetWindow() const { return window; }
+	
 private:
 	void GetMonitorResolution(int& width, int&height);
+
+	SDL_Window* window = NULL;
+	SDL_Surface* screen_surface = NULL;
 
 	bool fullscreen;
 	bool resizable;

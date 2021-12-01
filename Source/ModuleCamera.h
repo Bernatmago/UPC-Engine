@@ -27,19 +27,11 @@ public:
 
 	void OptionsMenu();
 
-	// TODO: Wasd + mouse on right click
-	// TODO: Focus with keyboard to model (f)
 	// TODO Orbit object (alt + left click)
-
-	
-
 	float4x4 GetView() const;
 	float4x4 GetProjection() const;
 	
 	// Orbit and more controls
-
-	
-
 	
 
 private:

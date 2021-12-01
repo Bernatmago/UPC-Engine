@@ -194,7 +194,8 @@ void Model::PropertiesWindow(bool* p_open)
 		ImGui::End();
 		return;
 	}
-	// TODO: Add path
+
+	ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Model");
 	ImGui::Text("Name: %s", name.c_str());
 	ImGui::Text("Path: %s", (path + file_name).c_str());
 	ImGui::Separator();
@@ -204,9 +205,9 @@ void Model::PropertiesWindow(bool* p_open)
 		ImGui::Text("T[%d]: %dx%d %s", i, texture.width, texture.height, texture.path.c_str());
 		ImGui::Image((void*)(intptr_t)texture.id, ImVec2(150, 150));
 	}
-	ImGui::Separator();
-	ImGui::Text("Meshes");
 
+	ImGui::Separator();
+	ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Meshes");
 	int vertices = 0;
 	int indexes = 0;
 	for (int i = 0; i < meshes.size(); ++i) {
@@ -216,6 +217,15 @@ void Model::PropertiesWindow(bool* p_open)
 		vertices += mesh.GetNumVertices();
 	}
 	ImGui::Text("Total : %dt, (%dv, %di)", indexes/3, vertices, indexes);
+
+	ImGui::Separator();
+	ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Transform");
+	for (int r = 0; r < 4; ++r) {
+		auto row = matrix.Row(r);
+		ImGui::Text("%.2f, %.2f, %.2f, %.2f", row[0], row[1], row[2], row[3]);
+	}
+	
+
 
 	ImGui::End();
 }

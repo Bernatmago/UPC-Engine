@@ -37,12 +37,26 @@ bool ModuleRender::Init()
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8); // we want to have a stencil buffer with 8 bits
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG); // enable context debug
 
-	context = SDL_GL_CreateContext(App->window->window);
+	context = SDL_GL_CreateContext(App->window->GetWindow());
 
 	GLenum err = glewInit();
-	LOG("Using Glew %s", glewGetString(GLEW_VERSION));
-	LOG("OpenGL version supported %s", glGetString(GL_VERSION));
-	LOG("GLSL: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
+
+	gpu.name = (unsigned char*)glGetString(GL_RENDERER);
+	gpu.brand = (unsigned char*)glGetString(GL_VENDOR);
+
+	int vram_budget;
+	glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &vram_budget);
+	gpu.vram_budget_mb = (float)vram_budget / 1024.0f;
+
+	gl.glew = (unsigned char*)glewGetString(GLEW_VERSION);
+	gl.opengl = (unsigned char*)glewGetString(GLEW_VERSION);
+	gl.glsl = (unsigned char*)glewGetString(GL_SHADING_LANGUAGE_VERSION);
+
+	LOG("Using Glew %s", gl.glew);
+	LOG("OpenGL version supported %s", gl.opengl);
+	LOG("GLSL: %s", gl.glsl);
+
+	
 
 	glEnable(GL_DEPTH_TEST); // Enable depth test
 	glEnable(GL_CULL_FACE); // Enable cull backward faces
@@ -57,13 +71,11 @@ bool ModuleRender::Init()
 	
 	
 	int w, h;
-	SDL_GetWindowSize(App->window->window, &w, &h);
+	SDL_GetWindowSize(App->window->GetWindow(), &w, &h);
 	glViewport(0, 0, w, h);
 
 	model = new Model();
 	model->Load("BakerHouse.fbx");
-
-	glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &vram_budget);
 
 	return true;
 }
@@ -78,8 +90,8 @@ update_status ModuleRender::PreUpdate(const float delta)
 
 update_status ModuleRender::Update(const float delta)
 {
-	auto &a = App->window->screen_surface;
-	App->debug->Draw(App->camera->GetView(), App->camera->GetProjection(), a->w, a->h);
+	SDL_Surface* screen_surface = App->window->GetScreenSurface();
+	App->debug->Draw(App->camera->GetView(), App->camera->GetProjection(), screen_surface->w, screen_surface->h);
 
 	// Note: Debug draw disables blending
 	glEnable(GL_BLEND);
@@ -91,7 +103,7 @@ update_status ModuleRender::Update(const float delta)
 
 update_status ModuleRender::PostUpdate(const float delta)
 {	
-	SDL_GL_SwapWindow(App->window->window);
+	SDL_GL_SwapWindow(App->window->GetWindow());
 	AddFrame(delta);
 	
 	return UPDATE_CONTINUE;
@@ -100,17 +112,16 @@ update_status ModuleRender::PostUpdate(const float delta)
 void ModuleRender::WindowResized(unsigned width, unsigned height)
 {
 	int w, h;
-	SDL_GetWindowSize(App->window->window, &w, &h);
+	SDL_GetWindowSize(App->window->GetWindow(), &w, &h);
 	glViewport(0, 0, w, h);
 }
 
 void ModuleRender::PerformanceMenu(const float delta)
 {
-	static const float vram_budget_mb = vram_budget / 1024.0f;
 	glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &vram_free);
 	float vram_free_mb = vram_free / 1024.0f;
-	float vram_usage_mb = vram_budget_mb - vram_free_mb;
-	ImGui::Text("VRAM Budget: %.1f Mb", vram_budget_mb);
+	float vram_usage_mb = gpu.vram_budget_mb - vram_free_mb;
+	ImGui::Text("VRAM Budget: %.1f Mb", gpu.vram_budget_mb);
 	ImGui::Text("Vram Usage:  %.1f Mb", vram_usage_mb);
 	ImGui::Text("Vram Avaliable:  %.1f Mb", vram_free_mb);
 	ImGui::Separator();

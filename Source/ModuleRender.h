@@ -9,6 +9,18 @@ struct SDL_Texture;
 struct SDL_Renderer;
 struct SDL_Rect;
 
+struct GpuData {
+	unsigned char* name;
+	unsigned char* brand;
+	float vram_budget_mb;
+};
+
+struct GlVersion {
+	unsigned char* glew;
+	unsigned char* opengl;
+	unsigned char* glsl;
+};
+
 class ModuleRender : public Module
 {
 public:
@@ -27,11 +39,18 @@ public:
 	void FpsGraph();
 	void AddFrame(const float delta);
 
+	inline Model* GetModel() const { return model; }
+	inline void* GetGLContext() const { return context; }
+	inline const GpuData GetGpuData() const { return gpu; }
+	inline const GlVersion GetGlVersion() { return gl; }
+
+
+private:
 	void* context;
 	Model* model = nullptr;
 
-private:
-	int vram_budget;
+	GpuData gpu;
+	GlVersion gl;
 	int vram_free;
 
 	static const unsigned n_bins = 50;

@@ -1,7 +1,6 @@
 #include "ModuleTextures.h"
 
 #include "glew.h"
-#include "il.h"
 #include "ilu.h"
 
 ModuleTextures::ModuleTextures()

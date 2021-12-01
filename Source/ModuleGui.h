@@ -4,18 +4,25 @@
 #include "Module.h"
 #include "Globals.h"
 #include "Console.h"
-
+#include "ModuleRender.h"
 
 struct SDL_Texture;
 struct SDL_Renderer;
 struct SDL_Rect;
 
+struct CpuData {
+	int cores;
+	float l1_cache_kb;
+};
+
 struct AboutData {
 	SDL_version sdl_version;
-	int n_cpu;
+	short devil_version;
+	CpuData cpu;
 	float ram_gb;
-	unsigned char* gpu;
-	unsigned char* gpu_brand;
+	GpuData gpu;
+	
+	GlVersion gl;
 };
 
 class ModuleGui : public Module

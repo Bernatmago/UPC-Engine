@@ -59,7 +59,7 @@ update_status ModuleInput::PreUpdate(const float delta)
             break;
         case SDL_DROPFILE:
             // TODO: should be freed with SDL_free()
-            App->renderer->model->Load(event.drop.file);
+            App->renderer->GetModel()->Load(event.drop.file);
             break;
         }
     }

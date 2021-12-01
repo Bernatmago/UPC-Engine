@@ -4,6 +4,7 @@
 #include "ModuleWindow.h"
 #include "ModuleProgram.h"
 #include "ModuleRender.h"
+#include "ModuleTextures.h"
 #include "ModuleCamera.h"
 #include "SDL.h"
 #include "Console.h"
@@ -34,15 +35,17 @@ bool ModuleGui::Init()
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
 	ImGui::StyleColorsDark();
-	ImGui_ImplSDL2_InitForOpenGL(App->window->window, App->renderer->context);
+	ImGui_ImplSDL2_InitForOpenGL(App->window->GetWindow(), App->renderer->GetGLContext());
 	ImGui_ImplOpenGL3_Init("#version 330");
 
-	 SDL_GetVersion(&about.sdl_version);
-	 about.n_cpu = SDL_GetCPUCount();
-	 about.ram_gb = SDL_GetSystemRAM() / 1024.0f;
-
-	 about.gpu = (unsigned char*)glGetString(GL_RENDERER);
-	 about.gpu_brand = (unsigned char*)glGetString(GL_VENDOR); 
+	SDL_GetVersion(&about.sdl_version);
+	about.devil_version = App->textures->GetDevilVersion();
+	about.cpu.cores = SDL_GetCPUCount();
+	about.cpu.l1_cache_kb = (float)SDL_GetCPUCacheLineSize() / 1024.0f;
+	about.ram_gb = (float)SDL_GetSystemRAM() / 1024.0f;
+	
+	about.gpu = App->renderer->GetGpuData();
+	about.gl = App->renderer->GetGlVersion();
 
 	return true;
 }
@@ -58,7 +61,7 @@ update_status ModuleGui::PreUpdate(const float delta)
 	if (show_console) Logger->Draw(&show_console);
 	if (show_demo) ImGui::ShowDemoWindow(&show_demo);
 	if (show_model_properties)
-		App->renderer->model->PropertiesWindow(&show_model_properties);
+		App->renderer->GetModel()->PropertiesWindow(&show_model_properties);
 
 	return UPDATE_CONTINUE;
 }
@@ -111,24 +114,37 @@ void ModuleGui::Sidebar(const float delta) {
 	ImGui::Begin("Sidebar", &show_sidebar, window_flags);
 	if (ImGui::CollapsingHeader("Window")) App->window->OptionsMenu();
 	if (ImGui::CollapsingHeader("Camera")) App->camera->OptionsMenu();
-	if (ImGui::CollapsingHeader("Model")) App->renderer->model->OptionsMenu();
+	if (ImGui::CollapsingHeader("Model")) App->renderer->GetModel()->OptionsMenu();
 	if (ImGui::CollapsingHeader("Performance")) App->renderer->PerformanceMenu(delta);
 	if (ImGui::CollapsingHeader("About")) About();
 	ImGui::End();
 }
 
 void ModuleGui::About() {
-	static SDL_version version;
+	static const ImVec4 cool_blue(0.110f, 0.588f, 0.950f, 1.0f);
+	static const ImVec4 yellow(1.0f, 1.0f, 0.0f, 1.0f);
+	ImGui::TextColored(yellow, "Libraries");
 	ImGui::Text("SDL Version: %d.%d.%d", about.sdl_version.major,
-		about.sdl_version.minor, about.sdl_version.patch);
-	ImGui::Separator();
-	ImGui::Text("CPUs: %d", about.n_cpu);
-	ImGui::Text("System RAM: %.1f Gb", about.ram_gb);
-	ImGui::Separator();
-	ImGui::Text("GPU: %s", about.gpu);
-	ImGui::Text("Brand: %s", about.gpu_brand);
+		about.sdl_version.minor, about.sdl_version.patch);	
+	ImGui::Text("DevIL Version: %d", about.devil_version);
+	ImGui::Text("Glew Version: %d", about.gl.glew);
+	ImGui::Text("OpenGL Version: %d", about.gl.opengl);
+	ImGui::Text("GLSL Version: %d", about.gl.glsl);
 
-	
+	ImGui::Separator();
+	ImGui::TextColored(yellow, "Hardware");
+	ImGui::TextColored(cool_blue, "CPU");
+	ImGui::Text("Cores: %d", about.cpu.cores);
+	ImGui::Text("L1 line size: %f Kb", about.cpu.l1_cache_kb);
+	ImGui::Separator();
+	ImGui::TextColored(cool_blue, "Memory");
+	ImGui::Text("RAM: %.1f Gb", about.ram_gb);
+	ImGui::Separator();
+	ImGui::TextColored(cool_blue, "GPU");
+	ImGui::Text("GPU: %s", about.gpu.name);
+	ImGui::Text("Brand: %s", about.gpu.brand);
+	ImGui::Text("Vram Budget: %f Mb", about.gpu.vram_budget_mb);
+		
 }
 
 void ModuleGui::OpenBrowser(const char* url)

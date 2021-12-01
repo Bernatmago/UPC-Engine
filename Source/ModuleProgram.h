@@ -16,9 +16,12 @@ public:
     char* LoadShaderSource(const char* shader_file_name);
     unsigned int CompileShader(unsigned type, const char* source);
     unsigned CreateProgram(unsigned vtx_shader, unsigned frg_shader);
+
+    inline const int GetProgramId() const { return program_id; }
+    
+private:
     unsigned int vertex_shader_id;
     unsigned int fragment_shader_id;
     unsigned int program_id;
-private:
 };
 
