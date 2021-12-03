@@ -92,20 +92,10 @@ void ModuleCamera::LookAt(const float3& look_position)
 
 void ModuleCamera::Rotate(float pitch, float yaw)
 {
-    if (yaw != 0.0f) {
-        // Rotate in Y absolut axis
-        Quat rot = Quat::RotateY(yaw);
-        frustum.SetFront(rot.Mul(frustum.Front()).Normalized());
-        frustum.SetUp(rot.Mul(frustum.Up()).Normalized());
-    }
-
-    if (pitch != 0.0f) {
-        // Rotate in X local axis
-        Quat rot = Quat::RotateAxisAngle(frustum.WorldRight(), pitch);
-        float3 a = rot.Mul(frustum.Up()).Normalized();
-        frustum.SetUp(a);      
-        frustum.SetFront(rot.Mul(frustum.Front()).Normalized());
-    }
+    if (yaw != 0.0f)
+        frustum.Transform(Quat::RotateY(yaw)); // Rotate in Y absolut axis
+    if (pitch != 0.0f)
+        frustum.Transform(Quat::RotateAxisAngle(frustum.WorldRight(), pitch)); // Rotate in X local axis
 }
 
 void ModuleCamera::CameraController(const float delta)
