@@ -49,8 +49,8 @@ bool ModuleRender::Init()
 	gpu.vram_budget_mb = (float)vram_budget / 1024.0f;
 
 	gl.glew = (unsigned char*)glewGetString(GLEW_VERSION);
-	gl.opengl = (unsigned char*)glewGetString(GLEW_VERSION);
-	gl.glsl = (unsigned char*)glewGetString(GL_SHADING_LANGUAGE_VERSION);
+	gl.opengl = (unsigned char*)glGetString(GL_VERSION);
+	gl.glsl = (unsigned char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
 
 	LOG("Using Glew %s", gl.glew);
 	LOG("OpenGL version supported %s", gl.opengl);
@@ -118,14 +118,31 @@ void ModuleRender::WindowResized(unsigned width, unsigned height)
 	glViewport(0, 0, w, h);
 }
 
+void GLOptionCheck(GLenum option, bool enable) {
+	if (enable)
+		glEnable(option);
+	else
+		glDisable(option);
+}
+
 void ModuleRender::OptionsMenu()
 {
+	
 	ImGuiColorEditFlags flag = ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoLabel;
 	ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Draw Options");
 	ImGui::Text("Background Color");
 	ImGui::PushItemWidth(150.0f);
 	ImGui::ColorPicker3("Clear Color", &clear_color[0], flag);
 	ImGui::Checkbox("Debug Draw", &debug_draw);
+
+	static bool line_smooth = false;
+	if (ImGui::Checkbox("Line Smooth", &line_smooth))
+		GLOptionCheck(GL_LINE_SMOOTH, line_smooth);
+
+	ImGui::SameLine();
+	static bool polygon_smooth = false;
+	if (ImGui::Checkbox("Polygon Smooth", &polygon_smooth))
+		GLOptionCheck(GL_POLYGON_SMOOTH, polygon_smooth);
 }
 
 void ModuleRender::PerformanceMenu(const float delta)

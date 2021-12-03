@@ -128,9 +128,9 @@ void ModuleGui::About() {
 	ImGui::Text("SDL Version: %d.%d.%d", about.sdl_version.major,
 		about.sdl_version.minor, about.sdl_version.patch);	
 	ImGui::Text("DevIL Version: %d", about.devil_version);
-	ImGui::Text("Glew Version: %d", about.gl.glew);
-	ImGui::Text("OpenGL Version: %d", about.gl.opengl);
-	ImGui::Text("GLSL Version: %d", about.gl.glsl);
+	ImGui::Text("Glew Version: %s", about.gl.glew);
+	ImGui::Text("OpenGL Version: %s", about.gl.opengl);
+	ImGui::Text("GLSL Version: %s", about.gl.glsl);
 
 	ImGui::Separator();
 	ImGui::TextColored(yellow, "Hardware");
