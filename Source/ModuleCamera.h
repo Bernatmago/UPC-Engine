@@ -22,6 +22,7 @@ public:
 	void Zoom(float deg_diff);
 	void LookAt(const float3& position);
 	void CameraController(const float delta);
+	void UpdatePlaneDistances();
 	void SetPlaneDistances(const float near_distance, const float far_distance);
 	void WindowResized(unsigned int screen_width, unsigned int screen_height);
 
@@ -35,6 +36,13 @@ public:
 	
 
 private:
+	struct RenderPlanes {
+		float near_plane;
+		float far_plane;
+	};
+
+	RenderPlanes planes;
+
 	Frustum frustum;
 	float aspect_ratio;
 	float horizontal_fov;
@@ -42,7 +50,5 @@ private:
 
 	bool locked = false;
 	float3 position;
-	float near_distance;
-	float far_distance;
 };
 

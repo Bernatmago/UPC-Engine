@@ -55,7 +55,6 @@ bool ModuleRender::Init()
 	LOG("Using Glew %s", gl.glew);
 	LOG("OpenGL version supported %s", gl.opengl);
 	LOG("GLSL: %s", gl.glsl);
-
 	
 
 	glEnable(GL_DEPTH_TEST); // Enable depth test
@@ -74,6 +73,8 @@ bool ModuleRender::Init()
 	SDL_GetWindowSize(App->window->GetWindow(), &w, &h);
 	glViewport(0, 0, w, h);
 
+	clear_color = float4(0.0f, 0.0f, 0.0f, 1.0f);
+
 	model = new Model();
 	model->Load("BakerHouse.fbx");
 
@@ -82,7 +83,7 @@ bool ModuleRender::Init()
 
 update_status ModuleRender::PreUpdate(const float delta)
 {
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(clear_color[0], clear_color[1], clear_color[2], clear_color[3]);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	return UPDATE_CONTINUE;
@@ -91,7 +92,8 @@ update_status ModuleRender::PreUpdate(const float delta)
 update_status ModuleRender::Update(const float delta)
 {
 	SDL_Surface* screen_surface = App->window->GetScreenSurface();
-	App->debug->Draw(App->camera->GetView(), App->camera->GetProjection(), screen_surface->w, screen_surface->h);
+	if(debug_draw)
+		App->debug->Draw(App->camera->GetView(), App->camera->GetProjection(), screen_surface->w, screen_surface->h);
 
 	// Note: Debug draw disables blending
 	glEnable(GL_BLEND);
@@ -116,6 +118,16 @@ void ModuleRender::WindowResized(unsigned width, unsigned height)
 	glViewport(0, 0, w, h);
 }
 
+void ModuleRender::OptionsMenu()
+{
+	ImGuiColorEditFlags flag = ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoLabel;
+	ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Draw Options");
+	ImGui::Text("Background Color");
+	ImGui::PushItemWidth(150.0f);
+	ImGui::ColorPicker3("Clear Color", &clear_color[0], flag);
+	ImGui::Checkbox("Debug Draw", &debug_draw);
+}
+
 void ModuleRender::PerformanceMenu(const float delta)
 {
 	glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &vram_free);
@@ -126,11 +138,12 @@ void ModuleRender::PerformanceMenu(const float delta)
 	ImGui::Text("Vram Avaliable:  %.1f Mb", vram_free_mb);
 	ImGui::Separator();
 	FpsGraph();
+	
 }
 
 void ModuleRender::FpsGraph()
 {
-	ImGui::Text("Fps: %f", current_fps);
+	ImGui::Text("Fps: %.1f", current_fps);
 
 	char title[25];
 	sprintf_s(title, 25, "Framerate %.1f", current_fps);

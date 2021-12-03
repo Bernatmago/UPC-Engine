@@ -35,6 +35,7 @@ public:
 
 	void WindowResized(unsigned width, unsigned height);
 
+	void OptionsMenu();
 	void PerformanceMenu(const float delta);
 	void FpsGraph();
 	void AddFrame(const float delta);
@@ -48,6 +49,9 @@ public:
 private:
 	void* context;
 	Model* model = nullptr;
+	bool debug_draw = true;
+
+	float4 clear_color;
 
 	GpuData gpu;
 	GlVersion gl;

@@ -186,6 +186,7 @@ void Model::OptionsMenu()
 
 void Model::PropertiesWindow(bool* p_open)
 {	
+	static const ImVec4 yellow(1.0f, 1.0f, 0.0f, 1.0f);
 	ImGui::SetNextWindowSize(ImVec2(250, 200), ImGuiCond_Once);
 	ImGui::Begin("Model Properties", p_open); // TODO: Fill with filename
 
@@ -195,11 +196,11 @@ void Model::PropertiesWindow(bool* p_open)
 		return;
 	}
 
-	ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Model");
+	ImGui::TextColored(yellow, "Model");
 	ImGui::Text("Name: %s", name.c_str());
 	ImGui::Text("Path: %s", (path + file_name).c_str());
 	ImGui::Separator();
-	ImGui::Text("Textures");
+	ImGui::TextColored(yellow, "Textures");
 	for (int i = 0; i < textures.size(); ++i) {
 		const Texture& texture = textures[i];
 		ImGui::Text("T[%d]: %dx%d %s", i, texture.width, texture.height, texture.path.c_str());
@@ -207,7 +208,7 @@ void Model::PropertiesWindow(bool* p_open)
 	}
 
 	ImGui::Separator();
-	ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Meshes");
+	ImGui::TextColored(yellow, "Meshes");
 	int vertices = 0;
 	int indexes = 0;
 	for (int i = 0; i < meshes.size(); ++i) {
@@ -219,7 +220,7 @@ void Model::PropertiesWindow(bool* p_open)
 	ImGui::Text("Total : %dt, (%dv, %di)", indexes/3, vertices, indexes);
 
 	ImGui::Separator();
-	ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Transform");
+	ImGui::TextColored(yellow, "Transform");
 	for (int r = 0; r < 4; ++r) {
 		auto row = matrix.Row(r);
 		ImGui::Text("%.2f, %.2f, %.2f, %.2f", row[0], row[1], row[2], row[3]);

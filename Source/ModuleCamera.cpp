@@ -40,7 +40,6 @@ update_status ModuleCamera::Update(const float delta)
 {
     
     CameraController(delta);
-    SetPlaneDistances(near_distance, far_distance);
     if (locked)
         LookAt(App->renderer->GetModel()->GetPosition());
 
@@ -162,9 +161,13 @@ void ModuleCamera::CameraController(const float delta)
    frustum.SetPos(position);
 }
 
+void ModuleCamera::UpdatePlaneDistances()
+{
+    frustum.SetViewPlaneDistances(planes.near_plane, planes.far_plane);
+}
 void ModuleCamera::SetPlaneDistances(const float near_dist, const float far_dist)
 {
-    frustum.SetViewPlaneDistances(near_distance = near_dist, far_distance = far_dist);
+    frustum.SetViewPlaneDistances(planes.near_plane = near_dist, planes.far_plane = far_dist);
 }
 
 void ModuleCamera::WindowResized(unsigned int screen_width, unsigned int screen_height)
@@ -184,10 +187,12 @@ float4x4 ModuleCamera::GetProjection() const
 
 void ModuleCamera::OptionsMenu()
 {
-    ImGui::SliderFloat2("cX, cY", &position[0], -5.0f, 5.0f);
-    ImGui::SliderFloat("cZ", &position.z, 0.5f, 10.0f);
-    ImGui::SliderFloat("N", &near_distance, 0.1f, 500.0f);
-    ImGui::SliderFloat("F", &far_distance, 0.1f, 500.0f);
+   
+    ImGui::SliderFloat3("Position", &position[0], -10.0f, 10.0f);
+    if (ImGui::SliderFloat2("N & F", &planes.near_plane, 0.1f, 500.0f))
+        UpdatePlaneDistances();
+    //ImGui::SliderFloat("N", &near_distance, 0.1f, 500.0f);
+    //ImGui::SliderFloat("F", &far_distance, 0.1f, 500.0f);
     ImGui::Checkbox("Lock Model", &locked);
     if (locked) {
         ImGui::SameLine();
