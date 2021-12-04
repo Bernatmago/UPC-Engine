@@ -6,6 +6,7 @@
 #include "ModuleWindow.h"
 #include "ModuleInput.h"
 #include "ModuleRender.h"
+#include "Model.h"
 
 #include "glew.h"
 #include "assimp/scene.h"
@@ -86,8 +87,7 @@ void ModuleCamera::LookAt(const float3& look_position)
     float3 direction = look_position - frustum.Pos();
     // localForward, targetDirection, localUp, worldUp
     float3x3 look_dir = float3x3::LookAt(frustum.Front(), direction.Normalized(), frustum.Up(), float3::unitY);
-    frustum.SetFront(look_dir.MulDir(frustum.Front()).Normalized());
-    frustum.SetUp(look_dir.MulDir(frustum.Up()).Normalized());
+    frustum.Transform(look_dir);
 }
 
 void ModuleCamera::Rotate(float pitch, float yaw)
@@ -98,57 +98,95 @@ void ModuleCamera::Rotate(float pitch, float yaw)
         frustum.Transform(Quat::RotateAxisAngle(frustum.WorldRight(), pitch)); // Rotate in X local axis
 }
 
-void ModuleCamera::CameraController(const float delta)
+void ModuleCamera::Orbit(const float3& center, float pitch, float yaw)
 {
-   static const float move_speed = 15.0f;
-   static const float speed_modifier = 2.0f;
-   static const float rot_speed = 2.5f;
-   static const float zoom_speed = 3.0f;
-      
-   if (App->input->GetMouseButton(SDL_BUTTON_RIGHT)) {   
-       int moved_x, moved_y;
-       App->input->GetMouseDelta(moved_x, moved_y);
+    // Get orbit point (object transform)
+    float3 vector_to_camera = frustum.Pos() - center;
 
-       if (moved_x != 0 or moved_y != 0)
-           Rotate(-rot_speed * (float)moved_y * delta, -rot_speed * (float)moved_x * delta);
+    // Rotate it
+    vector_to_camera = Quat(frustum.Up(), yaw).Transform(vector_to_camera);
+    vector_to_camera = Quat(frustum.WorldRight(), pitch).Transform(vector_to_camera);
 
-       float effective_speed = move_speed;
-       if (App->input->GetKeyMod(KMOD_SHIFT))
-           effective_speed *= speed_modifier;
+    // Set camera to where the rotated vector points from the rotation
+    SetPosition(center + vector_to_camera);
 
-       if (App->input->GetKey(SDL_SCANCODE_W))
-           position += frustum.Front() * effective_speed * delta;
-       if (App->input->GetKey(SDL_SCANCODE_S))
-           position -= frustum.Front() * effective_speed * delta;
-       if (App->input->GetKey(SDL_SCANCODE_A))
-           position -= frustum.WorldRight() * effective_speed * delta;
-       if (App->input->GetKey(SDL_SCANCODE_D))
-           position += frustum.WorldRight() * effective_speed * delta;
-       if (App->input->GetKey(SDL_SCANCODE_Q))
-           position += frustum.Up() * effective_speed * delta;
-       if (App->input->GetKey(SDL_SCANCODE_E))
-           position -= frustum.Up() * effective_speed * delta;
-   }
-   else if (App->input->GetKey(SDL_SCANCODE_F)) {
-       LookAt(App->renderer->GetModel()->GetPosition());
-   }
+    // Rotate camera to the orbit center
+    LookAt(center);
+}
 
-   int scrolled_y = App->input->GetScrollDelta();
-   if (scrolled_y != 0) {
-       Zoom(zoom_speed * -scrolled_y);
-   }
+void ModuleCamera::CameraController(const float delta)
+{   
+    static const float zoom_speed = 3.0f;       
 
-   // Extra rotation keys
-   if (App->input->GetKey(SDL_SCANCODE_UP))
-       Rotate(rot_speed * delta, 0.0f);
-   if (App->input->GetKey(SDL_SCANCODE_DOWN))
-       Rotate(-rot_speed * delta, 0.0f);
-   if (App->input->GetKey(SDL_SCANCODE_LEFT))
-       Rotate(0.0f, rot_speed * delta);
-   if (App->input->GetKey(SDL_SCANCODE_RIGHT))
-       Rotate(0.0f, -rot_speed * delta);      
-   
-   frustum.SetPos(position);
+    RotationController(delta);
+    MovementController(delta);
+
+    if (App->input->GetKey(SDL_SCANCODE_F)) {
+        LookAt(App->renderer->GetModel()->GetPosition());
+    }
+
+    int scrolled_y = App->input->GetScrollDelta();
+    if (scrolled_y != 0) {
+        Zoom(zoom_speed * -scrolled_y);
+    }
+}
+
+void ModuleCamera::RotationController(const float delta)
+{
+    static const float rot_speed = 2.5f;
+
+    int moved_x, moved_y;
+    App->input->GetMouseDelta(moved_x, moved_y);
+
+    float3 b(0.0f, 0.0f, 0.0f);
+
+    if (!locked) {
+        if (App->input->GetKeyMod(KMOD_ALT) & App->input->GetMouseButton(SDL_BUTTON_LEFT)) {
+            Orbit(App->renderer->GetModel()->GetPosition(),
+                -rot_speed * (float)moved_y * delta, -rot_speed * (float)moved_x * delta);
+        }
+        else if (App->input->GetMouseButton(SDL_BUTTON_RIGHT)) {
+            if (moved_x != 0 || moved_y != 0)
+                Rotate(-rot_speed * (float)moved_y * delta, -rot_speed * (float)moved_x * delta);
+        }
+
+        // Extra rotation keys
+        if (App->input->GetKey(SDL_SCANCODE_UP))
+            Rotate(rot_speed * delta, 0.0f);
+        if (App->input->GetKey(SDL_SCANCODE_DOWN))
+            Rotate(-rot_speed * delta, 0.0f);
+        if (App->input->GetKey(SDL_SCANCODE_LEFT))
+            Rotate(0.0f, rot_speed * delta);
+        if (App->input->GetKey(SDL_SCANCODE_RIGHT))
+            Rotate(0.0f, -rot_speed * delta);
+    }
+}
+
+void ModuleCamera::MovementController(const float delta)
+{
+    static const float move_speed = 15.0f;
+    static const float speed_modifier = 2.0f;
+
+    if (App->input->GetMouseButton(SDL_BUTTON_RIGHT)) {
+        float effective_speed = move_speed;
+        if (App->input->GetKeyMod(KMOD_SHIFT))
+            effective_speed *= speed_modifier;
+
+        if (App->input->GetKey(SDL_SCANCODE_W))
+            position += frustum.Front() * effective_speed * delta;
+        if (App->input->GetKey(SDL_SCANCODE_S))
+            position -= frustum.Front() * effective_speed * delta;
+        if (App->input->GetKey(SDL_SCANCODE_A))
+            position -= frustum.WorldRight() * effective_speed * delta;
+        if (App->input->GetKey(SDL_SCANCODE_D))
+            position += frustum.WorldRight() * effective_speed * delta;
+        if (App->input->GetKey(SDL_SCANCODE_Q))
+            position += frustum.Up() * effective_speed * delta;
+        if (App->input->GetKey(SDL_SCANCODE_E))
+            position -= frustum.Up() * effective_speed * delta;
+    }
+
+    frustum.SetPos(position);
 }
 
 void ModuleCamera::UpdatePlaneDistances()
@@ -181,8 +219,7 @@ void ModuleCamera::OptionsMenu()
     ImGui::SliderFloat3("Position", &position[0], -10.0f, 10.0f);
     if (ImGui::SliderFloat2("N & F", &planes.near_plane, 0.1f, 500.0f))
         UpdatePlaneDistances();
-    //ImGui::SliderFloat("N", &near_distance, 0.1f, 500.0f);
-    //ImGui::SliderFloat("F", &far_distance, 0.1f, 500.0f);
+
     ImGui::Checkbox("Lock Model", &locked);
     if (locked) {
         ImGui::SameLine();
