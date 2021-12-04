@@ -35,7 +35,6 @@ bool ModuleInput::Init()
 update_status ModuleInput::PreUpdate(const float delta)
 {
     SDL_Event event;
-    // TODO: Improve delta management
     mouse_delta_x = 0;
     mouse_delta_y = 0;
     scroll_delta = 0;
@@ -58,7 +57,6 @@ update_status ModuleInput::PreUpdate(const float delta)
             scroll_delta = event.wheel.y;
             break;
         case SDL_DROPFILE:
-            // TODO: should be freed with SDL_free()
             App->renderer->GetModel()->Load(event.drop.file);
             break;
         }

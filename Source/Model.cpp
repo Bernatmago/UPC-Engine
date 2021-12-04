@@ -150,7 +150,6 @@ void Model::OptionsMenu()
 	float3 position = matrix.TranslatePart(); //Equal to col3(3)
 	float3 scale = matrix.ExtractScale();
 	
-	// TODO: Move in world coords
 	ImGui::Text("Translation");
 	if (ImGui::SliderFloat3("t.XYZ", &position[0], -5.0f, 5.0f))
 		matrix.SetTranslatePart(position);
@@ -168,7 +167,6 @@ void Model::OptionsMenu()
 		}
 		else {
 			scale_delta -= scale;
-			// TODO: Check the increment symbol position stuff
 			for (int i = 0; i < 3; i++) {
 				if (scale_delta[i] != 0.0f) {
 					matrix.scaleX = scale[i];

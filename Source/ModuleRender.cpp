@@ -181,7 +181,6 @@ void ModuleRender::AddFrame(const float delta)
 
 	if (time >= update_frequency_seconds)
 	{
-		// TODO: Add bin and reset
 		if (filled_bins == n_bins) {
 			for (int i = 0; i < n_bins - 1; ++i)
 			{
@@ -196,7 +195,6 @@ void ModuleRender::AddFrame(const float delta)
 		current_fps = fps_log[filled_bins - 1];
 		ms_log[filled_bins - 1] = time * 1000.0f / float(frames);
 		current_ms = ms_log[filled_bins - 1];
-		//fps_log
 		time = 0;
 		frames = 0;
 	}

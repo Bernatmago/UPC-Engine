@@ -115,7 +115,7 @@ void ModuleWindow::OptionsMenu()
 {
 	if (ImGui::Checkbox("Fullscreen", &fullscreen))
 		App->window->SetFullScreen(fullscreen);
-	// TODO: Toggle vsync via opengl (and update refresh rate)
+	
 	ImGui::SameLine();
 	if (ImGui::Checkbox("Vsync", &vsync))
 		SetVsync(vsync);

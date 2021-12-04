@@ -57,7 +57,7 @@ update_status ModuleGui::PreUpdate(const float delta)
 	ImGui::NewFrame();
 
 	Menu();
-	if (show_sidebar) Sidebar(delta); // TODO: Make all vatiables editable for renderer, window, input and textures
+	if (show_sidebar) Sidebar(delta);
 	if (show_console) Logger->Draw(&show_console);
 	if (show_demo) ImGui::ShowDemoWindow(&show_demo);
 	if (show_model_properties)
@@ -98,7 +98,7 @@ void ModuleGui::Menu() {
 		}
 		if (ImGui::BeginMenu("Windows")) {
 			ImGui::MenuItem("Sidebar", NULL, &show_sidebar);
-			ImGui::MenuItem("Model Properties", NULL, &show_model_properties); // TODO: Add properties menu
+			ImGui::MenuItem("Model Properties", NULL, &show_model_properties);
 			ImGui::MenuItem("Console", NULL, &show_console);
 			ImGui::EndMenu();
 		}

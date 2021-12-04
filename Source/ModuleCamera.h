@@ -23,19 +23,20 @@ public:
 
 private:
 	void SetPosition(const float3& position);
-	void Rotate(float pitch, float yaw);
-	void Orbit(float3 center, float pitch, float yaw);
 	void SetAspectRatio(unsigned int screen_width, unsigned int screen_height);
 	void SetHorizontalFov(float fov_deg);
 	void Zoom(float deg_diff);
+
+	void SetPlaneDistances(const float near_distance, const float far_distance);
+	void UpdatePlaneDistances();
+
+	void Rotate(float pitch, float yaw);
+	void Orbit(float3 center, float pitch, float yaw);		
 	void LookAt(const float3& position);	
+
 	void CameraController(const float delta);
 	void RotationController(const float delta);
-	void MovementController(const float delta);
-	void UpdatePlaneDistances();
-	void SetPlaneDistances(const float near_distance, const float far_distance);
-
-	// TODO Orbit object (alt + left click)
+	void MovementController(const float delta);	
 
 private:
 	struct RenderPlanes {
