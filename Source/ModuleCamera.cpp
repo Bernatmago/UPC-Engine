@@ -12,8 +12,6 @@
 #include "assimp/scene.h"
 #include "Math/MathConstants.h"
 
-static const float deg_to_rad = pi / 180.0f;
-
 ModuleCamera::ModuleCamera()
 {
 }
@@ -65,7 +63,7 @@ void ModuleCamera::SetAspectRatio(unsigned int screen_width, unsigned int screen
 
 void ModuleCamera::SetHorizontalFov(float fov_deg)
 {
-    horizontal_fov = fov_deg * deg_to_rad;
+    horizontal_fov = fov_deg * to_rad;
     frustum.SetHorizontalFovAndAspectRatio(horizontal_fov, aspect_ratio);
 }
 
@@ -73,7 +71,7 @@ void ModuleCamera::Zoom(float deg_diff)
 {
     static const float max_fov = 2.5f;
     static const float min_fov = 1.0f;
-    horizontal_fov += deg_diff * deg_to_rad;
+    horizontal_fov += deg_diff * to_rad;
     if (horizontal_fov > max_fov)
         horizontal_fov = max_fov;
     if (horizontal_fov < min_fov)
@@ -218,7 +216,8 @@ float4x4 ModuleCamera::GetProjection() const
 void ModuleCamera::OptionsMenu()
 {
    
-    ImGui::SliderFloat3("Position", &position[0], -10.0f, 10.0f);
+    if (ImGui::SliderFloat3("Position", &position[0], -10.0f, 10.0f))
+        SetPosition(position);
     if (ImGui::SliderFloat2("N & F", &planes.near_plane, 0.1f, 500.0f))
         UpdatePlaneDistances();
 

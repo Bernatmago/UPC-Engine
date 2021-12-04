@@ -150,7 +150,7 @@ void Model::CleanUp()
 
 void Model::UpdateMatrix()
 {
-	Quat rot = Quat::FromEulerXYZ(rotation.x, rotation.y, rotation.z).Normalized();
+	Quat rot = Quat::FromEulerXYZ(rotation.x * to_rad, rotation.y * to_rad, rotation.z * to_rad).Normalized();
 	matrix = float4x4::FromTRS(position, rot, scale);
 }
 
@@ -189,7 +189,7 @@ void Model::OptionsMenu()
 
 	ImGui::Separator();
 	ImGui::Text("Rotation");
-	if (ImGui::SliderFloat3("r.XYZ", &rotation[0], 0.0f, 3.0f))
+	if (ImGui::SliderFloat3("r.XYZ", &rotation[0], 0.0f, 360.0f))
 		changed = true;
 
 	if (changed)
