@@ -27,9 +27,15 @@ public:
 private:
 	bool LoadMeshes(const aiScene* scene);
 	bool LoadTextures(const aiScene* scene);
+	bool LoadTexture(const aiMaterial* texture);
+
+	void UpdateMatrix();
 	
 	bool loaded = false;
 	float4x4 matrix = float4x4::identity;
+	float3 position;
+	float3 rotation;
+	float3 scale;
 	std::string name;
 	std::string path;
 	std::string file_name;

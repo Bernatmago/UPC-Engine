@@ -33,6 +33,9 @@ void Model::Load(const std::string& model_path)
 		CleanUp();
 
 	matrix = float4x4::identity; // Reset on load
+	position = matrix.TranslatePart();
+	rotation = matrix.ToEulerXYZ();
+	scale = matrix.ExtractScale();
 
 	path = model_path.substr(0, model_path.find_last_of("/\\") + 1);
 	file_name = model_path.substr(model_path.find_last_of("/\\") + 1);
@@ -61,44 +64,50 @@ void Model::Load(const std::string& model_path)
 }
 
 bool Model::LoadTextures(const aiScene* scene)
-{
-	aiString file;
+{	
 	textures.reserve(scene->mNumMaterials);
 	LOG("Loading %d textures", scene->mNumMaterials)
 	for (unsigned i = 0; i < scene->mNumMaterials; i++)
 	{
 		// Atm we only support loading a single texture so index is hardcoded to 0
-		static const int index = 0;
-		auto a = scene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, index, &file);
-		if (scene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, index, &file) == AI_SUCCESS)
-		{
-			std::string model_texture_path(file.data);
-			std::string texture_file = model_texture_path.substr(model_texture_path.find_last_of("/\\") + 1);
-			std::string default_path("Textures\\");
+		if (!LoadTexture(scene->mMaterials[i]))
+			return false;		
+	}
+	return true;
+}
 
-			Texture texture;
-			texture = App->textures->Load(file.data);		
-			if (!texture.loaded) {
-				LOG("Failed to load texture from model params: %s", texture.path.c_str())
+bool Model::LoadTexture(const aiMaterial* material)
+{
+	static const int index = 0;
+	aiString file;
+	if (material->GetTexture(aiTextureType_DIFFUSE, index, &file) == AI_SUCCESS)
+	{
+		std::string model_texture_path(file.data);
+		std::string texture_file = model_texture_path.substr(model_texture_path.find_last_of("/\\") + 1);
+		std::string default_path("Textures\\");
+
+		Texture texture;
+		texture = App->textures->Load(file.data);
+		if (!texture.loaded) {
+			LOG("Failed to load texture from model params: %s", texture.path.c_str())
 				texture = App->textures->Load((path + texture_file).c_str());
-			}				
-			if (!texture.loaded)
-			{
-				LOG("Failed to load texture from model file path: %s", texture.path.c_str())
+		}
+		if (!texture.loaded)
+		{
+			LOG("Failed to load texture from model file path: %s", texture.path.c_str())
 				texture = App->textures->Load((default_path + texture_file).c_str());
-			}				
-			if (!texture.loaded) {
-				LOG("Failed to load texture from default: %s", texture.path.c_str())
+		}
+		if (!texture.loaded) {
+			LOG("Failed to load texture from default: %s", texture.path.c_str())
 				LOG("Could not find texture %s")
 				return false;
-			}				
-			textures.push_back(texture);
-			LOG("Loaded texture from %s", texture.path.c_str())
 		}
-		else {
-			LOG("Error loading textures %s: %s", file_name.c_str(), aiGetErrorString());
-			return false;
-		}
+		textures.push_back(texture);
+		LOG("Loaded texture from %s", texture.path.c_str())
+	}
+	else {
+		LOG("Error loading textures %s: %s", file_name.c_str(), aiGetErrorString());
+		return false;
 	}
 	return true;
 }
@@ -139,6 +148,12 @@ void Model::CleanUp()
 	LOG("Model %s unloaded", file_name.c_str())
 }
 
+void Model::UpdateMatrix()
+{
+	Quat rot = Quat::FromEulerXYZ(rotation.x, rotation.y, rotation.z).Normalized();
+	matrix = float4x4::FromTRS(position, rot, scale);
+}
+
 const float3& Model::GetPosition() const
 {
 	return matrix.TranslatePart();
@@ -146,38 +161,40 @@ const float3& Model::GetPosition() const
 
 void Model::OptionsMenu()
 {
-	static bool locked = true;
-	float3 position = matrix.TranslatePart(); //Equal to col3(3)
-	float3 scale = matrix.ExtractScale();
-	
+	static bool locked_scale = true;
+	bool changed = false; // Dirty flag
+
 	ImGui::Text("Translation");
 	if (ImGui::SliderFloat3("t.XYZ", &position[0], -5.0f, 5.0f))
-		matrix.SetTranslatePart(position);
-	ImGui::Separator();
+		changed = true;
 
+	ImGui::Separator();
 	ImGui::Text("Scale");
-	ImGui::Checkbox("Lock", &locked);
+	ImGui::Checkbox("Lock", &locked_scale);
 	ImGui::SameLine();
+
 	float3 scale_delta = scale;
-	if (ImGui::SliderFloat3("s.XYZ", &scale[0], 0.005f, 5.0f)) {
-		if (!locked) {
-			matrix.scaleX = scale[0];
-			matrix.scaleY = scale[1];
-			matrix.scaleZ = scale[2];
-		}
-		else {
+	if (ImGui::SliderFloat3("s.XYZ", &scale[0], 0.005f, 5.0f)) {		
+		if (locked_scale) {
 			scale_delta -= scale;
 			for (int i = 0; i < 3; i++) {
 				if (scale_delta[i] != 0.0f) {
-					matrix.scaleX = scale[i];
-					matrix.scaleY = scale[i];
-					matrix.scaleZ = scale[i];
+					scale = float3(scale[i]);
 					break; // Only one axis can change
 				}
 			}
-		}
+		}	
+		changed = true;
 	}
-	// TODO: Add rotation
+
+	ImGui::Separator();
+	ImGui::Text("Rotation");
+	if (ImGui::SliderFloat3("r.XYZ", &rotation[0], 0.0f, 3.0f))
+		changed = true;
+
+	if (changed)
+		UpdateMatrix();	
+
 	if (ImGui::Button("Unload"))
 		CleanUp();
 }
