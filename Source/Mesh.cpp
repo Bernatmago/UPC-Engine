@@ -108,15 +108,12 @@ void Mesh::Draw(float4x4& model, const std::vector<Texture>& model_textures)
 	glUniformMatrix4fv(glGetUniformLocation(program_id, "view"), 1, GL_TRUE, &App->camera->GetView()[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(program_id, "proj"), 1, GL_TRUE, &App->camera->GetProjection()[0][0]);
 	
-	glEnable(GL_TEXTURE_2D);
-	glActiveTexture(GL_TEXTURE0);	
-	glBindTexture(GL_TEXTURE_2D, model_textures[texture_index].id);
+	App->textures->Bind(model_textures[texture_index].id);
 
-	// TODO: Addapt shader, not using diffuse concept
-	//glUniform1i(glGetUniformLocation(program_id, "diffuse"), 0);
 	glBindVertexArray(vao);
 	glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_INT, nullptr);
-	glDisable(GL_TEXTURE_2D);
+	
+	App->textures->Unbind();
 }
 
 void Mesh::CleanUp()
