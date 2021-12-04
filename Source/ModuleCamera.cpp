@@ -87,28 +87,27 @@ void ModuleCamera::LookAt(const float3& look_position)
     float3 direction = look_position - frustum.Pos();
     // localForward, targetDirection, localUp, worldUp
     float3x3 look_dir = float3x3::LookAt(frustum.Front(), direction.Normalized(), frustum.Up(), float3::unitY);
-    frustum.Transform(look_dir);
+    frustum.SetFront(look_dir.MulDir(frustum.Front()).Normalized());
+    frustum.SetUp(look_dir.MulDir(frustum.Up()).Normalized());
 }
 
 void ModuleCamera::Rotate(float pitch, float yaw)
 {
-    if (yaw != 0.0f)
-        frustum.Transform(Quat::RotateY(yaw)); // Rotate in Y absolut axis
-    if (pitch != 0.0f)
-        frustum.Transform(Quat::RotateAxisAngle(frustum.WorldRight(), pitch)); // Rotate in X local axis
+    frustum.Transform(Quat::RotateY(yaw)); // Rotate in Y absolut axis
+    frustum.Transform(Quat::RotateAxisAngle(frustum.WorldRight(), pitch)); // Rotate in X local axis
 }
 
-void ModuleCamera::Orbit(const float3& center, float pitch, float yaw)
+void ModuleCamera::Orbit(float3 center, float pitch, float yaw)
 {
     // Get orbit point (object transform)
-    float3 vector_to_camera = frustum.Pos() - center;
+    float3 vector_to_camera = position - center;
 
     // Rotate it
     vector_to_camera = Quat(frustum.Up(), yaw).Transform(vector_to_camera);
     vector_to_camera = Quat(frustum.WorldRight(), pitch).Transform(vector_to_camera);
 
-    // Set camera to where the rotated vector points from the rotation
-    SetPosition(center + vector_to_camera);
+    // Set camera to where the rotated vector points from its starting position
+    SetPosition(vector_to_camera + center);
 
     // Rotate camera to the orbit center
     LookAt(center);
@@ -184,9 +183,12 @@ void ModuleCamera::MovementController(const float delta)
             position += frustum.Up() * effective_speed * delta;
         if (App->input->GetKey(SDL_SCANCODE_E))
             position -= frustum.Up() * effective_speed * delta;
-    }
 
-    frustum.SetPos(position);
+        SetPosition(position);        
+    }
+    
+    
+    
 }
 
 void ModuleCamera::UpdatePlaneDistances()

@@ -24,7 +24,7 @@ public:
 private:
 	void SetPosition(const float3& position);
 	void Rotate(float pitch, float yaw);
-	void Orbit(const float3& center, float pitch, float yaw);
+	void Orbit(float3 center, float pitch, float yaw);
 	void SetAspectRatio(unsigned int screen_width, unsigned int screen_height);
 	void SetHorizontalFov(float fov_deg);
 	void Zoom(float deg_diff);
