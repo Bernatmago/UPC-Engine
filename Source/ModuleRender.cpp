@@ -56,7 +56,6 @@ bool ModuleRender::Init()
 	LOG("OpenGL version supported %s", gl.opengl);
 	LOG("GLSL: %s", gl.glsl);
 	
-
 	glEnable(GL_DEPTH_TEST); // Enable depth test
 	glEnable(GL_CULL_FACE); // Enable cull backward faces
 	glFrontFace(GL_CCW); // Front faces will be counter clockwise
@@ -65,9 +64,6 @@ bool ModuleRender::Init()
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	glDebugMessageCallback(&OurOpenGLErrorFunction, nullptr); // Set the callback
 	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, true); // Filter notifications
-
-	// Textures params
-	
 	
 	int w, h;
 	SDL_GetWindowSize(App->window->GetWindow(), &w, &h);

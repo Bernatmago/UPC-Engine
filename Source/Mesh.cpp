@@ -107,15 +107,13 @@ void Mesh::GenerateAABB(const aiMesh* mesh)
 void Mesh::Draw(float4x4& model, const std::vector<Texture>& model_textures)
 {
 	assert(loaded == true);
-	unsigned program_id = App->program->GetProgramId();
-	
-	glUseProgram(program_id);
-	glUniformMatrix4fv(glGetUniformLocation(program_id, "model"), 1, GL_TRUE, &model[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(program_id, "view"), 1, GL_TRUE, &App->camera->GetView()[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(program_id, "proj"), 1, GL_TRUE, &App->camera->GetProjection()[0][0]);
+
+	App->program->Activate();
+	App->program->BindUniformFloat4x4("model", &model[0][0]);
+	App->program->BindUniformFloat4x4("view", &App->camera->GetView()[0][0]);
+	App->program->BindUniformFloat4x4("proj", &App->camera->GetProjection()[0][0]);
 	
 	App->textures->Bind(model_textures[texture_index].id);
-
 	glBindVertexArray(vao);
 	glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_INT, nullptr);
 	

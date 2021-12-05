@@ -16,10 +16,8 @@ bool ModuleProgram::Init()
 	static const bool transpose = GL_TRUE;
 	vertex_shader_id = CompileShader(GL_VERTEX_SHADER, LoadShaderSource("vertex.glsl"));
 	fragment_shader_id = CompileShader(GL_FRAGMENT_SHADER, LoadShaderSource("fragment.glsl"));
-	program_id = CreateProgram(vertex_shader_id, fragment_shader_id);
-	
-	glUseProgram(program_id);
-	
+	program_id = CreateProgram(vertex_shader_id, fragment_shader_id);	
+
 	return true;
 }
 
@@ -27,6 +25,16 @@ bool ModuleProgram::CleanUp()
 {
 	glDeleteProgram(program_id);
 	return true;
+}
+
+void ModuleProgram::Activate()
+{
+	glUseProgram(program_id);
+}
+
+void ModuleProgram::BindUniformFloat4x4(const char* name, const float* data, bool transpose)
+{
+	glUniformMatrix4fv(glGetUniformLocation(program_id, name), 1, transpose, data);
 }
 
 char* ModuleProgram::LoadShaderSource(const char* shader_file_name)
