@@ -47,6 +47,13 @@ public:
 
 
 private:
+	void CreateContext();
+	void SetGLOptions();
+	void EnableGLDebug();
+	void CreateModel(const char* path);
+	void RetrieveLibVersions();
+	void RetrieveGpuInfo();
+
 	void* context;
 	Model* model = nullptr;
 	bool debug_draw = true;

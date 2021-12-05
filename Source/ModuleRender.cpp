@@ -27,8 +27,22 @@ void __stdcall OurOpenGLErrorFunction(GLenum source, GLenum type, GLuint id, GLe
 
 bool ModuleRender::Init()
 {
-	LOG("Creating Renderer context");
+	CreateContext();
 
+	RetrieveGpuInfo();	
+	RetrieveLibVersions();
+
+	SetGLOptions();
+	EnableGLDebug();
+	
+	CreateModel("BakerHouse.fbx");
+
+	return true;
+}
+
+void ModuleRender::CreateContext()
+{
+	LOG("Creating Renderer context");
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4); // desired version
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
@@ -38,44 +52,35 @@ bool ModuleRender::Init()
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG); // enable context debug
 
 	context = SDL_GL_CreateContext(App->window->GetWindow());
-
 	GLenum err = glewInit();
 
-	gpu.name = (unsigned char*)glGetString(GL_RENDERER);
-	gpu.brand = (unsigned char*)glGetString(GL_VENDOR);
-
-	int vram_budget;
-	glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &vram_budget);
-	gpu.vram_budget_mb = (float)vram_budget / 1024.0f;
-
-	gl.glew = (unsigned char*)glewGetString(GLEW_VERSION);
-	gl.opengl = (unsigned char*)glGetString(GL_VERSION);
-	gl.glsl = (unsigned char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
-
-	LOG("Using Glew %s", gl.glew);
-	LOG("OpenGL version supported %s", gl.opengl);
-	LOG("GLSL: %s", gl.glsl);
-	
-	glEnable(GL_DEPTH_TEST); // Enable depth test
-	glEnable(GL_CULL_FACE); // Enable cull backward faces
-	glFrontFace(GL_CCW); // Front faces will be counter clockwise
-
-	glEnable(GL_DEBUG_OUTPUT); // Enable output callback
-	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-	glDebugMessageCallback(&OurOpenGLErrorFunction, nullptr); // Set the callback
-	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, true); // Filter notifications
-	
 	int w, h;
 	SDL_GetWindowSize(App->window->GetWindow(), &w, &h);
 	glViewport(0, 0, w, h);
 
 	clear_color = float4(0.0f, 0.0f, 0.0f, 1.0f);
+}
 
+void ModuleRender::SetGLOptions()
+{
+	glEnable(GL_DEPTH_TEST); // Enable depth test
+	glEnable(GL_CULL_FACE); // Enable cull backward faces
+	glFrontFace(GL_CCW); // Front faces will be counter clockwise
+}
+
+void ModuleRender::EnableGLDebug()
+{
+	glEnable(GL_DEBUG_OUTPUT); // Enable output callback
+	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+	glDebugMessageCallback(&OurOpenGLErrorFunction, nullptr); // Set the callback
+	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, true); // Filter notifications
+}
+
+void ModuleRender::CreateModel(const char* path)
+{
 	model = new Model();
-	model->Load("BakerHouse.fbx");
+	model->Load(path);
 	App->camera->FocusOBB(model->GetOBB());
-
-	return true;
 }
 
 update_status ModuleRender::PreUpdate(const float delta)
@@ -195,6 +200,27 @@ void ModuleRender::AddFrame(const float delta)
 		time = 0;
 		frames = 0;
 	}
+}
+
+void ModuleRender::RetrieveLibVersions()
+{
+	gl.glew = (unsigned char*)glewGetString(GLEW_VERSION);
+	gl.opengl = (unsigned char*)glGetString(GL_VERSION);
+	gl.glsl = (unsigned char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
+
+	LOG("Using Glew %s", gl.glew);
+	LOG("OpenGL version supported %s", gl.opengl);
+	LOG("GLSL: %s", gl.glsl);
+}
+
+void ModuleRender::RetrieveGpuInfo()
+{
+	gpu.name = (unsigned char*)glGetString(GL_RENDERER);
+	gpu.brand = (unsigned char*)glGetString(GL_VENDOR);
+
+	int vram_budget;
+	glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &vram_budget);
+	gpu.vram_budget_mb = (float)vram_budget / 1024.0f;
 }
 
 bool ModuleRender::CleanUp()
