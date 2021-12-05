@@ -22,7 +22,7 @@ public:
 
     void            Draw(const float4x4& view, const float4x4& proj, unsigned width, unsigned height);
 private:
-
+    bool draw_bounding;
     static DDRenderInterfaceCoreGL* implementation;
 };
 

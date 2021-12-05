@@ -44,6 +44,12 @@ public:
 	void OpenBrowser(const char* url);
 
 private:
+	void SetConfig();
+	void CreateContext();
+	void NewFrame();
+	void DestroyContext();	
+	void RetrieveAboutData();
+
 	bool show_console = false;
 	bool show_demo = false;
 	bool show_sidebar = true;

@@ -27,43 +27,61 @@ ModuleGui::~ModuleGui()
 // Called before render is available
 bool ModuleGui::Init()
 {
-	LOG("Creating Imgui ")
-	ImGui::CreateContext();
+	CreateContext();
+	SetConfig();
+	return true;
+}
 
+void ModuleGui::CreateContext()
+{
+	LOG("Creating Imgui");
+	ImGui::CreateContext();	
+	ImGui_ImplSDL2_InitForOpenGL(App->window->GetWindow(), App->renderer->GetGLContext());
+	ImGui_ImplOpenGL3_Init("#version 330");
+}
+
+void ModuleGui::SetConfig()
+{
+	ImGui::StyleColorsDark();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+}
 
-	ImGui::StyleColorsDark();
-	ImGui_ImplSDL2_InitForOpenGL(App->window->GetWindow(), App->renderer->GetGLContext());
-	ImGui_ImplOpenGL3_Init("#version 330");
-
+void ModuleGui::RetrieveAboutData()
+{
 	SDL_GetVersion(&about.sdl_version);
 	about.devil_version = App->textures->GetDevilVersion();
 	about.cpu.cores = SDL_GetCPUCount();
 	about.cpu.l1_cache_kb = (float)SDL_GetCPUCacheLineSize() / 1024.0f;
 	about.ram_gb = (float)SDL_GetSystemRAM() / 1024.0f;
-	
+
 	about.gpu = App->renderer->GetGpuData();
 	about.gl = App->renderer->GetGlVersion();
-
-	return true;
 }
 
 update_status ModuleGui::PreUpdate(const float delta)
 {
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplSDL2_NewFrame();
-	ImGui::NewFrame();
+	NewFrame();
 
 	Menu();
-	if (show_sidebar) Sidebar(delta);
-	if (show_console) Logger->Draw(&show_console);
-	if (show_demo) ImGui::ShowDemoWindow(&show_demo);
+	if (show_sidebar)
+		Sidebar(delta);
+	if (show_console)
+		Logger->Draw(&show_console);
+	if (show_demo)
+		ImGui::ShowDemoWindow(&show_demo);
 	if (show_model_properties)
 		App->renderer->GetModel()->PropertiesWindow(&show_model_properties);
 
 	return UPDATE_CONTINUE;
+}
+
+void ModuleGui::NewFrame()
+{
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplSDL2_NewFrame();
+	ImGui::NewFrame();
 }
 
 // Called every draw update
@@ -78,11 +96,15 @@ update_status ModuleGui::Update(const float delta)
 // Called before quitting
 bool ModuleGui::CleanUp()
 {
+	DestroyContext();
+	return true;
+}
+
+void ModuleGui::DestroyContext()
+{
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplSDL2_Shutdown();
 	ImGui::DestroyContext();
-
-	return true;
 }
 
 void ModuleGui::Menu() {

@@ -157,7 +157,6 @@ void ModuleRender::PerformanceMenu(const float delta)
 	ImGui::Text("Vram Avaliable:  %.1f Mb", vram_free_mb);
 	ImGui::Separator();
 	FpsGraph();
-	
 }
 
 void ModuleRender::FpsGraph()

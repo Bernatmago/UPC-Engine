@@ -63,11 +63,16 @@ update_status ModuleInput::PreUpdate(const float delta)
             break;
         }
     }
+    UpdateInputMaps();
+
+    return UPDATE_CONTINUE;
+}
+
+void ModuleInput::UpdateInputMaps()
+{
     keyboard = SDL_GetKeyboardState(NULL);
     keymods = SDL_GetModState();
     mouse = SDL_GetMouseState(&mouse_x, &mouse_y);
-
-    return UPDATE_CONTINUE;
 }
 
 bool ModuleInput::CleanUp()
@@ -75,30 +80,4 @@ bool ModuleInput::CleanUp()
 	LOG("Quitting SDL input event subsystem");
 	SDL_QuitSubSystem(SDL_INIT_EVENTS);
 	return true;
-}
-
-const unsigned ModuleInput::GetKey(SDL_Scancode key) const
-{
-    return keyboard[key];
-}
-
-const bool ModuleInput::GetKeyMod(SDL_Keymod modifier) const
-{
-    return (keymods & modifier);
-}
-
-const bool ModuleInput::GetMouseButton(int button) const
-{
-    return (mouse & SDL_BUTTON(button));
-}
-
-const void ModuleInput::GetMouseDelta(int& x, int& y) const
-{
-    x = mouse_delta_x;
-    y = mouse_delta_y;
-}
-
-int ModuleInput::GetScrollDelta() const
-{
-    return scroll_delta;
 }
