@@ -4,6 +4,7 @@
 #include "Application.h"
 #include "ModuleWindow.h"
 #include "ModuleRender.h"
+#include "ModuleCamera.h"
 
 #include "imgui_impl_sdl.h"
 
@@ -58,6 +59,7 @@ update_status ModuleInput::PreUpdate(const float delta)
             break;
         case SDL_DROPFILE:
             App->renderer->GetModel()->Load(event.drop.file);
+            App->camera->FocusOBB(App->renderer->GetModel()->GetOBB());
             break;
         }
     }

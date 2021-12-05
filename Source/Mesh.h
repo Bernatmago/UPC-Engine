@@ -19,16 +19,19 @@ public:
 	void Draw(float4x4& model, const std::vector<Texture>& model_textures);
 	void CleanUp();
 
-	unsigned GetNumVertices() const { return num_vertices; }
-	unsigned GetNumIndexes() const { return num_indices; }
+	inline unsigned GetNumVertices() const { return num_vertices; }
+	inline unsigned GetNumIndexes() const { return num_indices; }
+	const AABB& GetAABB() const { return bounding_box; }
 	bool IsLoaded() const { return loaded; }
 
 private:
 	void LoadVBO(const aiMesh* mesh);
 	void LoadEBO(const aiMesh* mesh);
 	void CreateVAO();
+	void GenerateAABB(const aiMesh* mesh);
 	
-	
+	AABB bounding_box;
+
 	bool loaded;
 	unsigned vbo;
 	unsigned num_vertices;

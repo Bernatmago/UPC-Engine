@@ -18,6 +18,7 @@ public:
 	float4x4 GetView() const;
 	float4x4 GetProjection() const;
 	void WindowResized(unsigned int screen_width, unsigned int screen_height);
+	void FocusOBB(const OBB& bounding_box);
 
 	void OptionsMenu();
 

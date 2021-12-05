@@ -37,29 +37,32 @@ void Model::Load(const std::string& model_path)
 	rotation = matrix.ToEulerXYZ();
 	scale = matrix.ExtractScale();
 
-	path = model_path.substr(0, model_path.find_last_of("/\\") + 1);
-	file_name = model_path.substr(model_path.find_last_of("/\\") + 1);
-	name = file_name.substr(0, std::string::size_type(file_name.find_last_of('.')));
+	info.path = model_path.substr(0, model_path.find_last_of("/\\") + 1);
+	info.file_name = model_path.substr(model_path.find_last_of("/\\") + 1);
+	info.name = info.file_name.substr(0, std::string::size_type(info.file_name.find_last_of('.')));
 	
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(model_path, aiProcess_Triangulate);
 	if (scene)
 	{		
 		bool success = true;
-		LOG("Loading %s model", file_name.c_str())
+		LOG("Loading %s model", info.file_name.c_str())
 		success = LoadTextures(scene);
 		if(success)
 			success = LoadMeshes(scene);
-		if(success)
+		if (success) {
+			GenerateAABB();
 			loaded = true;
+		}
+			
 		else {
-			LOG("Could not load model %s", file_name.c_str())
+			LOG("Could not load model %s", info.file_name.c_str())
 			CleanUp();
 		}			
 	}
 	else
 	{
-		LOG("Error loading file %s: %s", file_name.c_str(), aiGetErrorString());
+		LOG("Error loading file %s: %s", info.file_name.c_str(), aiGetErrorString());
 	}
 }
 
@@ -90,7 +93,7 @@ bool Model::LoadTexture(const aiMaterial* material)
 		texture = App->textures->Load(file.data);
 		if (!texture.loaded) {
 			LOG("Failed to load texture from model params: %s", texture.path.c_str())
-				texture = App->textures->Load((path + texture_file).c_str());
+				texture = App->textures->Load((info.path + texture_file).c_str());
 		}
 		if (!texture.loaded)
 		{
@@ -106,10 +109,24 @@ bool Model::LoadTexture(const aiMaterial* material)
 		LOG("Loaded texture from %s", texture.path.c_str())
 	}
 	else {
-		LOG("Error loading textures %s: %s", file_name.c_str(), aiGetErrorString());
+		LOG("Error loading textures %s: %s", info.file_name.c_str(), aiGetErrorString());
 		return false;
 	}
 	return true;
+}
+
+void Model::GenerateAABB()
+{
+	bounding_box.SetNegativeInfinity(); // Sets to initial state
+	for (Mesh& mesh : meshes) {
+		bounding_box.Enclose(mesh.GetAABB());
+	}
+	UpdateOBB();
+}
+
+void Model::UpdateOBB()
+{
+	oriented_bounding_box.SetFrom(bounding_box, matrix);
 }
 
 bool Model::LoadMeshes(const aiScene* scene)
@@ -145,13 +162,19 @@ void Model::CleanUp()
 	}
 	textures.clear();
 	loaded = false;
-	LOG("Model %s unloaded", file_name.c_str())
+	LOG("Model %s unloaded", info.file_name.c_str())
 }
 
 void Model::UpdateMatrix()
 {
 	Quat rot = Quat::FromEulerXYZ(rotation.x * to_rad, rotation.y * to_rad, rotation.z * to_rad).Normalized();
 	matrix = float4x4::FromTRS(position, rot, scale);
+	UpdateOBB();
+}
+
+const float3& Model::GetCenter() const
+{
+	return oriented_bounding_box.CenterPoint();
 }
 
 const float3& Model::GetPosition() const
@@ -212,8 +235,8 @@ void Model::PropertiesWindow(bool* p_open)
 	}
 
 	ImGui::TextColored(yellow, "Model");
-	ImGui::Text("Name: %s", name.c_str());
-	ImGui::Text("Path: %s", (path + file_name).c_str());
+	ImGui::Text("Name: %s", info.name.c_str());
+	ImGui::Text("Path: %s", (info.path + info.file_name).c_str());
 	ImGui::Separator();
 	ImGui::TextColored(yellow, "Textures");
 	for (int i = 0; i < textures.size(); ++i) {
@@ -240,8 +263,5 @@ void Model::PropertiesWindow(bool* p_open)
 		auto row = matrix.Row(r);
 		ImGui::Text("%.2f, %.2f, %.2f, %.2f", row[0], row[1], row[2], row[3]);
 	}
-	
-
-
 	ImGui::End();
 }

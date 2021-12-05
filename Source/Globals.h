@@ -25,3 +25,4 @@ enum update_status
 #define TITLE "Super Awesome Engine"
 
 constexpr float to_rad = (float)M_PI / 180.0f;
+constexpr float to_deg = 180.0f / (float)M_PI;

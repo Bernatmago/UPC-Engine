@@ -12,6 +12,8 @@
 #include "assimp/scene.h"
 #include "Math/MathConstants.h"
 
+#include <math.h>
+
 ModuleCamera::ModuleCamera()
 {
 }
@@ -26,8 +28,8 @@ bool ModuleCamera::Init()
     auto screen_surface = App->window->GetScreenSurface();
     SetAspectRatio(screen_surface->w, screen_surface->h);
     SetHorizontalFov(90.0f);
-    SetPlaneDistances(0.1f, 100.0f);
-    SetPosition(float3(0.0f, 0.5f, 10.0f));
+    SetPlaneDistances(0.1f, 250.0f);
+    SetPosition(float3(0.0f, 2.5f, 10.0f));
     float3x3 rotation = float3x3::identity;
     frustum.SetFront(rotation.WorldZ());
     frustum.SetUp(rotation.WorldY());
@@ -119,7 +121,7 @@ void ModuleCamera::CameraController(const float delta)
     MovementController(delta);
 
     if (App->input->GetKey(SDL_SCANCODE_F)) {
-        LookAt(App->renderer->GetModel()->GetPosition());
+        LookAt(App->renderer->GetModel()->GetCenter());
     }
 
     int scrolled_y = App->input->GetScrollDelta();
@@ -139,7 +141,7 @@ void ModuleCamera::RotationController(const float delta)
 
     if (!locked) {
         if (App->input->GetKeyMod(KMOD_ALT) & App->input->GetMouseButton(SDL_BUTTON_LEFT)) {
-            Orbit(App->renderer->GetModel()->GetPosition(),
+            Orbit(App->renderer->GetModel()->GetCenter(),
                 -rot_speed * (float)moved_y * delta, -rot_speed * (float)moved_x * delta);
         }
         else if (App->input->GetMouseButton(SDL_BUTTON_RIGHT)) {
@@ -203,6 +205,26 @@ void ModuleCamera::WindowResized(unsigned int screen_width, unsigned int screen_
     SetAspectRatio(screen_width, screen_height);
 }
 
+void ModuleCamera::FocusOBB(const OBB& bounding_box)
+{
+    // This index corresponds to the planes in the order (-X, +X, -Y, +Y, -Z, +Z)
+    float3 new_pos = bounding_box.FaceCenterPoint(5);
+        
+    vec size = bounding_box.Size();
+    float max_dim = Max(size.x, size.y, size.z);
+
+    new_pos.z += Abs(max_dim / 4 * tan(frustum.VerticalFov() * to_deg * 2));
+    new_pos.z *= 1.25f;
+    SetPosition(new_pos);
+
+    float3 far_point = bounding_box.FaceCenterPoint(4);
+    if (planes.far_plane < position.z - far_point.z)
+        SetPlaneDistances(planes.near_plane, position.z - far_point.z);
+      
+    // Update planes to see object (far edge)
+    LookAt(bounding_box.CenterPoint());
+}
+
 float4x4 ModuleCamera::GetView() const
 {
     return float4x4(frustum.ViewMatrix());
@@ -215,12 +237,17 @@ float4x4 ModuleCamera::GetProjection() const
 
 void ModuleCamera::OptionsMenu()
 {
-   
+    static const ImVec4 yellow(1.0f, 1.0f, 0.0f, 1.0f);
+    ImGui::TextColored(yellow, "Transform");
+    for (int r = 0; r < 3; ++r) {
+        auto row = frustum.ViewMatrix().Row(r);
+        ImGui::Text("%.2f, %.2f, %.2f, %.2f", row[0], row[1], row[2], row[3]);
+    }
+    
     if (ImGui::SliderFloat3("Position", &position[0], -10.0f, 10.0f))
         SetPosition(position);
     if (ImGui::SliderFloat2("N & F", &planes.near_plane, 0.1f, 500.0f))
         UpdatePlaneDistances();
-
     ImGui::Checkbox("Lock Model", &locked);
     if (locked) {
         ImGui::SameLine();

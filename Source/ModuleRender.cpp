@@ -77,6 +77,7 @@ bool ModuleRender::Init()
 
 	model = new Model();
 	model->Load("BakerHouse.fbx");
+	App->camera->FocusOBB(model->GetOBB());
 
 	return true;
 }

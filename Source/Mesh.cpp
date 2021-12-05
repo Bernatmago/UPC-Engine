@@ -23,6 +23,7 @@ void Mesh::Load(const aiMesh* mesh)
 	LoadVBO(mesh);
 	LoadEBO(mesh);
 	CreateVAO();
+	GenerateAABB(mesh);
 	loaded = true;
 }
 
@@ -96,6 +97,11 @@ void Mesh::CreateVAO()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); // Positions
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(float) * 3 * num_vertices)); // Texture coords
+}
+
+void Mesh::GenerateAABB(const aiMesh* mesh)
+{
+	bounding_box.SetFrom((float3*)&mesh->mVertices[0], mesh->mNumVertices);
 }
 
 void Mesh::Draw(float4x4& model, const std::vector<Texture>& model_textures)
