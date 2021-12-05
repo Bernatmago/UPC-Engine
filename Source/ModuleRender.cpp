@@ -135,7 +135,13 @@ void ModuleRender::OptionsMenu()
 	ImGui::Text("Background Color");
 	ImGui::PushItemWidth(150.0f);
 	ImGui::ColorPicker3("Clear Color", &clear_color[0], flag);
+
 	ImGui::Checkbox("Debug Draw", &debug_draw);
+	if (debug_draw) {
+		ImGui::SameLine();
+		ImGui::Checkbox("Bounding Box", &App->debug->ShouldDrawBoundingBox());
+	}
+	
 
 	static bool line_smooth = false;
 	if (ImGui::Checkbox("Line Smooth", &line_smooth))

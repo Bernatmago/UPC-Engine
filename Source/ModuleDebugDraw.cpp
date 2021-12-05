@@ -1,10 +1,16 @@
 #include "Globals.h"
 #include "ModuleDebugDraw.h"
 
+#include "Application.h"
+#include "ModuleRender.h"
+#include "MathGeoLib.h"
+
 #define DEBUG_DRAW_IMPLEMENTATION
 #include "DebugDraw.h"     // Debug Draw API. Notice that we need the DEBUG_DRAW_IMPLEMENTATION macro here!
 
 #include "glew.h"
+
+#include <vector>
 
 class DDRenderInterfaceCoreGL final
     : public dd::RenderInterface
@@ -607,7 +613,19 @@ bool ModuleDebugDraw::CleanUp()
 }
 
 update_status  ModuleDebugDraw::Update(const float delta)
-{
+{    
+    if (draw_bounding) {
+        OBB a = App->renderer->GetModel()->GetOBB();
+        ddVec3 p[8];
+        // This order was pure trial and error, i dont know how to really do it
+        // Using center and points does not show the rotation
+        static const int order[8] = { 0, 1, 5, 4, 2, 3, 7, 6 };
+        for (int i = 0; i < 8; ++i)
+            p[i] = a.CornerPoint(order[i]);
+
+        dd::box(p, dd::colors::White);
+    }
+    
     dd::xzSquareGrid(-500, 500, -0.1f, 1.0f, dd::colors::White);
     dd::axisTriad(float4x4::identity, 0.0f, 25.0f);
     return UPDATE_CONTINUE;
@@ -620,6 +638,11 @@ void ModuleDebugDraw::Draw(const float4x4& view, const float4x4& proj, unsigned 
     implementation->mvpMatrix = proj * view;
 
     dd::flush();
+}
+
+bool& ModuleDebugDraw::ShouldDrawBoundingBox()
+{
+    return draw_bounding;
 }
 
 
