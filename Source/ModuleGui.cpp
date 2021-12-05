@@ -29,6 +29,7 @@ bool ModuleGui::Init()
 {
 	CreateContext();
 	SetConfig();
+	RetrieveAboutData();
 	return true;
 }
 
