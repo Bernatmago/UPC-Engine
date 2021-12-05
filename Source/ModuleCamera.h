@@ -29,7 +29,7 @@ private:
 	void Zoom(float deg_diff);
 
 	void SetPlaneDistances(const float near_distance, const float far_distance);
-	void UpdatePlaneDistances();
+	void AdaptFarPlane(const OBB& bounding_box);
 
 	void Rotate(float pitch, float yaw);
 	void Orbit(float3 center, float pitch, float yaw);		

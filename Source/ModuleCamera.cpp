@@ -120,14 +120,12 @@ void ModuleCamera::CameraController(const float delta)
     RotationController(delta);
     MovementController(delta);
 
-    if (App->input->GetKey(SDL_SCANCODE_F)) {
+    if (App->input->GetKey(SDL_SCANCODE_F))
         LookAt(App->renderer->GetModel()->GetCenter());
-    }
 
     int scrolled_y = App->input->GetScrollDelta();
-    if (scrolled_y != 0) {
+    if (scrolled_y != 0)
         Zoom(zoom_speed * -scrolled_y);
-    }
 }
 
 void ModuleCamera::RotationController(const float delta)
@@ -185,15 +183,17 @@ void ModuleCamera::MovementController(const float delta)
             position -= frustum.Up() * effective_speed * delta;
 
         SetPosition(position);        
-    }
-    
-    
-    
+    }  
 }
 
-void ModuleCamera::UpdatePlaneDistances()
+void ModuleCamera::AdaptFarPlane(const OBB& bounding_box)
 {
-    frustum.SetViewPlaneDistances(planes.near_plane, planes.far_plane);
+    static const float plane_offset = 1.25f;
+    float3 far_point = bounding_box.ExtremePoint(frustum.Front());
+    float distance_to_far_point = Distance(position, far_point);
+    // Only triggers if the object is too far to be completely displayed
+    if (planes.far_plane < distance_to_far_point)
+        SetPlaneDistances(planes.near_plane, distance_to_far_point * plane_offset);
 }
 void ModuleCamera::SetPlaneDistances(const float near_dist, const float far_dist)
 {
@@ -209,17 +209,16 @@ void ModuleCamera::FocusOBB(const OBB& bounding_box)
 {
     // This index corresponds to the planes in the order (-X, +X, -Y, +Y, -Z, +Z)
     float3 new_pos = bounding_box.FaceCenterPoint(5);
-        
+
     vec size = bounding_box.Size();
     float max_dim = Max(size.x, size.y, size.z);
 
-    new_pos.z += Abs(max_dim / 4 * tan(frustum.VerticalFov() * to_deg * 2));
+    LOG("Fov %f", horizontal_fov);
+    new_pos.z += Abs(size.y / 2.0f / tan(frustum.VerticalFov() * 0.5f));
     new_pos.z *= 1.25f;
     SetPosition(new_pos);
 
-    float3 far_point = bounding_box.FaceCenterPoint(4);
-    if (planes.far_plane < position.z - far_point.z)
-        SetPlaneDistances(planes.near_plane, position.z - far_point.z);
+    AdaptFarPlane(bounding_box);
       
     // Update planes to see object (far edge)
     LookAt(bounding_box.CenterPoint());
@@ -243,11 +242,24 @@ void ModuleCamera::OptionsMenu()
         auto row = frustum.ViewMatrix().Row(r);
         ImGui::Text("%.2f, %.2f, %.2f, %.2f", row[0], row[1], row[2], row[3]);
     }
+    ImGui::Separator();
+    ImGui::TextColored(yellow, "Properties");
+    ImGui::Text("Fov (H, V): %.2f, %.2f", frustum.HorizontalFov() * to_deg,
+        frustum.VerticalFov() * to_deg);
+    ImGui::Text("Aspect Ratio: %.2f", aspect_ratio);
     
+    ImGui::Separator();
+    ImGui::TextColored(yellow, "Controls");
     if (ImGui::SliderFloat3("Position", &position[0], -10.0f, 10.0f))
         SetPosition(position);
     if (ImGui::SliderFloat2("N & F", &planes.near_plane, 0.1f, 500.0f))
-        UpdatePlaneDistances();
+        SetPlaneDistances(planes.near_plane, planes.far_plane);
+    if (ImGui::Button("Adapt Far Plane"))        
+        AdaptFarPlane(App->renderer->GetModel()->GetOBB());
+    ImGui::SameLine();
+    if (ImGui::Button("Focus Model OBB"))
+        FocusOBB(App->renderer->GetModel()->GetOBB());
+
     ImGui::Checkbox("Lock Model", &locked);
     if (locked) {
         ImGui::SameLine();
