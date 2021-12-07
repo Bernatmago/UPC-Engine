@@ -50,7 +50,18 @@ public:
 		Clear();
 	}
 
-	void Draw(bool* p_open) {	
+	void Draw(bool* p_open) {
+		static bool first_run = true;
+
+		if (first_run) {
+			ImVec2 window_size = ImGui::GetMainViewport()->Size;
+			ImVec2 initial_size = ImVec2(window_size.x * 0.35f, window_size.y * 0.20f);
+			ImVec2 initial_pos = ImVec2(0.0f, window_size.y - initial_size.y);
+			ImGui::SetNextWindowSize(initial_size, ImGuiCond_Once);
+			ImGui::SetNextWindowPos(initial_pos, ImGuiCond_Once);
+			first_run = false;
+		}
+
 		if (!ImGui::Begin("Console", p_open))
 		{
 			ImGui::End();

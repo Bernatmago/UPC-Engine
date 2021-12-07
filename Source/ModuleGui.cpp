@@ -130,11 +130,18 @@ void ModuleGui::Menu() {
 }
 
 void ModuleGui::Sidebar(const float delta) {
-	ImGuiWindowFlags window_flags = 0;
-	window_flags |= ImGuiWindowFlags_MenuBar;
-	//window_flags |= ImGuiWindowFlags_NoMove;
-	//window_flags |= ImGuiWindowFlags_NoResize;
-	ImGui::Begin("Sidebar", &show_sidebar, window_flags);
+	static bool first_run = true;
+
+	if (first_run) {
+		ImVec2 window_size = ImGui::GetMainViewport()->Size;
+		ImVec2 initial_size = ImVec2(window_size.x * 0.20f, window_size.y * 0.975f);
+		ImVec2 initial_pos = ImVec2(window_size.x - initial_size.x, window_size.y - initial_size.y);
+		ImGui::SetNextWindowSize(initial_size, ImGuiCond_Once);
+		ImGui::SetNextWindowPos(initial_pos, ImGuiCond_Once);
+		first_run = false;
+	}	
+	
+	ImGui::Begin("Sidebar", &show_sidebar, ImGuiWindowFlags_MenuBar);
 	if (ImGui::CollapsingHeader("Window")) App->window->OptionsMenu();
 	if (ImGui::CollapsingHeader("Camera")) App->camera->OptionsMenu();
 	if (ImGui::CollapsingHeader("Render")) App->renderer->OptionsMenu();

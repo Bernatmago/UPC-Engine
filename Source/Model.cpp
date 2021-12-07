@@ -172,12 +172,12 @@ void Model::UpdateMatrix()
 	UpdateOBB();
 }
 
-const float3& Model::GetCenter() const
+const float3 Model::GetCenter() const
 {
 	return oriented_bounding_box.CenterPoint();
 }
 
-const float3& Model::GetPosition() const
+const float3 Model::GetPosition() const
 {
 	return matrix.TranslatePart();
 }
@@ -225,9 +225,18 @@ void Model::OptionsMenu()
 void Model::PropertiesWindow(bool* p_open)
 {	
 	static const ImVec4 yellow(1.0f, 1.0f, 0.0f, 1.0f);
-	ImGui::SetNextWindowSize(ImVec2(250, 200), ImGuiCond_Once);
-	ImGui::Begin("Model Properties", p_open); // TODO: Fill with filename
+	static bool first_run = true;
 
+	if (first_run) {
+		ImVec2 window_size = ImGui::GetMainViewport()->Size;
+		ImVec2 initial_size = ImVec2(window_size.x * 0.15f, window_size.y * 0.60f);
+		ImVec2 initial_pos = ImVec2(0.0f, window_size.y * 0.025f);
+		ImGui::SetNextWindowSize(initial_size, ImGuiCond_Once);
+		ImGui::SetNextWindowPos(initial_pos, ImGuiCond_Once);
+		first_run = false;
+	}
+
+	ImGui::Begin("Model Properties", p_open); // TODO: Fill with filename
 	if (!loaded) {
 		ImGui::Text("No model loaded");
 		ImGui::End();

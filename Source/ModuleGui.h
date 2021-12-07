@@ -36,13 +36,6 @@ public:
 	update_status Update(const float delta) override;
 	bool CleanUp() override;
 
-	void Menu();
-
-	void Sidebar(const float delta);
-	void About();
-
-	void OpenBrowser(const char* url);
-
 private:
 	void SetConfig();
 	void CreateContext();
@@ -50,10 +43,17 @@ private:
 	void DestroyContext();	
 	void RetrieveAboutData();
 
-	bool show_console = false;
+	void Menu();
+	void Sidebar(const float delta);
+	void About();
+
+	void OpenBrowser(const char* url);
+
+
+	bool show_console = true;
 	bool show_demo = false;
 	bool show_sidebar = true;
-	bool show_model_properties = false;
+	bool show_model_properties = true;
 	AboutData about;
 };
 

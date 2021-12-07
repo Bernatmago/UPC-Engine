@@ -19,8 +19,8 @@ public:
 	void Draw();
 	void CleanUp();
 
-	const float3& GetCenter() const;
-	const float3& GetPosition() const;
+	const float3 GetCenter() const;
+	const float3 GetPosition() const;
 	const OBB& GetOBB() { return oriented_bounding_box; }
 
 	void OptionsMenu();
