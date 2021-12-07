@@ -30,7 +30,7 @@ They can be closed and reopened from the upper menu bar. Each of them has a seri
 - **Zoom (Change fov):** mouse wheel
 
 ## Extra features
-- Basic phong (no specular): It computes light by (difuse + specular) * light_color * texture_color. It also has a simple menu to play with it.
+- Basic phong (no specular): It computes light by (difuse + ambient) * light_color * texture_color. It also has a simple menu to play with it.
 - Bounding box drawing and some render options.
 - Small camera additions, auto extend far plane based on bounding box and lock camera on object.
 - Default gui alignment based on window size.
