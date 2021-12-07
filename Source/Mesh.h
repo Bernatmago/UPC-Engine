@@ -29,6 +29,13 @@ private:
 	void LoadEBO(const aiMesh* mesh);
 	void CreateVAO();
 	void GenerateAABB(const aiMesh* mesh);
+
+	struct Vertex
+	{
+		float3 position;
+		float3 normal;
+		float2 tex_coords;
+	};
 	
 	AABB bounding_box;
 

@@ -29,33 +29,27 @@ void Mesh::Load(const aiMesh* mesh)
 
 void Mesh::LoadVBO(const aiMesh* mesh)
 {
-	num_vertices = mesh->mNumVertices;
 
-	// Generate & activate buffer
+	num_vertices = mesh->mNumVertices;
+	unsigned vertex_size = (sizeof(float) * 3 + sizeof(float) * 3 + sizeof(float) * 2);
+	unsigned buffer_size = vertex_size * num_vertices;	
+	
+	std::vector<Vertex> vertexs;
+	vertexs.reserve(num_vertices);	
+
+	for (unsigned i = 0; i < num_vertices; ++i)
+	{
+		Vertex v;
+		v.position = float3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+		v.normal = float3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+		v.tex_coords = float2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
+		vertexs.push_back(v);
+	}
+
+	// Generate, activate and fill buffer
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-	// TODO: Static, change to interleaved after it is working
-	// Compute sizes, vertex position and texture coords
-	unsigned vertex_size = (sizeof(float) * 3 + sizeof(float) * 2);
-	unsigned buffer_size = vertex_size * mesh->mNumVertices;
-	unsigned position_size = sizeof(float) * 3 * mesh->mNumVertices;
-	unsigned uv_offset = position_size;
-	unsigned uv_size = sizeof(float) * 2 * mesh->mNumVertices;
-
-	// Update buffer data attributes, nullptr assigns no data
-	glBufferData(GL_ARRAY_BUFFER, buffer_size, nullptr, GL_STATIC_DRAW);
-	// Update buffer subset with vertex positions
-	glBufferSubData(GL_ARRAY_BUFFER, 0, position_size, mesh->mVertices);
-
-	// Map a section of a buffer data store to fill it in a custom manner
-	float2* uvs = (float2*)(glMapBufferRange(GL_ARRAY_BUFFER, uv_offset, uv_size, GL_MAP_WRITE_BIT));
-	for (unsigned i = 0; i < mesh->mNumVertices; ++i)
-	{
-		// Fill remaining buffer with uwus
-		uvs[i] = float2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
-	}
-	glUnmapBuffer(GL_ARRAY_BUFFER);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * num_vertices, &vertexs[0], GL_STATIC_DRAW);
 }
 
 void Mesh::LoadEBO(const aiMesh* mesh)
@@ -86,6 +80,7 @@ void Mesh::LoadEBO(const aiMesh* mesh)
 
 void Mesh::CreateVAO()
 {
+	static const unsigned stride = sizeof(Vertex);
 	// Generate vao, activate & bind buffers
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -94,9 +89,11 @@ void Mesh::CreateVAO()
 
 	// Define layout, index, size, type, normalized, stride, pointer
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); // Positions
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0); // Positions
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(float) * 3 * num_vertices)); // Texture coords
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(float) * (3))); // Normals
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(float) * (3 + 3))); // Texture coords
 }
 
 void Mesh::GenerateAABB(const aiMesh* mesh)
