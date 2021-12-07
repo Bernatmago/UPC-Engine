@@ -15,12 +15,18 @@ ModuleProgram::~ModuleProgram()
 bool ModuleProgram::Init()
 {
 	static const bool transpose = GL_TRUE;
-	vertex_shader_id = CompileShader(GL_VERTEX_SHADER, LoadShaderSource("vertex.glsl"));
-	if (vertex_shader_id > 0)	
-		fragment_shader_id = CompileShader(GL_FRAGMENT_SHADER, LoadShaderSource("fragment.glsl"));
+	const char* vertex_source = LoadShaderSource("vertex.glsl");
+	const char* fragment_source = LoadShaderSource("fragment.glsl");
+
+	vertex_shader_id = CompileShader(GL_VERTEX_SHADER, vertex_source);	
+	if (vertex_shader_id > 0)		
+		fragment_shader_id = CompileShader(GL_FRAGMENT_SHADER, fragment_source);		
 	if (fragment_shader_id > 0)
 		program_id = CreateProgram(vertex_shader_id, fragment_shader_id);	
 	
+	delete vertex_source;
+	delete fragment_source;
+
 	if (vertex_shader_id == 0 || fragment_shader_id == 0 || program_id == 0)
 		return false;
 	

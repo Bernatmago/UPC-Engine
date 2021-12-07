@@ -25,7 +25,7 @@ class ModuleRender : public Module
 {
 public:
 	ModuleRender();
-	~ModuleRender();
+	~ModuleRender() override;
 
 	bool Init() override;
 	update_status PreUpdate(const float delta) override;

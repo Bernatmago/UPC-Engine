@@ -6,8 +6,6 @@
 #include "ModuleCamera.h"
 
 #include "glew.h"
-#include "assimp/cimport.h"
-#include "assimp/postprocess.h"
 
 Mesh::Mesh()
 {
@@ -50,6 +48,7 @@ void Mesh::LoadVBO(const aiMesh* mesh)
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * num_vertices, &vertexs[0], GL_STATIC_DRAW);
+	vertexs.clear();
 }
 
 void Mesh::LoadEBO(const aiMesh* mesh)

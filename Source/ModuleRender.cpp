@@ -15,8 +15,6 @@
 
 ModuleRender::ModuleRender()
 {
-	fps_log = std::vector<float>(n_bins);
-	ms_log = std::vector<float>(n_bins);
 }
 
 ModuleRender::~ModuleRender()
@@ -36,6 +34,9 @@ bool ModuleRender::Init()
 	EnableGLDebug();
 	
 	CreateModel("BakerHouse.fbx");
+
+	fps_log = std::vector<float>(n_bins);
+	ms_log = std::vector<float>(n_bins);
 
 	return true;
 }
@@ -231,7 +232,6 @@ void ModuleRender::RetrieveGpuInfo()
 bool ModuleRender::CleanUp()
 {
 	LOG("Destroying renderer");	
-	model->CleanUp();
 	delete model;
 	SDL_GL_DeleteContext(context);
 

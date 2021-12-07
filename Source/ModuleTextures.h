@@ -19,7 +19,7 @@ class ModuleTextures :
 {
 public:
 	ModuleTextures();
-	~ModuleTextures();
+	~ModuleTextures() override;
 
 	bool Init() override;
 	bool CleanUp() override;

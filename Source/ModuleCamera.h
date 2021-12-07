@@ -9,7 +9,7 @@ class ModuleCamera : public Module
 {
 public:
 	ModuleCamera();
-	~ModuleCamera();
+	~ModuleCamera() override;
 
 	bool Init() override;
 	update_status Update(const float delta) override;

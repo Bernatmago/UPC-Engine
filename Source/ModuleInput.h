@@ -11,7 +11,7 @@ class ModuleInput : public Module
 public:
 	
 	ModuleInput();
-	~ModuleInput();
+	~ModuleInput() override;
 
 	bool Init() override;
 	update_status PreUpdate(const float delta) override;

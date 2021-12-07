@@ -29,7 +29,7 @@ class ModuleGui : public Module
 {
 public:
 	ModuleGui();
-	~ModuleGui();
+	~ModuleGui() override;
 
 	bool Init() override;
 	update_status PreUpdate(const float delta) override;

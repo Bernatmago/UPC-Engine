@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include "Application.h"
-#include "ModuleRender.h"
 #include "Globals.h"
 
 #include "SDL.h"
@@ -8,6 +7,14 @@
 #pragma comment( lib, "SDL2main.lib" )
 
 #include "Console.h"
+
+// Memory leak stuff
+
+#define DEBUG_NEW new( _NORMAL_BLOCK , __FILE__ , __LINE__ )
+#define new DEBUG_NEW
+#define _CRTDBG_MAP_ALLOC
+#include <cstdlib>
+#include <crtdbg.h>
 
 enum main_states
 {
@@ -18,11 +25,17 @@ enum main_states
 	MAIN_EXIT
 };
 
+void DumpLeaks(void)
+{
+	_CrtDumpMemoryLeaks(); // Show leaks with file and line where allocation was made
+}
+
 Application* App = NULL;
 Console* Logger = NULL;
 
 int main(int argc, char ** argv)
 {
+	atexit(DumpLeaks);
 	Logger = new Console();
 
 	int main_return = EXIT_FAILURE;
@@ -68,7 +81,7 @@ int main(int argc, char ** argv)
 			if (update_return == UPDATE_STOP)
 				state = MAIN_FINISH;
 		}
-			break;
+		break;
 
 		case MAIN_FINISH:
 

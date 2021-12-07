@@ -16,6 +16,7 @@ Model::Model()
 
 Model::~Model()
 {
+	CleanUp();
 }
 
 void Model::Draw()
@@ -64,6 +65,7 @@ void Model::Load(const std::string& model_path)
 	{
 		LOG("Error loading file %s: %s", info.file_name.c_str(), aiGetErrorString());
 	}
+	importer.FreeScene();
 }
 
 bool Model::LoadTextures(const aiScene* scene)

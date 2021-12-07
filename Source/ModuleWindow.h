@@ -11,7 +11,7 @@ class ModuleWindow : public Module
 public:
 
 	ModuleWindow();
-	~ModuleWindow();
+	~ModuleWindow() override;
 
 	bool Init() override;
 	bool CleanUp() override;

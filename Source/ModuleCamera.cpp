@@ -9,7 +9,6 @@
 #include "Model.h"
 
 #include "glew.h"
-#include "assimp/scene.h"
 #include "Math/MathConstants.h"
 
 #include <math.h>
