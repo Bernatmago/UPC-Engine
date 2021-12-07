@@ -2,6 +2,7 @@
 
 #include "glew.h"
 #include "MathGeoLib.h"
+#include "imgui.h"
 
 ModuleProgram::ModuleProgram()
 {
@@ -22,6 +23,20 @@ bool ModuleProgram::Init()
 	
 	if (vertex_shader_id == 0 || fragment_shader_id == 0 || program_id == 0)
 		return false;
+	
+	light.position = float3(5.0f, 5.0f, 5.0f);
+	light.direction = float3(5.0f, 5.0f, 5.0f);
+	light.color = float3(1.0f, 1.0f, 1.0f);
+	light.ambient_strength = 0.15f;
+	light.directional = false;
+
+	Activate();
+	BindUniformBool("is_directional", light.directional);
+	BindUniformFloat("ambient_strength", &light.ambient_strength);
+	BindUniformFloat3("light_color", (float*)&light.color[0]);
+	BindUniformFloat3("ligh_direction", (float*)&light.direction[0]);
+	BindUniformFloat3("light_position", (float*)&light.position[0]);
+	Deactivate();
 
 	return true;
 }
@@ -37,9 +52,33 @@ void ModuleProgram::Activate()
 	glUseProgram(program_id);
 }
 
+void ModuleProgram::Deactivate()
+{
+	glUseProgram(0);
+}
+
 void ModuleProgram::BindUniformFloat4x4(const char* name, const float* data, bool transpose)
 {
 	glUniformMatrix4fv(glGetUniformLocation(program_id, name), 1, transpose, data);
+}
+
+void ModuleProgram::BindUniformFloat3(const char* name, const float* data)
+{
+	glUniform3fv(glGetUniformLocation(program_id, name), 1, data);
+}
+
+void ModuleProgram::BindUniformFloat(const char* name, const float* data)
+{
+	glUniform1fv(glGetUniformLocation(program_id, name), 1, data);
+}
+
+void ModuleProgram::BindUniformBool(const char* name, bool value)
+{
+	glUniform1i(glGetUniformLocation(program_id, name), value);
+}
+
+void ModuleProgram::OptionsMenu()
+{
 }
 
 char* ModuleProgram::LoadShaderSource(const char* shader_file_name)

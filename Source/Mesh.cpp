@@ -112,9 +112,10 @@ void Mesh::Draw(float4x4& model, const std::vector<Texture>& model_textures)
 	
 	App->textures->Bind(model_textures[texture_index].id);
 	glBindVertexArray(vao);
-	glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_INT, nullptr);
-	
+	glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_INT, nullptr);	
 	App->textures->Unbind();
+
+	App->program->Deactivate();
 }
 
 void Mesh::CleanUp()

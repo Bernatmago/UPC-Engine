@@ -7,12 +7,14 @@ in vec2 tex_coord;
 
 uniform sampler2D texture;
 
+uniform vec3 light_position;
+uniform vec3 ligh_direction;
+uniform vec3 light_color;
+uniform float ambient_strength;
+uniform bool is_directional;
+
 void main()
 {
-    float ambient_strength = 0.25;
-    vec3 light_color = vec3(1.0, 1.0, 1.0);
-    vec3 light_position =  vec3(5.0, 5.0, 10.0);
-
     vec3 norm = normalize(normal);
     vec3 light_direction = normalize(light_position - frag_world_position);
     float diffuse_strength = max(dot(norm, light_direction), 0.0);
