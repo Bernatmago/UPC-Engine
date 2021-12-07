@@ -15,8 +15,13 @@ bool ModuleProgram::Init()
 {
 	static const bool transpose = GL_TRUE;
 	vertex_shader_id = CompileShader(GL_VERTEX_SHADER, LoadShaderSource("vertex.glsl"));
-	fragment_shader_id = CompileShader(GL_FRAGMENT_SHADER, LoadShaderSource("fragment.glsl"));
-	program_id = CreateProgram(vertex_shader_id, fragment_shader_id);	
+	if (vertex_shader_id > 0)	
+		fragment_shader_id = CompileShader(GL_FRAGMENT_SHADER, LoadShaderSource("fragment.glsl"));
+	if (fragment_shader_id > 0)
+		program_id = CreateProgram(vertex_shader_id, fragment_shader_id);	
+	
+	if (vertex_shader_id == 0 || fragment_shader_id == 0 || program_id == 0)
+		return false;
 
 	return true;
 }
@@ -74,6 +79,7 @@ unsigned int ModuleProgram::CompileShader(unsigned type, const char* source)
 			LOG("Log Info: %s", info);
 			free(info);
 		}
+		return 0;
 	}
 	return shader_id;
 }
@@ -98,6 +104,7 @@ unsigned ModuleProgram::CreateProgram(unsigned vtx_shader, unsigned frg_shader)
 			LOG("Program Log Info: %s", info);
 			free(info);
 		}
+		return 0;
 	}
 	glDeleteShader(vtx_shader);
 	glDeleteShader(frg_shader);
