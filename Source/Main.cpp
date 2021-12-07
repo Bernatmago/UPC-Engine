@@ -6,15 +6,14 @@
 #pragma comment( lib, "SDL2.lib" )
 #pragma comment( lib, "SDL2main.lib" )
 
-#include "Console.h"
-
 // Memory leak stuff
-
+#ifdef _DEBUG
 #define DEBUG_NEW new( _NORMAL_BLOCK , __FILE__ , __LINE__ )
 #define new DEBUG_NEW
 #define _CRTDBG_MAP_ALLOC
 #include <cstdlib>
 #include <crtdbg.h>
+#endif
 
 enum main_states
 {
@@ -102,6 +101,6 @@ int main(int argc, char ** argv)
 	}
 	delete App;
 	LOG("Bye :)\n");
-	//delete console;
+	delete Logger;
 	return main_return;
 }

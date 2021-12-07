@@ -39,8 +39,6 @@ public:
 	ModuleDebugDraw* debug = nullptr;
 	ModuleTextures* textures = nullptr;
 
-	Console* console = nullptr;
-
 private:
 	std::list<Module*> modules;
 	PerformanceTimer timer;
