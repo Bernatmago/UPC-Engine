@@ -1,5 +1,6 @@
 #include "Timer.h"
 
+#include "SDL.h"
 
 void Timer::Start()
 {
@@ -10,7 +11,7 @@ void Timer::Start()
 double Timer::Read()
 {
 	if (running) {
-		uint32_t now = SDL_GetTicks();
+		unsigned int now = SDL_GetTicks();
 		current_time = (double)(now - start_time); // ms
 	}
 	return current_time;
@@ -33,7 +34,7 @@ double PerformanceTimer::Read()
 {
 	static const double frequency = (double)SDL_GetPerformanceFrequency();
 	if (running) {
-		uint64_t now = SDL_GetPerformanceCounter();
+		unsigned long long now = SDL_GetPerformanceCounter();
 		current_time = (double)((now - start_time) * 1000.0 / frequency);
 	}
 	return current_time;

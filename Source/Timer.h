@@ -1,5 +1,4 @@
 #pragma once
-#include "SDL.h"
 
 class Timer
 {
@@ -9,7 +8,7 @@ public:
 	double Stop();
 private:
 	bool running = false;
-	uint32_t start_time;
+	unsigned int start_time;
 	double current_time;
 };
 
@@ -22,7 +21,7 @@ public:
 	double Stop();
 private:
 	bool running = false;
-	uint64_t start_time;
+	unsigned long long start_time;
 	double current_time;
 };
 
