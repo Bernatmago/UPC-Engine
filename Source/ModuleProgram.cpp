@@ -28,7 +28,7 @@ bool ModuleProgram::Init()
 	light.direction = float3(5.0f, 5.0f, 5.0f);
 	light.color = float3(1.0f, 1.0f, 1.0f);
 	light.ambient_strength = 0.15f;
-	light.directional = false;
+	light.directional = true;
 
 	Activate();
 	BindUniformBool("is_directional", light.directional);
@@ -79,6 +79,27 @@ void ModuleProgram::BindUniformBool(const char* name, bool value)
 
 void ModuleProgram::OptionsMenu()
 {
+	Activate();
+	ImGui::SetNextItemWidth(50.0f);
+	if(ImGui::SliderFloat("Ambient Value", &light.ambient_strength, 0.0f, 1.0f))
+		BindUniformFloat("ambient_strength", &light.ambient_strength);
+
+	if (ImGui::Checkbox("Directional", &light.directional))
+		BindUniformBool("is_directional", light.directional);
+	if (light.directional) {
+		if (ImGui::SliderFloat3("Direction", &light.direction[0], -5.0f, 5.0f))
+			BindUniformFloat3("ligh_direction", (float*)&light.direction[0]);
+	}
+	else {
+		if (ImGui::SliderFloat3("Position", &light.position[0], -250.0f, 250.0f))
+			BindUniformFloat3("light_position", (float*)&light.position[0]);
+	}
+
+	ImGuiColorEditFlags flag = ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoLabel;
+	if(ImGui::ColorPicker3("Light Color", &light.color[0], flag))
+		BindUniformFloat3("light_color", (float*)&light.color[0]);
+
+	Deactivate();
 }
 
 char* ModuleProgram::LoadShaderSource(const char* shader_file_name)

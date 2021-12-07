@@ -146,6 +146,7 @@ void ModuleGui::Sidebar(const float delta) {
 	if (ImGui::CollapsingHeader("Camera")) App->camera->OptionsMenu();
 	if (ImGui::CollapsingHeader("Render")) App->renderer->OptionsMenu();
 	if (ImGui::CollapsingHeader("Model")) App->renderer->GetModel()->OptionsMenu();
+	if (ImGui::CollapsingHeader("Light")) App->program->OptionsMenu();
 	if (ImGui::CollapsingHeader("Textures")) App->textures->OptionsMenu();
 	if (ImGui::CollapsingHeader("Performance")) App->renderer->PerformanceMenu(delta);
 	if (ImGui::CollapsingHeader("About")) About();

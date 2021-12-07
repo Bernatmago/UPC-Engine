@@ -15,9 +15,14 @@ uniform bool is_directional;
 
 void main()
 {
+    float diffuse_strength = 0.0;
     vec3 norm = normalize(normal);
-    vec3 light_direction = normalize(light_position - frag_world_position);
-    float diffuse_strength = max(dot(norm, light_direction), 0.0);
+    
+    if (!is_directional) {
+        diffuse_strength = max(dot(norm, normalize(light_position - frag_world_position)), 0.0);
+    } else {
+        diffuse_strength = max(dot(norm, normalize(ligh_direction)), 0.0);
+    }
 
     vec3 texture_color = texture2D(texture, tex_coord).xyz;
     texture_color = (ambient_strength + diffuse_strength) * light_color * texture_color;
