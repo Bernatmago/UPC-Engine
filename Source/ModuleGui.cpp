@@ -91,6 +91,9 @@ update_status ModuleGui::Update(const float delta)
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+	if (exit_app)
+		return UPDATE_STOP;
+
 	return UPDATE_CONTINUE;
 }
 
@@ -123,6 +126,11 @@ void ModuleGui::Menu() {
 			ImGui::MenuItem("Sidebar", NULL, &show_sidebar);
 			ImGui::MenuItem("Model Properties", NULL, &show_model_properties);
 			ImGui::MenuItem("Console", NULL, &show_console);
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Options")) {
+			if (ImGui::MenuItem("Exit"))
+				exit_app = true;
 			ImGui::EndMenu();
 		}
 		ImGui::EndMainMenuBar();

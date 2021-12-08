@@ -53,6 +53,7 @@ private:
 	bool show_demo = false;
 	bool show_sidebar = true;
 	bool show_model_properties = true;
+	bool exit_app = false;
 	AboutData about;
 };
 
